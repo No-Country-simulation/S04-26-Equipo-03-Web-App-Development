@@ -1,11 +1,10 @@
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { GoogleIcon, LinkedInIcon } from './SocialIcons';
-import { SocialButton } from './SocialButton';
 import { AuthSeparator } from './AuthSeparator';
 import { AuthInputField } from './AuthInputField';
 import { AuthActionRow } from './AuthActionRow';
+import { SocialAuth } from './SocialAuth';
+import { AuthCardFooter } from './AuthCardFooter';
+import { AuthSubmitButton } from './AuthSubmitButton';
 
 export const LoginForm = () => {
   return (
@@ -19,9 +18,8 @@ export const LoginForm = () => {
         </p>
       </div>
 
-      <div className="flex flex-col gap-[7.99px] pt-[8.9px] w-full mb-[11.1px]">
-        <SocialButton icon={<GoogleIcon />} label="Continuar con Google" />
-        <SocialButton icon={<LinkedInIcon />} label="Continuar con LinkedIn" />
+      <div className="w-full mb-[11.1px]">
+        <SocialAuth />
       </div>
 
       <div className="w-full mb-[11.1px]">
@@ -44,23 +42,13 @@ export const LoginForm = () => {
         </div>
       </div>
 
-      <div className="w-full mb-[11.1px]">
-        <Button className="bg-[#4f46e5] text-white text-[14px] font-medium font-['Inter'] h-[41.99px] pt-[14.49px] pb-[15.23px] px-[23.25px] rounded-[8px] w-full hover:bg-[#4338ca] transition-colors mt-[4px] shadow-none">
-          Iniciar sesión
-        </Button>
-      </div>
+      <AuthSubmitButton label="Iniciar sesión" />
 
-      <div className="flex justify-center pt-[7.515px] w-full">
-        <p className="text-[13px] font-normal font-['Inter'] leading-[19.5px] text-[#4b5563]">
-          ¿No tenés cuenta?{' '}
-          <Link
-            href="/signup-candidate"
-            className="text-[#4f46e5] font-medium hover:underline"
-          >
-            Registrate
-          </Link>
-        </p>
-      </div>
+      <AuthCardFooter 
+        text="¿No tenés cuenta?" 
+        linkText="Registrate" 
+        href="/signup-candidate" 
+      />
     </Card>
   );
 };

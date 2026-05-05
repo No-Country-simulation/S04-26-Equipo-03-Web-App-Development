@@ -1,12 +1,11 @@
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import Link from 'next/link';
 import { useState } from 'react';
-import { GoogleIcon, LinkedInIcon } from './SocialIcons';
-import { SocialButton } from './SocialButton';
 import { AuthSeparator } from './AuthSeparator';
 import { AuthInputField } from './AuthInputField';
+import { SocialAuth } from './SocialAuth';
+import { AuthCardFooter } from './AuthCardFooter';
+import { AuthSubmitButton } from './AuthSubmitButton';
 
 export const RegisterForm = () => {
   const [rememberMe, setRememberMe] = useState(false);
@@ -22,9 +21,8 @@ export const RegisterForm = () => {
         </p>
       </div>
 
-      <div className="flex flex-col gap-[7.99px] pt-[8.9px] w-full mb-[11.1px]">
-        <SocialButton icon={<GoogleIcon />} label="Continuar con Google" />
-        <SocialButton icon={<LinkedInIcon />} label="Continuar con LinkedIn" />
+      <div className="w-full mb-[11.1px]">
+        <SocialAuth />
       </div>
 
       <div className="w-full mb-[11.1px]">
@@ -71,23 +69,13 @@ export const RegisterForm = () => {
         </label>
       </div>
 
-      <div className="w-full mb-[11.1px]">
-        <Button className="bg-[#4f46e5] text-white text-[14px] font-medium font-['Inter'] h-[41.99px] pt-[14.49px] pb-[15.23px] px-[23.25px] rounded-[8px] w-full hover:bg-[#4338ca] transition-colors mt-[4px] shadow-none">
-          Crear cuenta
-        </Button>
-      </div>
+      <AuthSubmitButton label="Crear cuenta" />
 
-      <div className="flex justify-center pt-[7.515px] w-full">
-        <p className="text-[13px] font-normal font-['Inter'] leading-[19.5px] text-[#4b5563]">
-          ¿Ya tenés cuenta?{' '}
-          <Link
-            href="/login-candidate"
-            className="text-[#4f46e5] font-medium hover:underline"
-          >
-            Iniciá sesión
-          </Link>
-        </p>
-      </div>
+      <AuthCardFooter 
+        text="¿Ya tenés cuenta?" 
+        linkText="Iniciá sesión" 
+        href="/login-candidate" 
+      />
     </Card>
   );
 };
