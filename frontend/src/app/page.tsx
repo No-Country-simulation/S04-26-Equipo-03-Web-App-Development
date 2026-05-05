@@ -1,66 +1,40 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden  px-6 py-20">
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,_transparent_0%,_var(--color-accent)/12_40%,_transparent_80%)]" />
+
+      <section className="w-full max-w-3xl rounded-2xl border border-border/60 bg-card/80 p-8 shadow-xl backdrop-blur md:p-12">
+        <p className="mb-3 inline-flex rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+          Tailwind v4 + shadcn/ui listos
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
+          Base de UI integrada en frontend
+        </h1>
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
+          Esta pantalla es una demo funcional del setup: estilos de Tailwind,
+          tokens del tema y componente `Button` de shadcn ya operativos.
+        </p>
+
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild size="lg">
+            <Link href="https://ui.shadcn.com/docs" target="_blank">
+              Ver docs de shadcn
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+
+          <Button asChild variant="outline" size="lg">
+            <Link href="https://tailwindcss.com/docs" target="_blank">
+              Ver docs de Tailwind
+            </Link>
+          </Button>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
