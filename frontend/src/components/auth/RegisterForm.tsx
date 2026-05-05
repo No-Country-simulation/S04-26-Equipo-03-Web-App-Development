@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState } from 'react';
+import Link from 'next/link';
 import { AuthSeparator } from './AuthSeparator';
 import { AuthInputField } from './AuthInputField';
 import { SocialAuth } from './SocialAuth';
@@ -69,7 +70,9 @@ export const RegisterForm = () => {
         </label>
       </div>
 
-      <AuthSubmitButton label="Crear cuenta" />
+      <Link href="/onboarding/candidate" className="w-full">
+        <AuthSubmitButton label="Crear cuenta" />
+      </Link>
 
       <AuthCardFooter 
         text="¿Ya tenés cuenta?" 
