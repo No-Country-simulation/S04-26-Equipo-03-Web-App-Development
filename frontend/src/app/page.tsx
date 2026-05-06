@@ -5,8 +5,10 @@ import { Check, Heart, Star } from "lucide-react"
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+      {/* Hero Viewport Container */}
+      <div className="min-h-[100dvh] flex flex-col">
+        {/* Header */}
+        <header className="flex-shrink-0 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-[#1a1a2e] rounded-md flex items-center justify-center">
             <span className="text-white text-xs font-bold">T</span>
@@ -27,8 +29,8 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 py-16 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
+      <section className="flex-1 px-6 max-w-7xl mx-auto w-full flex items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-start py-16 w-full">
           <div className="space-y-6">
             <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">
               PARA PROFESIONALES 35–54
@@ -141,6 +143,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Cómo funciona */}
       <section className="bg-[#f8f8f8] px-6 py-16">
