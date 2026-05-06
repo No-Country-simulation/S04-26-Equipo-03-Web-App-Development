@@ -6,6 +6,23 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 <!-- END:nextjs-agent-rules -->
 
+## Purpose
+
+**TalentBridge** — MVP platform that bridges the gap between +45 experienced professionals and companies seeking validated senior talent. NoCountry challenge, team simulation with NGO partnership for professional reinsertion.
+
+**Core problem**: Experienced professionals need to update skills and repackage their value. Companies lack access to validated senior talent. Traditional training doesn't guarantee employability.
+
+**Target audience**: Professionals 35-54, mostly Argentina (CABA/BA), university-educated, leadership/technical roles. ~50% employed, ~50% job-seeking.
+
+**MVP features**:
+1. **Learning Experience** — Initial diagnostic, personalized upskilling/reskilling paths (socioemotional, cognitive, digital), progress tracking
+2. **Dynamic Professional Profile** — Skills-based "living CV" built from experience, developed skills, and platform progress
+3. **Talent Marketplace** — Companies browse, filter, preselect candidates, and give structured feedback
+
+**User flow**: Diagnostic → Learning path → Training modules → Dynamic profile → Marketplace → Company preselection → Feedback/opportunities
+
+**Key impact**: Move from traditional training to evidence-based employability.
+
 ## Project
 
 Next.js 16.2.4 app with React 19, TypeScript, Tailwind CSS v4, and shadcn/ui (new-york preset, Lucide icons). Package manager: **pnpm**.
