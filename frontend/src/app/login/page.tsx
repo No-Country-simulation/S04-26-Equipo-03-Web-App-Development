@@ -5,27 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import SiteHeader from '@/components/layout/SiteHeader';
 
 export default function LoginPage() {
   const [isEmpresa, setIsEmpresa] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#1a1a2e] rounded-md flex items-center justify-center">
-            <span className="text-white text-xs font-bold">T</span>
-          </div>
-          <span className="font-semibold text-[#1a1a2e]">TalentBridge</span>
-        </Link>
-        <Link href="/" className="text-sm text-gray-500 hover:text-[#1a1a2e]">
-          Volver al inicio
-        </Link>
-      </header>
+      <SiteHeader
+        rightContent={
+          <Link href="/" className="text-sm text-gray-500 hover:text-[#1a1a2e]">
+            Volver al inicio
+          </Link>
+        }
+      />
 
-      {/* Login Card */}
-      <div className="flex items-center justify-center px-6 py-16">
+      <div className="flex items-center justify-center px-4 sm:px-6 py-16">
         <Card className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
           <h1 className="text-2xl font-bold text-[#1a1a2e] mb-2">
             Iniciar sesión
@@ -36,7 +31,6 @@ export default function LoginPage() {
               : 'Recuperá tu progreso, tu ruta y tus matches.'}
           </p>
 
-          {/* Solo para postulantes */}
           {!isEmpresa && (
             <>
               <div className="space-y-3 mb-6">

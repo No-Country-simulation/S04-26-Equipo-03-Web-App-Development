@@ -4,32 +4,24 @@ import CtaSection from '@/components/landing/CtaSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import Footer from '@/components/landing/Footer';
 import Header from '@/components/landing/Header';
+import HeroSection from '@/components/landing/HeroSection';
 import HowItWorks from '@/components/landing/HowItWorks';
 import StatsSection from '@/components/landing/StatsSection';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Viewport Container */}
-      {<Header />}
+      <div className="min-h-dvh flex flex-col">
+        <Header />
+        <HeroSection />
+      </div>
 
-      {/* Cómo funciona */}
-      {<HowItWorks />}
-
-      {/* Stats */}
-      {<StatsSection />}
-
-      {/* Qué nos hace distintos */}
-      {<FeaturesSection />}
-
-      {/* Conocé a Cruty */}
-      {<CrutySection />}
-
-      {/* CTA Section */}
-      {<CtaSection />}
-
-      {/* Footer */}
-      {<Footer />}
+      <HowItWorks />
+      <StatsSection />
+      <FeaturesSection />
+      <CrutySection />
+      <CtaSection />
+      <Footer />
     </div>
   );
 }
