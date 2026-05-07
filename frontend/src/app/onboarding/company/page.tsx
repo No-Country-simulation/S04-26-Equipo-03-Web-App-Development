@@ -2,8 +2,23 @@
 
 import SiteHeader from '@/components/layout/SiteHeader';
 import { CompanyOnboarding } from '@/components/onboarding/company/CompanyOnboarding';
+import { ProgressBar } from '@/components/onboarding/company/ProgressBar';
+import { useState } from 'react';
+
+const TOTAL_STEPS = 2;
 
 export default function CompanyOnboardingPage() {
+  const [step, setStep] = useState(1);
+
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
+
+  const updateFormData = (data: Record<string, unknown>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
+
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
   return (
     <div className="min-h-dvh bg-white">
       <div className="border-b-[1.25px] border-b-[#E5E7EB]">
@@ -13,9 +28,18 @@ export default function CompanyOnboardingPage() {
               Podés completarlo después
             </span>
           }
+          progressBar={
+            <ProgressBar currentStep={step} totalSteps={TOTAL_STEPS} />
+          }
         />
       </div>
-      <CompanyOnboarding />
+      <CompanyOnboarding
+        step={step}
+        formData={formData}
+        onUpdate={updateFormData}
+        onNext={nextStep}
+        onBack={prevStep}
+      />
     </div>
   );
 }

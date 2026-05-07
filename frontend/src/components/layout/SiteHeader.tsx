@@ -1,7 +1,7 @@
 'use client';
 import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import Link from 'next/link';
 
 interface NavItem {
@@ -15,6 +15,7 @@ interface SiteHeaderProps {
   rightContent?: React.ReactNode;
   showMobileMenu?: boolean;
   showLogo?: boolean;
+  progressBar?: ReactNode;
 }
 
 function SiteLogo({
@@ -39,6 +40,7 @@ export default function SiteHeader({
   rightContent,
   showMobileMenu = false,
   showLogo = true,
+  progressBar,
 }: SiteHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -78,7 +80,11 @@ export default function SiteHeader({
             className="md:hidden p-2 text-[#1a1a2e]"
             aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
           >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {menuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         )}
       </div>
@@ -107,6 +113,9 @@ export default function SiteHeader({
           {rightContent && <div className="pt-2">{rightContent}</div>}
         </nav>
       )}
+
+      {/* {progressBar && <div className="mt-4">{progressBar}</div>} */}
+      {progressBar && <div>{progressBar}</div>}
     </header>
   );
 }

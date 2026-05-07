@@ -1,13 +1,13 @@
 interface ProgressBarProps {
-  currentStep: number
-  totalSteps: number
+  currentStep: number;
+  totalSteps: number;
 }
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
-  const progress = (currentStep / totalSteps) * 100
+  const progress = (currentStep / totalSteps) * 100;
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-4 mt-4">
       <span className="text-sm text-[#1a1a2e] shrink-0">
         Paso {currentStep} de {totalSteps}
       </span>
@@ -21,5 +21,5 @@ export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
         {Math.round(progress)}%
       </span>
     </div>
-  )
+  );
 }
