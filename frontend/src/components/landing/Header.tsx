@@ -2,6 +2,7 @@ import { Menu, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import HeroSection from './HeroSection';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,12 +26,12 @@ export default function Header() {
           >
             Soy empresa
           </a>
-          <a
-            href="#"
+          <Link
+            href="/login"
             className="text-sm text-[#1a1a2e] hover:text-[#1a1a2e]/80"
           >
             Iniciar sesión
-          </a>
+          </Link>
           <Button className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-4 py-2 h-auto rounded-md">
             Crear cuenta
           </Button>
