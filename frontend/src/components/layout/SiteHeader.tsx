@@ -43,46 +43,49 @@ export default function SiteHeader({
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 max-w-7xl mx-auto w-full">
-      {showLogo ? <SiteLogo /> : rightContent}
+    <header className="shrink-0 px-4 sm:px-6 py-4 max-w-7xl mx-auto w-full">
+      {/* Top row: Logo + Desktop Nav + Mobile Toggle */}
+      <div className="flex items-center justify-between">
+        {showLogo ? <SiteLogo /> : rightContent}
 
-      {/* Desktop Nav */}
-      <nav className="hidden md:flex items-center gap-6">
-        {navItems.map((item) =>
-          item.variant === 'button' ? (
-            <Button
-              key={item.label}
-              className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-4 py-2 h-auto rounded-md"
-            >
-              {item.label}
-            </Button>
-          ) : (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="text-sm text-[#1a1a2e] hover:text-[#1a1a2e]/80"
-            >
-              {item.label}
-            </Link>
-          )
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-6">
+          {navItems.map((item) =>
+            item.variant === 'button' ? (
+              <Button
+                key={item.label}
+                className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-4 py-2 h-auto rounded-md"
+              >
+                {item.label}
+              </Button>
+            ) : (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="text-sm text-[#1a1a2e] hover:text-[#1a1a2e]/80"
+              >
+                {item.label}
+              </Link>
+            )
+          )}
+          {rightContent}
+        </nav>
+
+        {/* Mobile Menu Toggle */}
+        {showMobileMenu && (
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 text-[#1a1a2e]"
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         )}
-        {rightContent}
-      </nav>
-
-      {/* Mobile Menu Toggle */}
-      {showMobileMenu && (
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden p-2 text-[#1a1a2e]"
-          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-        >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      )}
+      </div>
 
       {/* Mobile Nav */}
       {menuOpen && showMobileMenu && (
-        <nav className="md:hidden px-4 sm:px-6 py-4 space-y-3">
+        <nav className="mt-4 md:hidden space-y-3">
           {navItems.map((item) =>
             item.variant === 'button' ? (
               <Button
