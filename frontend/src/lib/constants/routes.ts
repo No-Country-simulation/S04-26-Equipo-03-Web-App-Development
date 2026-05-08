@@ -4,7 +4,9 @@ export const PUBLIC_ROUTES = [
   '/login-company',
   '/talent/signup',
   '/signup-company',
-  '/forgot-password'
+  '/forgot-password',
+  '/onboarding/company', // TODO: move to private routes when implemented
+  '/dashboard/company' // TODO: move to private routes when implemented
 ];
 
 export const PRIVATE_ROUTES_TALENT = [
@@ -16,8 +18,8 @@ export const PRIVATE_ROUTES_TALENT = [
 ];
 
 export const PRIVATE_ROUTES_COMPANY = [
-  '/onboarding/company',
-  '/dashboard/company'
+  // '/onboarding/company', // TODO: move to private routes when implemented
+  // '/dashboard/company'  // TODO: move to private routes when implemented
 ];
 
 export const PRIVATE_ROUTES_ADMIN = ['*'];
