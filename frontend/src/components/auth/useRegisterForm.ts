@@ -44,15 +44,13 @@ export const useRegisterTalent = () => {
 
     try {
       const payload: RegisterRequest = {
-        first_name: " ", // TODO: remove this
-        last_name: " ", // TODO: remove this
         email: formData.email,
         password: formData.password,
       };
 
       await authApi.registerTalent(payload);
       
-      router.push('/onboarding/talent');
+      router.push('/talent/onboarding');
     } catch (err: any) {
       console.error('Registration error:', err);
       setError(

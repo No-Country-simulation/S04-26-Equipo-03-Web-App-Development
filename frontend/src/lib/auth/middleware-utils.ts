@@ -25,7 +25,7 @@ export function getRouteType(pathname: string) {
 }
 
 export function handleUnauthenticated(request: NextRequest, isCompanyRoute: boolean) {
-  const loginPath = isCompanyRoute ? '/login-company' : '/login-talent';
+  const loginPath = isCompanyRoute ? '/login-company' : '/talent/login';
   const loginUrl = new URL(loginPath, request.url);
   loginUrl.searchParams.set('from', request.nextUrl.pathname);
   return NextResponse.redirect(loginUrl);

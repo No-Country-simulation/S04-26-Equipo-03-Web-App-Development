@@ -1,14 +1,17 @@
 export const PUBLIC_ROUTES = [
   '/',
-  '/login-talent',
+  '/talent/login',
   '/login-company',
-  '/signup-talent',
+  '/talent/signup',
   '/signup-company',
   '/forgot-password'
 ];
 
 export const PRIVATE_ROUTES_TALENT = [
-  '/onboarding/talent',
+  '/talent/onboarding',
+  '/talent/self-evaluation',
+  '/talent/notifications',
+  '/talent/profile',
   '/dashboard/talent'
 ];
 

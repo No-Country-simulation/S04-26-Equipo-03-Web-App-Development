@@ -96,7 +96,7 @@ export const RegisterForm = () => {
       <AuthCardFooter 
         text="¿Ya tenés cuenta?" 
         linkText="Iniciá sesión" 
-        href="/login-talent" 
+        href="/talent/login" 
       />
     </Card>
   );

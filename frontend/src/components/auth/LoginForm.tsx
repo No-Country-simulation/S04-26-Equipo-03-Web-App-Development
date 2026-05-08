@@ -62,7 +62,7 @@ export const LoginForm = () => {
         <AuthCardFooter 
           text="¿No tenés cuenta?" 
           linkText="Registrate" 
-          href="/signup-talent" 
+          href="/talent/signup" 
         />
       </form>
     </Card>
