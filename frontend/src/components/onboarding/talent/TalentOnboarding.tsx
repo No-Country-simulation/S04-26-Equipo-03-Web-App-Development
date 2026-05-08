@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { OnboardingHeader } from './OnboardingHeader';
 import { OnboardingFooter } from './OnboardingFooter';
 import { Step1 } from './steps/Step1';
@@ -6,6 +7,7 @@ import { Step2 } from './steps/Step2';
 import { Step3 } from './steps/Step3';
 
 export function TalentOnboarding() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,9 +22,18 @@ export function TalentOnboarding() {
 
   const totalSteps = 3;
 
+  const handleFinish = () => {
+    console.log('Finished!', formData);
+    router.push('/talent/self-evaluation');
+  };
+
   const nextStep = () => {
     if (step < totalSteps) setStep(step + 1);
-    else console.log('Finished!', formData);
+    else handleFinish();
+  };
+
+  const skipToDiagnosis = () => {
+    handleFinish();
   };
 
   const prevStep = () => {
@@ -49,6 +60,7 @@ export function TalentOnboarding() {
         step={step} 
         onNext={nextStep} 
         onBack={prevStep} 
+        onSkip={skipToDiagnosis}
         isLastStep={step === totalSteps} 
       />
     </div>

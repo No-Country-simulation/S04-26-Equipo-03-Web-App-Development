@@ -4,10 +4,11 @@ interface OnboardingFooterProps {
   step: number;
   onNext: () => void;
   onBack: () => void;
+  onSkip?: () => void;
   isLastStep?: boolean;
 }
 
-export const OnboardingFooter = ({ step, onNext, onBack, isLastStep }: OnboardingFooterProps) => {
+export const OnboardingFooter = ({ step, onNext, onBack, onSkip, isLastStep }: OnboardingFooterProps) => {
   return (
     <footer className="w-full bg-white border-t-[1.25px] border-[#e5e7eb] mt-auto">
       <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-7xl mx-auto px-[16px] md:px-[31.99px] pt-[15.25px] pb-[14px] gap-4 md:gap-0">
@@ -25,7 +26,7 @@ export const OnboardingFooter = ({ step, onNext, onBack, isLastStep }: Onboardin
           {(step === 2 || step === 3) && (
             <Button
               variant="outline"
-              onClick={onNext}
+              onClick={onSkip}
               className="bg-white border-[#d1d5db] px-[17.25px] py-[11.25px] h-auto rounded-[8px] text-[13px] font-medium text-[#1f2937] shadow-none hover:bg-gray-50 transition-colors w-full sm:w-auto"
             >
               {step === 2 ? 'Saltear y empezar el diagnóstico' : 'Completar después'}
