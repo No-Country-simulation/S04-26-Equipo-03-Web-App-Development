@@ -5,7 +5,7 @@ import { Step1 } from './steps/Step1';
 import { Step2 } from './steps/Step2';
 import { Step3 } from './steps/Step3';
 
-export function CandidateOnboarding() {
+export function TalentOnboarding() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',

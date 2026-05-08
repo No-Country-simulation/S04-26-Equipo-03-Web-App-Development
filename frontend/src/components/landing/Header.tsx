@@ -6,8 +6,8 @@ export default function Header() {
       showMobileMenu
       navItems={[
         { label: 'Soy empresa', href: '/login-company' },
-        { label: 'Iniciar sesión', href: '/login-candidate' },
-        { label: 'Crear cuenta', href: '/signup-candidate', variant: 'button' },
+        { label: 'Iniciar sesión', href: '/login-talent' },
+        { label: 'Crear cuenta', href: '/signup-talent', variant: 'button' },
       ]}
     />
   );

@@ -70,14 +70,14 @@ export const RegisterForm = () => {
         </label>
       </div>
 
-      <Link href="/onboarding/candidate" className="w-full">
+      <Link href="/onboarding/talent" className="w-full">
         <AuthSubmitButton label="Crear cuenta" />
       </Link>
 
       <AuthCardFooter 
         text="¿Ya tenés cuenta?" 
         linkText="Iniciá sesión" 
-        href="/login-candidate" 
+        href="/login-talent" 
       />
     </Card>
   );
