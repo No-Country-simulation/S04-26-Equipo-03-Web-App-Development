@@ -5,8 +5,8 @@ export default function Header() {
     <SiteHeader
       showMobileMenu
       navItems={[
-        { label: 'Soy empresa', href: '#' },
-        { label: 'Iniciar sesión', href: '/login' },
+        { label: 'Soy empresa', href: '/login-company' },
+        { label: 'Iniciar sesión', href: '#' },
         { label: 'Crear cuenta', href: '#', variant: 'button' },
       ]}
     />
