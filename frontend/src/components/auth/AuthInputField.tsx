@@ -2,17 +2,21 @@ import { Input } from '@/components/ui/input';
 
 interface AuthInputFieldProps {
   label: string;
+  name?: string;
   type?: string;
   placeholder?: string;
   value?: string;
+  defaultValue?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const AuthInputField = ({
   label,
+  name,
   type = 'text',
   placeholder,
   value,
+  defaultValue,
   onChange,
 }: AuthInputFieldProps) => {
   return (
@@ -23,9 +27,11 @@ export const AuthInputField = ({
         </label>
       </div>
       <Input
+        name={name}
         type={type}
         placeholder={placeholder}
         value={value}
+        defaultValue={defaultValue}
         onChange={onChange}
         className="bg-white border-[#d1d5db] border-solid h-[41.99px] px-[13.25px] pt-[10.605px] pb-[11.25px] rounded-[8px] w-full text-[13px] leading-[19.5px] placeholder:text-[#6b7280] shadow-none"
       />
