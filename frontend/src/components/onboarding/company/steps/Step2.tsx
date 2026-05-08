@@ -32,7 +32,13 @@ const MOCK_STACKS = [
   'TypeScript',
 ];
 
-const EXPERIENCE_LEVELS = ['Trainee', 'Junior', 'Semi-Senior', 'Senior', 'Lead'];
+const EXPERIENCE_LEVELS = [
+  'Trainee',
+  'Junior',
+  'Semi-Senior',
+  'Senior',
+  'Lead',
+];
 
 interface Step2Props {
   data: Record<string, unknown>;
@@ -43,13 +49,13 @@ interface Step2Props {
 
 export function Step2({ data, onUpdate }: Step2Props) {
   const [selectedRoles, setSelectedRoles] = useState<string[]>(
-    (data.selectedRoles as string[]) || [],
+    (data.selectedRoles as string[]) || []
   );
   const [selectedStacks, setSelectedStacks] = useState<string[]>(
-    (data.selectedStacks as string[]) || [],
+    (data.selectedStacks as string[]) || []
   );
   const [selectedLevels, setSelectedLevels] = useState<string[]>(
-    (data.selectedLevels as string[]) || [],
+    (data.selectedLevels as string[]) || []
   );
   const [roleSearch, setRoleSearch] = useState('');
   const [stackSearch, setStackSearch] = useState('');
@@ -75,13 +81,13 @@ export function Step2({ data, onUpdate }: Step2Props) {
   const filteredRoles = MOCK_ROLES.filter(
     (role) =>
       role.toLowerCase().includes(roleSearch.toLowerCase()) &&
-      !selectedRoles.includes(role),
+      !selectedRoles.includes(role)
   );
 
   const filteredStacks = MOCK_STACKS.filter(
     (stack) =>
       stack.toLowerCase().includes(stackSearch.toLowerCase()) &&
-      !selectedStacks.includes(stack),
+      !selectedStacks.includes(stack)
   );
 
   const toggleRole = (role: string) => {
@@ -124,7 +130,9 @@ export function Step2({ data, onUpdate }: Step2Props) {
 
       {/* ROLES */}
       <div className="space-y-3" ref={roleRef}>
-        <label className="block text-sm font-medium text-[#1a1a2e]">ROLES</label>
+        <label className="block text-sm font-medium text-[#1a1a2e]">
+          ROLES
+        </label>
         <div className="relative">
           <Input
             type="text"
@@ -157,11 +165,11 @@ export function Step2({ data, onUpdate }: Step2Props) {
               <Badge
                 key={role}
                 variant="outline"
-                className="text-[#4f46e5] border-[#C7D2FE] bg-[#EEF2FF] rounded-md px-3 py-1.5 text-sm font-normal flex items-center gap-1"
+                className="text-[#4f46e5] border-[#C7D2FE] bg-[#EEF2FF] px-3 py-1.5 text-sm font-normal flex items-center gap-1"
               >
                 {role}
                 <button onClick={() => toggleRole(role)}>
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5 cursor-pointer" />
                 </button>
               </Badge>
             ))}
@@ -206,11 +214,11 @@ export function Step2({ data, onUpdate }: Step2Props) {
               <Badge
                 key={stack}
                 variant="outline"
-                className="text-[#374151] border-[#E5E7EB] bg-[#F3F4F6] rounded-md px-3 py-1.5 text-sm font-normal flex items-center gap-1"
+                className="text-[#374151] border-[#E5E7EB] bg-[#F3F4F6] px-3 py-1.5 text-sm font-normal flex items-center gap-1"
               >
                 {stack}
                 <button onClick={() => toggleStack(stack)}>
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5 cursor-pointer" />
                 </button>
               </Badge>
             ))}
@@ -223,17 +231,26 @@ export function Step2({ data, onUpdate }: Step2Props) {
         <label className="block text-sm font-medium text-[#1a1a2e]">
           Niveles de experiencia
         </label>
-        <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
           {EXPERIENCE_LEVELS.map((level) => {
             const isSelected = selectedLevels.includes(level);
             return (
               <label
                 key={level}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-md border cursor-pointer transition-colors ${
-                  isSelected
-                    ? 'border-[#4f46e5] bg-[#11182714]'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                className={`flex items-center gap-3 rounded-md border cursor-pointer transition-colors
+                  shadow-[0_1px_3px_0_rgba(17,24,39,0.08)]
+                  ${
+                    isSelected
+                      ? 'border-[#4f46e5] bg-[#EEF2FF]'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }
+                `}
+                style={{
+                  paddingLeft: '12.25px',
+                  paddingRight: '10.25px',
+                  paddingTop: '10.25px',
+                  paddingBottom: '10.25px',
+                }}
               >
                 <Checkbox
                   checked={isSelected}
@@ -244,7 +261,9 @@ export function Step2({ data, onUpdate }: Step2Props) {
                       : ''
                   }`}
                 />
-                <span className="text-sm text-[#1a1a2e]">{level}</span>
+                <span className="text-sm text-[#1a1a2e] whitespace-nowrap">
+                  {level}
+                </span>
               </label>
             );
           })}
