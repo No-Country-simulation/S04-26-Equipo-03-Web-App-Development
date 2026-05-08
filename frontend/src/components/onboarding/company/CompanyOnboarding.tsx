@@ -4,6 +4,7 @@ import { useState } from 'react';
 // import { ProgressBar } from './ProgressBar'
 import { Step1 } from './steps/Step1';
 import { Step2 } from './steps/Step2';
+import { OnboardingFooter } from './OnboardingFooter';
 
 // const TOTAL_STEPS = 2
 
@@ -33,10 +34,8 @@ export function CompanyOnboarding({
   // const prevStep = () => setStep((prev) => Math.max(prev - 1, 1))
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-      {/* <ProgressBar currentStep={step} totalSteps={TOTAL_STEPS} /> */}
-
-      <div className="mt-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 flex flex-col">
+      <div className="flex-1">
         {step === 1 && (
           <Step1 data={formData} onUpdate={onUpdate} onNext={onNext} />
         )}
@@ -49,6 +48,12 @@ export function CompanyOnboarding({
           />
         )}
       </div>
+
+      {/* <OnboardingFooter
+        step={step}
+        onNext={onNext}
+        onBack={onBack}
+      /> */}
     </div>
   );
 }

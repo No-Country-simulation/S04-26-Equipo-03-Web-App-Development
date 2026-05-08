@@ -2,6 +2,7 @@
 
 import SiteHeader from '@/components/layout/SiteHeader';
 import { CompanyOnboarding } from '@/components/onboarding/company/CompanyOnboarding';
+import { OnboardingFooter } from '@/components/onboarding/company/OnboardingFooter';
 import { ProgressBar } from '@/components/onboarding/company/ProgressBar';
 import { useState } from 'react';
 
@@ -20,7 +21,7 @@ export default function CompanyOnboardingPage() {
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="min-h-dvh flex flex-col bg-white">
       <div className="border-b-[1.25px] border-b-[#E5E7EB]">
         <SiteHeader
           rightContent={
@@ -40,6 +41,7 @@ export default function CompanyOnboardingPage() {
         onNext={nextStep}
         onBack={prevStep}
       />
+      <OnboardingFooter step={step} onNext={nextStep} onBack={prevStep} />
     </div>
   );
 }
