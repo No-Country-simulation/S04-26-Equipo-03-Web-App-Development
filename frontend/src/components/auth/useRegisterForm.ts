@@ -7,8 +7,6 @@ export const useRegisterTalent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    first_name: " ", // TODO: remove this
-    last_name: " ", // TODO: remove this
     email: '',
     password: '',
     confirmPassword: '',
@@ -44,6 +42,8 @@ export const useRegisterTalent = () => {
 
     try {
       const payload: RegisterRequest = {
+        first_name: " ", // TODO: remove this
+        last_name: " ", // TODO: remove this
         email: formData.email,
         password: formData.password,
       };

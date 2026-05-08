@@ -12,7 +12,7 @@ export const PRIVATE_ROUTES_TALENT = [
   '/talent/self-evaluation',
   '/talent/notifications',
   '/talent/profile',
-  '/dashboard/talent'
+  '/talent/dashboard'
 ];
 
 export const PRIVATE_ROUTES_COMPANY = [

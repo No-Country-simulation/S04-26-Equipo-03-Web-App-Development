@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi, LoginRequest } from '@/lib/api/auth';
 import { AUTH_COOKIE_NAME, PRIVATE_ROUTES_TALENT, PRIVATE_ROUTES_COMPANY } from '@/lib/constants/routes';
+import { setCookie } from '@/lib/utils/cookies';
 
 export const useLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +23,7 @@ export const useLoginForm = () => {
       console.log('Login successful:', data);
       
       if (data.access_token) {
-        document.cookie = `${AUTH_COOKIE_NAME}=${data.access_token}; path=/; max-age=86400; SameSite=Lax`;
+        setCookie(AUTH_COOKIE_NAME, data.access_token);
       }
       
       const role = data.user_metadata?.role;
