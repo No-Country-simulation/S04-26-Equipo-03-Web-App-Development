@@ -3,10 +3,10 @@ interface Step2Props {
   data: Record<string, unknown>;
   onUpdate: (data: Record<string, unknown>) => void;
   onNext: () => void;
-  onBack: () => void;
+  // onBack: () => void;
 }
 
-export function Step2({ onBack }: Step2Props) {
+export function Step2({}: Step2Props) {
   return (
     <div className="space-y-6">
       <div>
@@ -23,7 +23,7 @@ export function Step2({ onBack }: Step2Props) {
         <p className="text-sm text-gray-400">Campos pendientes...</p>
       </div>
 
-      <div className="flex gap-3">
+      {/* <div className="flex gap-3">
         <button
           onClick={onBack}
           className="flex-1 border border-gray-300 text-[#1a1a2e] text-sm py-2.5 rounded-md hover:bg-gray-50"
@@ -36,7 +36,7 @@ export function Step2({ onBack }: Step2Props) {
         >
           Finalizar
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -9,15 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+// import { Button } from '@/components/ui/button';
 
 interface Step1Props {
   data: Record<string, unknown>;
   onUpdate: (data: Record<string, unknown>) => void;
-  onNext: () => void;
+  // onNext: () => void;
 }
 
-export function Step1({ data, onUpdate, onNext }: Step1Props) {
+export function Step1({ data, onUpdate }: Step1Props) {
   const [form, setForm] = useState({
     companyName: (data.companyName as string) || '',
     website: (data.website as string) || '',
@@ -124,12 +124,12 @@ export function Step1({ data, onUpdate, onNext }: Step1Props) {
         </div>
       </div>
 
-      <Button
+      {/* <Button
         onClick={onNext}
         className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm rounded-md"
       >
         Siguiente
-      </Button>
+      </Button> */}
     </div>
   );
 }

@@ -39,7 +39,6 @@ export default function CompanyOnboardingPage() {
         formData={formData}
         onUpdate={updateFormData}
         onNext={nextStep}
-        onBack={prevStep}
       />
       <OnboardingFooter step={step} onNext={nextStep} onBack={prevStep} />
     </div>
