@@ -76,13 +76,19 @@ export default function Dashboard() {
             </div>
             <span className="font-semibold text-[#1a1a2e]">TalentBridge</span>
           </Link>
-          <nav className="flex items-center gap-8">
-            <button className="text-sm text-[#4f46e5] font-medium">
+          <nav className="flex items-center gap-1">
+            <button className="text-sm text-[#4f46e5] bg-[#EEF2FF] font-normal px-4 py-2 rounded-md">
               Candidatos
             </button>
-            <button className="text-sm text-[#1a1a2e]">Mis guardados</button>
-            <button className="text-sm text-[#1a1a2e]">Mis posiciones</button>
-            <button className="text-sm text-[#1a1a2e]">MR</button>
+            <button className="text-sm text-[#1a1a2e] font-normal px-4 py-2 rounded-md">
+              Mis guardados
+            </button>
+            <button className="text-sm text-[#1a1a2e] font-normal px-4 py-2 rounded-md">
+              Mis posiciones
+            </button>
+            <button className="text-sm text-[#1a1a2e] bg-[#E5E7EB] rounded-full p-2">
+              MR
+            </button>
           </nav>
         </div>
       </header>
@@ -276,30 +282,46 @@ export default function Dashboard() {
         <main className="flex-1 p-8">
           <div className="space-y-6">
             {/* Header Section */}
-            <div>
+            <div className="flex justify-between">
               <h1 className="text-2xl font-bold text-[#1a1a2e] mb-2">
                 Candidatos
               </h1>
-              <div className="flex items-center justify-between">
+              <div className="flex gap-5 items-center justify-between">
                 <p className="text-sm text-[#666]">47 candidatos encontrados</p>
                 <div className="flex items-center gap-3">
+                  <div className="flex items-center bg-[#F3F4F6] rounded-full p-1 gap-1 border border-[#E5E7EB]">
+                    <Button
+                      onClick={() => setViewMode('cards')}
+                      // variant={viewMode === 'cards' ? 'default' : 'outline'}
+                      // size="sm"
+                      // className={`text-xs ${viewMode === 'cards' ? 'bg-[#1a1a2e] text-white' : ''}`}
+                      className={`px-5 py-1 text-xs rounded-full cursor-pointer transition-all ${
+                        viewMode === 'cards'
+                          ? 'bg-[#111827] text-white font-medium hover:bg-[#111827]'
+                          : 'bg-transparent text-[#4B5563] hover:text-gray-700 hover:bg-transparent'
+                      }`}
+                    >
+                      Cards
+                    </Button>
+                    <Button
+                      onClick={() => setViewMode('tabla')}
+                      // variant={viewMode === 'tabla' ? 'default' : 'outline'}
+                      // size="sm"
+                      // className={`text-xs ${viewMode === 'tabla' ? 'bg-[#1a1a2e] text-white' : ''}`}
+                      className={`px-5 py-1 text-xs rounded-full cursor-pointer transition-all ${
+                        viewMode === 'tabla'
+                          ? 'bg-[#111827] text-white font-medium hover:bg-[#111827]'
+                          : 'bg-transparent text-[#4B5563] hover:text-gray-700 hover:bg-transparent'
+                      }`}
+                    >
+                      Tabla
+                    </Button>
+                  </div>
                   <Button
-                    onClick={() => setViewMode('cards')}
-                    variant={viewMode === 'cards' ? 'default' : 'outline'}
+                    variant="outline"
                     size="sm"
-                    className={`text-xs ${viewMode === 'cards' ? 'bg-[#1a1a2e] text-white' : ''}`}
+                    className="text-xs border-0 bg-transparent shadow-none cursor-pointer"
                   >
-                    Cards
-                  </Button>
-                  <Button
-                    onClick={() => setViewMode('tabla')}
-                    variant={viewMode === 'tabla' ? 'default' : 'outline'}
-                    size="sm"
-                    className={`text-xs ${viewMode === 'tabla' ? 'bg-[#1a1a2e] text-white' : ''}`}
-                  >
-                    Tabla
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
                     Más relevantes ↓
                   </Button>
                 </div>
