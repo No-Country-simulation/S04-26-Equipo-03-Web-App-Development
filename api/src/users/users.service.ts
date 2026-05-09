@@ -1,37 +1,116 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { SupabaseService } from '../supabase/supabase.service';
+import { Database } from '../types/database.types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-// TODO: reemplazar con cliente de Supabase cuando se integre
+type UserRow = Database['public']['Tables']['User']['Row'];
+
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    // TODO: insertar usuario en Supabase
-    // const { data, error } = await supabase.from('User').insert(createUserDto).select().single();
-    throw new Error('Not implemented: pendiente integración con Supabase');
+  constructor(private readonly supabaseService: SupabaseService) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const client = this.supabaseService.getClient();
+    const { first_name, last_name, email, password, role } = createUserDto;
+
+    const { data, error } = await client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name,
+          last_name,
+          role,
+          active: true,
+        },
+      },
+    });
+
+    if (error) throw new InternalServerErrorException(error.message);
+
+    return {
+      message: 'Usuario creado exitosamente',
+      userId: data.user?.id,
+    };
   }
 
-  findAll() {
-    // TODO: obtener todos los usuarios de Supabase
-    // const { data, error } = await supabase.from('User').select('*');
-    throw new Error('Not implemented: pendiente integración con Supabase');
+  async findAll(): Promise<UserRow[]> {
+    const client = this.supabaseService.getClient();
+    const { data, error } = (await client
+      .from('User')
+      .select('*')
+      .eq('active', true)) as {
+      data: UserRow[] | null;
+      error: any;
+    };
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data ?? [];
   }
 
-  findOne(id: string) {
-    // TODO: obtener usuario por id de Supabase
-    // const { data, error } = await supabase.from('User').select('*').eq('id', id).single();
-    throw new Error('Not implemented: pendiente integración con Supabase');
+  async findOne(id: string): Promise<UserRow | null> {
+    const client = this.supabaseService.getClient();
+    const { data, error } = (await client
+      .from('User')
+      .select('*')
+      .eq('id', id)
+      .eq('active', true)
+      .single()) as { data: UserRow | null; error: any };
+
+    if (error)
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    return data;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    // TODO: actualizar usuario en Supabase
-    // const { data, error } = await supabase.from('User').update(updateUserDto).eq('id', id).select().single();
-    throw new Error('Not implemented: pendiente integración con Supabase');
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserRow | null> {
+    await this.findOne(id);
+    const client = this.supabaseService.getClient();
+    const { password, ...rest } = updateUserDto;
+
+    if (password) {
+      const { error: authError } = await client.auth.admin.updateUserById(id, {
+        password,
+      });
+      if (authError) throw new InternalServerErrorException(authError.message);
+    }
+
+    const { data, error } = (await client
+      .from('User')
+      .update(rest)
+      .eq('id', id)
+      .select()
+      .single()) as { data: UserRow | null; error: any };
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
   }
 
-  remove(id: string) {
-    // TODO: desactivar usuario en Supabase (soft delete usando active = false)
-    // const { data, error } = await supabase.from('User').update({ active: false }).eq('id', id).select().single();
-    throw new Error('Not implemented: pendiente integración con Supabase');
+  async deactivate(id: string): Promise<UserRow | null> {
+    await this.findOne(id);
+    const client = this.supabaseService.getClient();
+    const { data, error } = (await client
+      .from('User')
+      .update({ active: false })
+      .eq('id', id)
+      .select()
+      .single()) as { data: UserRow | null; error: any };
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
+  async remove(id: string): Promise<{ message: string }> {
+    const client = this.supabaseService.getClient();
+    const { error } = await client.auth.admin.deleteUser(id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { message: 'Usuario eliminado exitosamente' };
   }
 }
