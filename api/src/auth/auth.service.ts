@@ -83,9 +83,8 @@ export class AuthService {
     if (error) throw new UnauthorizedException(error.message);
 
     return {
-      user: data.user,
+      user_metadata: data.user.user_metadata,
       access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
     };
   }
 }
