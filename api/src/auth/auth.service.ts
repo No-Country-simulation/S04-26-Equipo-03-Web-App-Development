@@ -53,23 +53,39 @@ export class AuthService {
 
     if (error) throw new InternalServerErrorException(error.message);
 
+    const userId = data.user?.id;
+
     // 2. Crear cuenta de empresa vinculada al usuario
-    const { error: enterpriseError } = await client
+    const { data: enterpriseData, error: enterpriseError } = await client
       .from('Account_Enterprise')
       .insert({
-        owner_id: data.user?.id,
+        owner_id: userId,
         name: dto.company_name,
         website_url: dto.website_url ?? null,
         description: dto.description ?? null,
         active: true,
-      });
+      })
+      .select('id')
+      .single();
 
     if (enterpriseError)
       throw new InternalServerErrorException(enterpriseError.message);
 
+    // 3. Agregar al owner como miembro en Recruiter_enterprise
+    const { error: recruiterError } = await client
+      .from('Recruiter_enterprise')
+      .insert({
+        user_id: userId,
+        enterprise_id: enterpriseData.id,
+        active: true,
+      });
+
+    if (recruiterError)
+      throw new InternalServerErrorException(recruiterError.message);
+
     return {
       message: 'Empresa registrada exitosamente',
-      userId: data.user?.id,
+      userId,
     };
   }
 
