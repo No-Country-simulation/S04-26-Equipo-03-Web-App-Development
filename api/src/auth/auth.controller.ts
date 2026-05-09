@@ -52,7 +52,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 1000, // 1 hora
+      maxAge: 24 * 60 * 60 * 1000, // 24 horas
     });
 
     return result;
