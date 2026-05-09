@@ -12,7 +12,7 @@ export class AppService {
   async checkSupabaseConnection(): Promise<{ ok: boolean; error?: string }> {
     const { error } = await this.supabase
       .getClient()
-      .from('_test_connection')
+      .from('User')
       .select('*')
       .limit(1);
     // Cualquier error PGRST indica que Supabase respondió → conexión válida
