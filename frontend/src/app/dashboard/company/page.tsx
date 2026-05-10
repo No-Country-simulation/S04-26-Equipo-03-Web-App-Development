@@ -7,7 +7,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Heart, Star } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import {
+  Astroid,
+  Check,
+  Diamond,
+  Heart,
+  MoveDown,
+  Plus,
+  Star,
+  X,
+} from 'lucide-react';
 import { useState } from 'react';
 
 const candidates = [
@@ -30,8 +40,8 @@ const candidates = [
     rating: 4.9,
     level: 'Senior',
     verified: true,
-    skills: ['React', 'TypeScript'],
-    pendingSkills: ['Next.js'],
+    skills: ['React', 'TypeScript', 'Next.js'],
+    pendingSkills: [],
     status: 'Open to work · Remoto',
     experience: '14 años exp. · Último: Tech Lead en —',
     avatar: 'HT',
@@ -54,8 +64,8 @@ const candidates = [
     role: 'Product Manager',
     rating: 0,
     level: 'Semi-Senior',
-    skills: ['Roadmaps', 'Analytics'],
-    pendingSkills: ['Jira'],
+    skills: ['Roadmaps'],
+    pendingSkills: ['Analytics', 'Jira'],
     status: 'Open to work · Remoto',
     experience: '9 años exp.',
     avatar: 'DA',
@@ -66,7 +76,7 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b border-[#e5e5e5]">
         <div className="flex items-center justify-between px-8 py-4">
@@ -95,7 +105,7 @@ export default function Dashboard() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-56 bg-white border-r border-[#e5e5e5] p-6">
+        <aside className="w-2xs bg-[#F9FAFB] border-r border-[#e5e5e5] p-6">
           <div className="space-y-6">
             {/* Search */}
             <div>
@@ -103,13 +113,13 @@ export default function Dashboard() {
                 <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase">
                   Filtros
                 </h3>
-                <button className="text-xs text-[#4f46e5] hover:text-[#4f46e5]/80">
+                <button className="text-xs text-[#374151] hover:text-[#4f46e5]/80 cursor-pointer">
                   Limpiar
                 </button>
               </div>
               <Input
                 placeholder="Nombre, rol, skill..."
-                className="h-9 text-sm border-[#e5e5e5]"
+                className="p-3 text-sm rounded-md border-[#D1D5DB] bg-white"
               />
             </div>
 
@@ -122,24 +132,35 @@ export default function Dashboard() {
                 <Checkbox />
                 Solo 100% verificados
               </label>
-              <p className="text-xs text-[#999] mt-2">
-                Requiero verificado en:
-              </p>
-              <div className="flex gap-2 mt-2">
-                <Badge
+              <div className="p-2 border border-dashed rounded-md bg-white mt-2">
+                <p className="text-xs text-[#999] mt-2">
+                  Requiero verificado en:
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                  >
+                    Figma{' '}
+                    <X className="color-[#6B7280] cursor-pointer" size={16} />
+                    {/* <span className="ml-1 cursor-pointer">×</span> */}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                  >
+                    React{' '}
+                    <X className="color-[#6B7280] cursor-pointer" size={16} />
+                    {/* <span className="ml-1 cursor-pointer">×</span> */}
+                  </Badge>
+                </div>
+                <Button
                   variant="outline"
-                  className="text-xs bg-[#f0f0f0] border-[#e5e5e5]"
+                  className="bg-[#F3F4F6] text-xs text-[#6B7280] mt-2 border border-[#E5E7EB] rounded-full cursor-pointer"
                 >
-                  Figma <span className="ml-1 cursor-pointer">×</span>
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-xs bg-[#f0f0f0] border-[#e5e5e5]"
-                >
-                  React <span className="ml-1 cursor-pointer">×</span>
-                </Badge>
+                  <Plus size={16} /> skill
+                </Button>
               </div>
-              <button className="text-xs text-[#4f46e5] mt-2">+ skill</button>
             </div>
 
             {/* Min Rating */}
@@ -148,15 +169,22 @@ export default function Dashboard() {
                 Calificación mínima
               </h3>
               <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(4)].map((_, i) => (
                   <Star
                     key={i}
                     size={16}
                     className="fill-[#ffc107] text-[#ffc107]"
                   />
                 ))}
+                {[...Array(1)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={16}
+                    className="fill-white text-[#D1D5DB] hover:fill-[#D1D5DB]"
+                  />
+                ))}
+                <p className="text-xs text-[#999] ml-2">4+ estrellas</p>
               </div>
-              <p className="text-xs text-[#999] mt-2">4+ estrellas</p>
               <p className="text-xs text-[#999]">
                 No excluye candidatos sin reseñas.
               </p>
@@ -170,20 +198,22 @@ export default function Dashboard() {
               <div className="flex gap-2 mb-2">
                 <Badge
                   variant="outline"
-                  className="text-xs bg-[#f0f0f0] border-[#e5e5e5]"
+                  className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
                 >
-                  Figma <span className="ml-1 cursor-pointer">×</span>
+                  Figma{' '}
+                  <X className="color-[#6B7280] cursor-pointer" size={16} />
                 </Badge>
                 <Badge
                   variant="outline"
-                  className="text-xs bg-[#f0f0f0] border-[#e5e5e5]"
+                  className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
                 >
-                  React <span className="ml-1 cursor-pointer">×</span>
+                  React{' '}
+                  <X className="color-[#6B7280] cursor-pointer" size={16} />
                 </Badge>
               </div>
               <input
                 placeholder="Agregar stack..."
-                className="text-xs border border-[#e5e5e5] rounded w-full p-2"
+                className="text-xs border-b-2 border-b-transparent rounded w-full p-2 focus:border-b-[#e5e5e5] focus:outline-none"
               />
             </div>
 
@@ -200,6 +230,7 @@ export default function Dashboard() {
                       className="flex items-center gap-2 text-sm text-[#1a1a2e]"
                     >
                       <Checkbox
+                        className="data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]"
                         defaultChecked={[
                           'Semi-Senior',
                           'Senior',
@@ -232,6 +263,7 @@ export default function Dashboard() {
                       type="radio"
                       name="availability"
                       defaultChecked={avail === 'Disponible activamente'}
+                      className="accent-[#4F46E5]"
                     />
                     {avail}
                   </label>
@@ -251,6 +283,7 @@ export default function Dashboard() {
                     className="flex items-center gap-2 text-sm text-[#1a1a2e]"
                   >
                     <Checkbox
+                      className="data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]"
                       defaultChecked={['Remoto', 'Híbrido'].includes(mode)}
                     />
                     {mode}
@@ -265,12 +298,17 @@ export default function Dashboard() {
                 Años de experiencia
               </h3>
               <div className="space-y-2">
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  defaultValue="5"
-                  className="w-full"
+                <div className="flex justify-between text-[#4B5563] text-xs">
+                  <span>5</span>
+                  <span>20+</span>
+                </div>
+                <Slider
+                  defaultValue={[5, 20]}
+                  min={0}
+                  max={30}
+                  step={1}
+                  className="max-auto w-full max-w-xs **:data-[slot=slider-range]:bg-[#4F46E5] **:data-[slot=slider-track]:bg-[#E5E7EB]"
+                  // para cambiar la perilla usar -> [&_[data-slot=slider-thumb]]:border-[#4F46E5]
                 />
                 <p className="text-xs text-[#999]">9 – 16 años</p>
               </div>
@@ -322,7 +360,7 @@ export default function Dashboard() {
                     size="sm"
                     className="text-xs border-0 bg-transparent shadow-none cursor-pointer"
                   >
-                    Más relevantes ↓
+                    Más relevantes <MoveDown />
                   </Button>
                 </div>
               </div>
@@ -333,10 +371,10 @@ export default function Dashboard() {
               {candidates.map((candidate) => (
                 <Card
                   key={candidate.id}
-                  className="p-6 border-[#e5e5e5] hover:shadow-lg transition-shadow"
+                  className="p-6 border-[#e5e5e5] hover:shadow-lg transition-shadow gap-0"
                 >
-                  <div className="flex gap-4 mb-4">
-                    <Avatar className="w-12 h-12 bg-[#e5e5e5] flex items-center justify-center">
+                  <div className="flex gap-4 mb-4 items-center">
+                    <Avatar className="w-14 h-14 bg-[#e5e5e5] flex items-center justify-center">
                       <AvatarFallback className="text-sm font-semibold text-[#666]">
                         {candidate.avatar}
                       </AvatarFallback>
@@ -346,24 +384,28 @@ export default function Dashboard() {
                         <div>
                           <h3 className="font-semibold text-[#1a1a2e]">
                             {candidate.name}
+                            {candidate.verified && (
+                              <Badge className="bg-[#1a1a2e] text-white text-xs ml-2 rounded-md">
+                                <Astroid
+                                  size={16}
+                                  className="fill-[#FBBF24] text-[#FBBF24]"
+                                />
+                                100% verificado
+                              </Badge>
+                            )}
                           </h3>
                           <p className="text-sm text-[#666]">
                             {candidate.role}
                           </p>
                         </div>
-                        {candidate.verified && (
-                          <Badge className="bg-[#1a1a2e] text-white text-xs">
-                            100% verificado
-                          </Badge>
-                        )}
                       </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        {candidate.rating > 0 && (
+                      <div className="flex items-center gap-1 mt-2">
+                        {candidate.rating > 0 ? (
                           <>
                             {[...Array(5)].map((_, i) => (
                               <Star
                                 key={i}
-                                size={14}
+                                size={12}
                                 className={
                                   i < Math.ceil(candidate.rating)
                                     ? 'fill-[#ffc107] text-[#ffc107]'
@@ -375,31 +417,38 @@ export default function Dashboard() {
                               {candidate.rating}
                             </span>
                           </>
+                        ) : (
+                          <span className="text-xs text-[#6B7280]">
+                            Sin reseñas aún
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-[#4f46e5] text-white text-xs">
-                      ✓ {candidate.level}
+                    <Badge className="bg-[#4f46e5] text-white text-xs py-2 rounded-md">
+                      <Check className="text-white" /> {candidate.level}
                     </Badge>
                     {candidate.skills.map((skill) => (
                       <Badge
                         key={skill}
                         variant="outline"
-                        className="text-xs border-[#4f46e5] text-[#4f46e5] bg-white"
+                        className="text-xs border-[#A7F3D0] text-[#065F46] bg-white"
                       >
-                        ✓ {skill}
+                        <Check className="text-[#10B981]" /> {skill}
                       </Badge>
                     ))}
                     {candidate.pendingSkills.map((skill) => (
                       <Badge
                         key={skill}
                         variant="outline"
-                        className="text-xs border-[#999] text-[#999] bg-white"
+                        className="text-xs text-[#4B5563] bg-white border-dashed border-[#D1D5DB]"
                       >
                         {skill}
+                        <span className="ml-1 text-xs text-[#6B7280]">
+                          pendiente
+                        </span>
                       </Badge>
                     ))}
                   </div>
@@ -414,11 +463,16 @@ export default function Dashboard() {
                   </p>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white text-sm h-10">
+                    <Button className="flex-1 bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white text-sm h-8">
                       Ver perfil completo
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-[#666]">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-black h-8 w-30"
+                    >
                       <Heart size={18} />
+                      Guardar
                     </Button>
                   </div>
                 </Card>
