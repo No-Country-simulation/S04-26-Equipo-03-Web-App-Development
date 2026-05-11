@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import SiteHeader from '@/components/layout/SiteHeader';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [isSelected, setIsSelected] = useState(true);
@@ -26,15 +25,11 @@ export default function LoginPage() {
         }
       />
 
-      <div className="flex flex-col items-center justify-center px-4 sm:px-6 py-16">
-        <Card className="relative w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
-          <Link
-            href="/"
-            className="absolute flex items-center -top-7 left-0 mb-2 text-xs text-[#6B7280] cursor-pointer"
-          >
-            <ArrowLeft size={16} className="mr-1" /> Atrás
-          </Link>
-          <h1 className="text-2xl font-bold text-[#1a1a2e]">Iniciar sesión</h1>
+      <div className="flex items-center justify-center px-4 sm:px-6 py-16">
+        <Card className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
+          <h1 className="text-2xl font-bold text-[#1a1a2e]">
+            Creá tu cuenta de empresa
+          </h1>
           <p className="text-gray-500 mb-0">
             Accedé al pool de talento validado.
           </p>
@@ -49,6 +44,9 @@ export default function LoginPage() {
                 placeholder="nombre@empresa.com"
                 className="h-12 border-gray-200 rounded-md"
               />
+              <p className="text-sm text-gray-500 mt-2">
+                No aceptamos cuentas personales (gmail, hotmail, yahoo, etc).
+              </p>
             </div>
 
             <div>
@@ -56,61 +54,60 @@ export default function LoginPage() {
                 Contraseña
               </label>
               <Input
+                name="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Mínimo 8 caracteres"
+                className="h-12 border-gray-200 rounded-md"
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                Al menos 8 caracteres, 1 número.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#1a1a2e] mb-2">
+                Confirmar contraseña
+              </label>
+              <Input
+                name="passwordConfirm"
+                type="password"
+                placeholder="Repetí la contraseña"
                 className="h-12 border-gray-200 rounded-md"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <label
-                key="recordar"
-                className="flex items-center gap-3 cursor-pointer"
-              >
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => toggleLevel(!isSelected)}
-                  className={`${
-                    isSelected
-                      ? 'data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]'
-                      : ''
-                  }`}
-                />
-                <span className="text-sm text-[#1a1a2e] whitespace-nowrap">
-                  Recordar mi cuenta
-                </span>
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-[#4f46e5] text-[12px] font-normal font-['Inter'] leading-4.5 whitespace-nowrap hover:underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
+            <label
+              key="recordar"
+              className="flex items-center gap-3 cursor-pointer"
+            >
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={() => toggleLevel(!isSelected)}
+                className={`${
+                  isSelected
+                    ? 'data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]'
+                    : ''
+                }`}
+              />
+              <span className="text-sm text-[#1a1a2e] whitespace-nowrap">
+                Recordar mi cuenta en este dispositivo
+              </span>
+            </label>
 
             <Link href="/onboarding/company">
               <Button className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer">
-                Iniciar sesión
+                Crear cuenta de empresa
               </Button>
             </Link>
 
             <p className="text-sm text-gray-500 text-center mt-4">
-              ¿No tienes cuenta?{' '}
+              ¿Ya tenés cuenta?{' '}
               <a
-                href="/signup-company"
+                href="/login-company"
                 className="text-[#4f46e5] hover:underline font-medium"
               >
-                Registrate
+                Iniciá sesión
               </a>
-            </p>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex-1 h-px bg-gray-200"></div>
-            </div>
-
-            <p className="text-sm text-[#6B7280] text-center mt-4">
-              ¿Sos administrador? Iniciá sesión con tu email corporativo — te
-              redirigimos al panel automáticamente.
             </p>
           </div>
         </Card>
