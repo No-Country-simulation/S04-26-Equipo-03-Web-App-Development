@@ -1,109 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import { Heart, MoveDown, Plus, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
-import {
-  Astroid,
-  Check,
-  Diamond,
-  Heart,
-  MoveDown,
-  Plus,
-  Star,
-  X,
-} from 'lucide-react';
-import { useState } from 'react';
 import SkillBadge from '@/components/common/SkillBadge';
 import RatingStars from '@/components/common/RatingStars';
 import CheckboxGroup from '@/components/common/CheckboxGroup';
 import SidebarSection from '@/components/layout/SidebarSection';
 import RadioGroup from '@/components/common/RadioGroup';
-
-const candidates = [
-  {
-    id: 1,
-    name: 'Marcela R.',
-    role: 'Product Designer',
-    rating: 4.7,
-    level: 'Semi-Senior',
-    skills: ['Figma', 'Research'],
-    pendingSkills: ['Design Sys'],
-    status: 'Open to work · Remoto',
-    experience: '12 años exp. · Último: Sr Designer en —',
-    avatar: 'MR',
-  },
-  {
-    id: 2,
-    name: 'Hernán T.',
-    role: 'Frontend Engineer',
-    rating: 4.9,
-    level: 'Senior',
-    verified: true,
-    skills: ['React', 'TypeScript', 'Next.js'],
-    pendingSkills: [],
-    status: 'Open to work · Remoto',
-    experience: '14 años exp. · Último: Tech Lead en —',
-    avatar: 'HT',
-  },
-  {
-    id: 3,
-    name: 'Lucia F.',
-    role: 'UX Researcher',
-    rating: 4.5,
-    level: 'Senior',
-    skills: ['Mixed methods', 'Figma'],
-    pendingSkills: ['SQL'],
-    status: 'Open to work · Remoto',
-    experience: '10 años exp.',
-    avatar: 'LF',
-  },
-  {
-    id: 4,
-    name: 'Diego A.',
-    role: 'Product Manager',
-    rating: 0,
-    level: 'Semi-Senior',
-    skills: ['Roadmaps'],
-    pendingSkills: ['Analytics', 'Jira'],
-    status: 'Open to work · Remoto',
-    experience: '9 años exp.',
-    avatar: 'DA',
-  },
-];
-
-const mockLevel = {
-  level: [
-    { label: 'Trainee', value: 'Trainee' },
-    { label: 'Junior', value: 'Junior' },
-    { label: 'Semi-Senior', value: 'Semi-Senior' },
-    { label: 'Senior', value: 'Senior' },
-    { label: 'Lead', value: 'Lead' },
-  ],
-  defaultSelected: ['Semi-Senior', 'Senior', 'Lead'],
-};
-
-const mockModality = {
-  modality: [
-    { label: 'Remoto', value: 'Remoto' },
-    { label: 'Híbrido', value: 'Híbrido' },
-    { label: 'Presencial', value: 'Presencial' },
-  ],
-  defaultSelected: ['Remoto', 'Híbrido'],
-};
-
-const mockAvailability = {
-  options: [
-    { label: 'Cualquiera', value: 'Cualquiera' },
-    { label: 'Disponible activamente', value: 'Disponible activamente' },
-    { label: 'Abierto a oportunidades', value: 'Abierto a oportunidades' },
-  ],
-};
+import { useState } from 'react';
+import { mockAvailability, mockCandidates, mockLevel, mockModality } from './_data';
 
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
@@ -237,7 +148,7 @@ export default function Dashboard() {
               <RadioGroup
                 name="availability"
                 options={mockAvailability.options}
-                defaultValue="Disponible activamente"
+                defaultValue={mockAvailability.defaultValue}
               />
             </SidebarSection>
 
@@ -322,7 +233,7 @@ export default function Dashboard() {
 
             {/* Candidates Grid */}
             <div className="grid grid-cols-2 gap-6">
-              {candidates.map((candidate) => (
+              {mockCandidates.map((candidate) => (
                 <Card
                   key={candidate.id}
                   className="p-6 border-[#e5e5e5] hover:shadow-lg transition-shadow gap-0"
