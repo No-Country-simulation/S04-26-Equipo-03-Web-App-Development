@@ -8,7 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import FormField from '@/components/common/FormField';
 import RememberField from '@/components/common/RememberField';
 import AuthRedirect from '@/components/common/AuthRedirect';
-import AuthHeader from '@/components/common/ AuthHeader';
+import AuthHeader from '@/components/common/AuthHeader';
 
 export default function LoginPage() {
   return (

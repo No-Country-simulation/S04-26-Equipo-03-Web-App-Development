@@ -14,7 +14,12 @@ import CheckboxGroup from '@/components/common/CheckboxGroup';
 import SidebarSection from '@/components/layout/SidebarSection';
 import RadioGroup from '@/components/common/RadioGroup';
 import { useState } from 'react';
-import { mockAvailability, mockCandidates, mockLevel, mockModality } from './_data';
+import {
+  mockAvailability,
+  mockCandidates,
+  mockLevel,
+  mockModality,
+} from './_data';
 
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
@@ -31,18 +36,18 @@ export default function Dashboard() {
             <span className="font-semibold text-[#1a1a2e]">TalentBridge</span>
           </Link>
           <nav className="flex items-center gap-1">
-            <button className="text-sm text-[#4f46e5] bg-[#EEF2FF] font-normal px-4 py-2 rounded-md">
+            <Button className="text-sm text-[#4f46e5] bg-[#EEF2FF] font-normal px-4 py-2 rounded-md">
               Candidatos
-            </button>
-            <button className="text-sm text-[#1a1a2e] font-normal px-4 py-2 rounded-md">
+            </Button>
+            <Button className="text-sm text-[#1a1a2e] bg-white font-normal px-4 py-2 rounded-md">
               Mis guardados
-            </button>
-            <button className="text-sm text-[#1a1a2e] font-normal px-4 py-2 rounded-md">
+            </Button>
+            <Button className="text-sm text-[#1a1a2e] bg-white font-normal px-4 py-2 rounded-md">
               Mis posiciones
-            </button>
-            <button className="text-sm text-[#1a1a2e] bg-[#E5E7EB] rounded-full p-2">
+            </Button>
+            <Button className="text-sm text-[#1a1a2e] bg-[#E5E7EB] rounded-full p-2">
               MR
-            </button>
+            </Button>
           </nav>
         </div>
       </header>
