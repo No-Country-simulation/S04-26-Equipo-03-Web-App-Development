@@ -1,5 +1,6 @@
 import { AuthInputField } from '@/components/auth/AuthInputField';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DateInput } from '@/components/ui/date-input';
 
 export const ExperienceForm = () => {
   return (
@@ -16,11 +17,11 @@ export const ExperienceForm = () => {
             className="bg-white border border-[#d1d5db] rounded-[8px] px-[13.25px] py-[11.25px] min-h-[80px] text-[13px] outline-none focus:border-[#4f46e5] transition-colors placeholder:text-[#9ca3af]"
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[14px] items-end">
-          <AuthInputField label="Desde" placeholder="03 / 2020" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[14px]">
+          <DateInput label="Desde" type="month" placeholder="MM/YYYY" />
           <div className="flex flex-col gap-[8px]">
-            <AuthInputField label="Hasta" placeholder="12 / 2023" />
-            <div className="flex items-center gap-[7.99px] pt-[8px]">
+            <DateInput label="Hasta" type="month" placeholder="MM/YYYY" />
+            <div className="flex items-center gap-[7.99px] pt-[2px]">
               <Checkbox id="current-job" className="size-[13px] rounded-[2.5px] border-[#767676]" />
               <label htmlFor="current-job" className="text-[12px] font-medium text-[#374151]">Trabajo acá actualmente</label>
             </div>

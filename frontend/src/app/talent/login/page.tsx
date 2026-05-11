@@ -3,7 +3,7 @@
 import { AuthTemplate } from '@/components/layout/auth/AuthTemplate';
 import { LoginForm } from '@/components/auth/LoginForm';
 
-export default function LoginCandidatePage() {
+export default function LoginTalentPage() {
   return (
     <AuthTemplate>
       <LoginForm />
