@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 import SiteHeader from '@/components/layout/SiteHeader';
-import { ArrowLeft } from 'lucide-react';
 import FormField from '@/components/common/FormField';
 import RememberField from '@/components/common/RememberField';
 import AuthRedirect from '@/components/common/AuthRedirect';
@@ -21,16 +20,10 @@ export default function LoginPage() {
         }
       />
 
-      <div className="flex flex-col items-center justify-center px-4 sm:px-6 py-16">
-        <Card className="relative w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
-          <Link
-            href="/"
-            className="absolute flex items-center -top-7 left-0 mb-2 text-xs text-[#6B7280] cursor-pointer"
-          >
-            <ArrowLeft size={16} className="mr-1" /> Atrás
-          </Link>
+      <div className="flex items-center justify-center px-4 sm:px-6 py-16">
+        <Card className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
           <AuthHeader
-            title="Iniciar sesión"
+            title="Creá tu cuenta de empresa"
             subtitle="Accedé al pool de talento validado."
           />
 
@@ -47,30 +40,26 @@ export default function LoginPage() {
               label="Contraseña"
               name="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="Mínimo 8 caracteres"
+              hint="Al menos 8 caracteres, 1 número."
             />
 
-            <RememberField
-              label="Recordar mi cuenta"
-              forgotHref="/forgot-password"
+            <FormField
+              label="Confirmar contraseña"
+              name="passwordConfirm"
+              type="password"
+              placeholder="Repetí la contraseña"
             />
+
+            <RememberField />
 
             <Link href="/onboarding/company">
               <Button className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer">
-                Iniciar sesión
+                Crear cuenta de empresa
               </Button>
             </Link>
 
-            <AuthRedirect type="login" />
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex-1 h-px bg-gray-200"></div>
-            </div>
-
-            <p className="text-sm text-[#6B7280] text-center mt-4">
-              ¿Sos administrador? Iniciá sesión con tu email corporativo — te
-              redirigimos al panel automáticamente.
-            </p>
+            <AuthRedirect type="signup" />
           </div>
         </Card>
       </div>
