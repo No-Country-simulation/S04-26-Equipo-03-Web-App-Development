@@ -279,30 +279,54 @@ export type Database = {
       Talent_profile: {
         Row: {
           age: number | null;
+          availability:
+            | Database['public']['Enums']['talent_availability']
+            | null;
+          avatar_url: string | null;
+          bio: string | null;
           education: Json | null;
           experience_years: string | null;
           id: string;
           last_position: string | null;
           location: string | null;
+          portfolio_public_id: string | null;
+          portfolio_url: string | null;
           user_id: string | null;
+          work_experience: Json | null;
         };
         Insert: {
           age?: number | null;
+          availability?:
+            | Database['public']['Enums']['talent_availability']
+            | null;
+          avatar_url?: string | null;
+          bio?: string | null;
           education?: Json | null;
           experience_years?: string | null;
           id?: string;
           last_position?: string | null;
           location?: string | null;
+          portfolio_public_id?: string | null;
+          portfolio_url?: string | null;
           user_id?: string | null;
+          work_experience?: Json | null;
         };
         Update: {
           age?: number | null;
+          availability?:
+            | Database['public']['Enums']['talent_availability']
+            | null;
+          avatar_url?: string | null;
+          bio?: string | null;
           education?: Json | null;
           experience_years?: string | null;
           id?: string;
           last_position?: string | null;
           location?: string | null;
+          portfolio_public_id?: string | null;
+          portfolio_url?: string | null;
           user_id?: string | null;
+          work_experience?: Json | null;
         };
         Relationships: [
           {
@@ -444,6 +468,10 @@ export type Database = {
       path_status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
       skill_category: 'TECH' | 'SOFT' | 'COGNITIVE';
       step_type: 'VIDEO' | 'ARTICLE' | 'EXERCISE' | 'QUIZ';
+      talent_availability:
+        | 'ACTIVE_JOB_SEARCH'
+        | 'OPEN_TO_OFFERS'
+        | 'NOT_LOOKING_ASSESSMENT_ONLY';
       user_role: 'ADMIN' | 'RECRUITER' | 'TALENT';
     };
     CompositeTypes: {
@@ -580,6 +608,11 @@ export const Constants = {
       path_status: ['PENDING', 'IN_PROGRESS', 'COMPLETED'],
       skill_category: ['TECH', 'SOFT', 'COGNITIVE'],
       step_type: ['VIDEO', 'ARTICLE', 'EXERCISE', 'QUIZ'],
+      talent_availability: [
+        'ACTIVE_JOB_SEARCH',
+        'OPEN_TO_OFFERS',
+        'NOT_LOOKING_ASSESSMENT_ONLY',
+      ],
       user_role: ['ADMIN', 'RECRUITER', 'TALENT'],
     },
   },

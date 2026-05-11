@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { throwFromAuthSignUpError } from '../common/map-supabase-auth-error';
 import { SupabaseService } from '../supabase/supabase.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterEnterpriseDto } from './dto/register-enterprise.dto';
@@ -27,7 +28,7 @@ export class AuthService {
       },
     });
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) throwFromAuthSignUpError(error);
     return {
       message: 'Talento registrado exitosamente',
       userId: data.user?.id,
@@ -51,7 +52,7 @@ export class AuthService {
       },
     });
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) throwFromAuthSignUpError(error);
 
     const userId = data.user?.id;
 
@@ -101,6 +102,9 @@ export class AuthService {
     return {
       user_metadata: data.user.user_metadata,
       access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_in: data.session.expires_in,
+      expires_at: data.session.expires_at,
     };
   }
 }

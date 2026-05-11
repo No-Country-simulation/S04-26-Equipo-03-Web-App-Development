@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { throwFromAuthSignUpError } from '../common/map-supabase-auth-error';
 import { SupabaseService } from '../supabase/supabase.service';
 import { Database } from '../types/database.types';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -31,7 +32,7 @@ export class UsersService {
       },
     });
 
-    if (error) throw new InternalServerErrorException(error.message);
+    if (error) throwFromAuthSignUpError(error);
 
     return {
       message: 'Usuario creado exitosamente',
