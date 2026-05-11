@@ -19,6 +19,11 @@ import {
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import SkillBadge from '@/components/common/SkillBadge';
+import RatingStars from '@/components/common/RatingStars';
+import CheckboxGroup from '@/components/common/CheckboxGroup';
+import SidebarSection from '@/components/layout/SidebarSection';
+import RadioGroup from '@/components/common/RadioGroup';
 
 const candidates = [
   {
@@ -72,6 +77,34 @@ const candidates = [
   },
 ];
 
+const mockLevel = {
+  level: [
+    { label: 'Trainee', value: 'Trainee' },
+    { label: 'Junior', value: 'Junior' },
+    { label: 'Semi-Senior', value: 'Semi-Senior' },
+    { label: 'Senior', value: 'Senior' },
+    { label: 'Lead', value: 'Lead' },
+  ],
+  defaultSelected: ['Semi-Senior', 'Senior', 'Lead'],
+};
+
+const mockModality = {
+  modality: [
+    { label: 'Remoto', value: 'Remoto' },
+    { label: 'Híbrido', value: 'Híbrido' },
+    { label: 'Presencial', value: 'Presencial' },
+  ],
+  defaultSelected: ['Remoto', 'Híbrido'],
+};
+
+const mockAvailability = {
+  options: [
+    { label: 'Cualquiera', value: 'Cualquiera' },
+    { label: 'Disponible activamente', value: 'Disponible activamente' },
+    { label: 'Abierto a oportunidades', value: 'Abierto a oportunidades' },
+  ],
+};
+
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
 
@@ -124,10 +157,7 @@ export default function Dashboard() {
             </div>
 
             {/* Verification */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Verificación
-              </h3>
+            <SidebarSection title="Verificación">
               <label className="flex items-center gap-2 text-sm text-[#1a1a2e]">
                 <Checkbox />
                 Solo 100% verificados
@@ -137,22 +167,18 @@ export default function Dashboard() {
                   Requiero verificado en:
                 </p>
                 <div className="flex gap-2 mt-2">
-                  <Badge
-                    variant="outline"
-                    className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                  <SkillBadge
+                    variant="filter"
+                    onRemove={() => console.log('remover')}
                   >
-                    Figma{' '}
-                    <X className="color-[#6B7280] cursor-pointer" size={16} />
-                    {/* <span className="ml-1 cursor-pointer">×</span> */}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                    Figma
+                  </SkillBadge>
+                  <SkillBadge
+                    variant="filter"
+                    onRemove={() => console.log('remover')}
                   >
-                    React{' '}
-                    <X className="color-[#6B7280] cursor-pointer" size={16} />
-                    {/* <span className="ml-1 cursor-pointer">×</span> */}
-                  </Badge>
+                    React
+                  </SkillBadge>
                 </div>
                 <Button
                   variant="outline"
@@ -161,142 +187,70 @@ export default function Dashboard() {
                   <Plus size={16} /> skill
                 </Button>
               </div>
-            </div>
+            </SidebarSection>
 
             {/* Min Rating */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Calificación mínima
-              </h3>
-              <div className="flex items-center gap-1">
-                {[...Array(4)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className="fill-[#ffc107] text-[#ffc107]"
-                  />
-                ))}
-                {[...Array(1)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className="fill-white text-[#D1D5DB] hover:fill-[#D1D5DB]"
-                  />
-                ))}
-                <p className="text-xs text-[#999] ml-2">4+ estrellas</p>
-              </div>
+            <SidebarSection title="Calificación mínima">
+              {/*
+                  ESTOS VALORES DEFINIRSE COMO ESTADO LOCAL O GLOBAL E IMPLEMENTAR EN RatingStars
+                  value={minRating}
+                  onChange={setMinRating}
+                */}
+              <RatingStars />
               <p className="text-xs text-[#999]">
                 No excluye candidatos sin reseñas.
               </p>
-            </div>
+            </SidebarSection>
 
             {/* Stack */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Stack
-              </h3>
+            <SidebarSection title="Calificación mínima">
               <div className="flex gap-2 mb-2">
-                <Badge
-                  variant="outline"
-                  className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                <SkillBadge
+                  variant="filter"
+                  onRemove={() => console.log('remover')}
                 >
-                  Figma{' '}
-                  <X className="color-[#6B7280] cursor-pointer" size={16} />
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-xs bg-[#EEF2FF] border-[#C7D2FE] text-[#4F46E5] p-2"
+                  Figma
+                </SkillBadge>
+                <SkillBadge
+                  variant="filter"
+                  onRemove={() => console.log('remover')}
                 >
-                  React{' '}
-                  <X className="color-[#6B7280] cursor-pointer" size={16} />
-                </Badge>
+                  React
+                </SkillBadge>
               </div>
               <input
                 placeholder="Agregar stack..."
                 className="text-xs border-b-2 border-b-transparent rounded w-full p-2 focus:border-b-[#e5e5e5] focus:outline-none"
               />
-            </div>
+            </SidebarSection>
 
             {/* Level */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Nivel validado
-              </h3>
-              <div className="space-y-2">
-                {['Trainee', 'Junior', 'Semi-Senior', 'Senior', 'Lead'].map(
-                  (level) => (
-                    <label
-                      key={level}
-                      className="flex items-center gap-2 text-sm text-[#1a1a2e]"
-                    >
-                      <Checkbox
-                        className="data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]"
-                        defaultChecked={[
-                          'Semi-Senior',
-                          'Senior',
-                          'Lead',
-                        ].includes(level)}
-                      />
-                      {level}
-                    </label>
-                  )
-                )}
-              </div>
-            </div>
+            <SidebarSection title="Nivel validado">
+              <CheckboxGroup
+                options={mockLevel.level}
+                defaultSelected={mockLevel.defaultSelected}
+              />
+            </SidebarSection>
 
             {/* Availability */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Disponibilidad
-              </h3>
-              <div className="space-y-2">
-                {[
-                  'Cualquiera',
-                  'Disponible activamente',
-                  'Abierto a oportunidades',
-                ].map((avail) => (
-                  <label
-                    key={avail}
-                    className="flex items-center gap-2 text-sm text-[#1a1a2e]"
-                  >
-                    <input
-                      type="radio"
-                      name="availability"
-                      defaultChecked={avail === 'Disponible activamente'}
-                      className="accent-[#4F46E5]"
-                    />
-                    {avail}
-                  </label>
-                ))}
-              </div>
-            </div>
+            <SidebarSection title="Disponibilidad">
+              <RadioGroup
+                name="availability"
+                options={mockAvailability.options}
+                defaultValue="Disponible activamente"
+              />
+            </SidebarSection>
 
             {/* Modality */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Modalidad
-              </h3>
-              <div className="space-y-2">
-                {['Remoto', 'Híbrido', 'Presencial'].map((mode) => (
-                  <label
-                    key={mode}
-                    className="flex items-center gap-2 text-sm text-[#1a1a2e]"
-                  >
-                    <Checkbox
-                      className="data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]"
-                      defaultChecked={['Remoto', 'Híbrido'].includes(mode)}
-                    />
-                    {mode}
-                  </label>
-                ))}
-              </div>
-            </div>
+            <SidebarSection title="Modalidad">
+              <CheckboxGroup
+                options={mockModality.modality}
+                defaultSelected={mockModality.defaultSelected}
+              />
+            </SidebarSection>
 
             {/* Experience */}
-            <div>
-              <h3 className="text-xs font-semibold text-[#1a1a2e] uppercase mb-3">
-                Años de experiencia
-              </h3>
+            <SidebarSection title="Años de experiencia">
               <div className="space-y-2">
                 <div className="flex justify-between text-[#4B5563] text-xs">
                   <span>5</span>
@@ -312,7 +266,7 @@ export default function Dashboard() {
                 />
                 <p className="text-xs text-[#999]">9 – 16 años</p>
               </div>
-            </div>
+            </SidebarSection>
           </div>
         </aside>
 
@@ -385,13 +339,9 @@ export default function Dashboard() {
                           <h3 className="font-semibold text-[#1a1a2e]">
                             {candidate.name}
                             {candidate.verified && (
-                              <Badge className="bg-[#1a1a2e] text-white text-xs ml-2 rounded-md">
-                                <Astroid
-                                  size={16}
-                                  className="fill-[#FBBF24] text-[#FBBF24]"
-                                />
+                              <SkillBadge variant="star">
                                 100% verificado
-                              </Badge>
+                              </SkillBadge>
                             )}
                           </h3>
                           <p className="text-sm text-[#666]">
@@ -418,7 +368,7 @@ export default function Dashboard() {
                             </span>
                           </>
                         ) : (
-                          <span className="text-xs text-[#6B7280]">
+                          <span className="text-xs text-[#6B7280] italic">
                             Sin reseñas aún
                           </span>
                         )}
@@ -427,29 +377,16 @@ export default function Dashboard() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-[#4f46e5] text-white text-xs py-2 rounded-md">
-                      <Check className="text-white" /> {candidate.level}
-                    </Badge>
+                    <SkillBadge variant="level">{candidate.level}</SkillBadge>
                     {candidate.skills.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant="outline"
-                        className="text-xs border-[#A7F3D0] text-[#065F46] bg-white"
-                      >
-                        <Check className="text-[#10B981]" /> {skill}
-                      </Badge>
+                      <SkillBadge key={skill} variant="verified">
+                        {skill}
+                      </SkillBadge>
                     ))}
                     {candidate.pendingSkills.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant="outline"
-                        className="text-xs text-[#4B5563] bg-white border-dashed border-[#D1D5DB]"
-                      >
+                      <SkillBadge key={skill} variant="pending">
                         {skill}
-                        <span className="ml-1 text-xs text-[#6B7280]">
-                          pendiente
-                        </span>
-                      </Badge>
+                      </SkillBadge>
                     ))}
                   </div>
 
