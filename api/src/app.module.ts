@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { EnterprisesModule } from './enterprises/enterprises.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { UsersModule } from './users/users.module';
+import { TalentModule } from './talent/talent.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     AuthModule,
     EnterprisesModule,
+    TalentModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
