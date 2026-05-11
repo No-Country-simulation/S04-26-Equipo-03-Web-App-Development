@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, MoveDown, Plus, Star } from 'lucide-react';
+import { Heart, Menu, MoveDown, Plus, Star, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -23,19 +23,22 @@ import {
 
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b border-[#e5e5e5]">
-        <div className="flex items-center justify-between px-8 py-4">
+        <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-6 h-6 bg-[#1a1a2e] rounded-sm flex items-center justify-center text-white text-xs font-bold">
               TB
             </div>
-            <span className="font-semibold text-[#1a1a2e]">TalentBridge</span>
+            <span className="hidden sm:inline font-semibold text-[#1a1a2e]">
+              TalentBridge
+            </span>
           </Link>
-          <nav className="flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1">
             <Button className="text-sm text-[#4f46e5] bg-[#EEF2FF] font-normal px-4 py-2 rounded-md">
               Candidatos
             </Button>
@@ -45,16 +48,50 @@ export default function Dashboard() {
             <Button className="text-sm text-[#1a1a2e] bg-white font-normal px-4 py-2 rounded-md">
               Mis posiciones
             </Button>
-            <Button className="text-sm text-[#1a1a2e] bg-[#E5E7EB] rounded-full p-2">
+            <Button className="hidden sm:inline-flex text-sm text-[#1a1a2e] bg-[#E5E7EB] rounded-full p-2">
               MR
             </Button>
           </nav>
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden p-2 text-[#1a1a2e]"
+            aria-label="Abrir filtros"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row relative">
+        {/* Mobile backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-2xs bg-[#F9FAFB] border-r border-[#e5e5e5] p-6">
+        <aside
+          className={`
+            fixed inset-y-0 left-0 z-40 w-72 bg-[#F9FAFB] border-r border-[#e5e5e5] p-6
+            overflow-y-auto transform transition-transform duration-200
+            lg:static lg:inset-auto lg:z-auto lg:w-2xs lg:translate-x-0
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          <div className="flex justify-between items-center mb-6 lg:hidden">
+            <span className="text-sm font-semibold text-[#1a1a2e]">
+              Filtros
+            </span>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-1 text-[#6B7280]"
+              aria-label="Cerrar filtros"
+            >
+              <X size={20} />
+            </button>
+          </div>
           <div className="space-y-6">
             {/* Search */}
             <div>
@@ -187,14 +224,22 @@ export default function Dashboard() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="space-y-6">
             {/* Header Section */}
-            <div className="flex justify-between">
-              <h1 className="text-2xl font-bold text-[#1a1a2e] mb-2">
-                Candidatos
-              </h1>
-              <div className="flex gap-5 items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden text-xs border border-[#D1D5DB] text-[#4B5563] bg-white px-3 py-1.5 rounded-md"
+                >
+                  <Menu size={14} className="mr-1" /> Filtrar
+                </Button>
+                <h1 className="text-2xl font-bold text-[#1a1a2e]">
+                  Candidatos
+                </h1>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
                 <p className="text-sm text-[#666]">47 candidatos encontrados</p>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-[#F3F4F6] rounded-full p-1 gap-1 border border-[#E5E7EB]">
@@ -203,7 +248,7 @@ export default function Dashboard() {
                       // variant={viewMode === 'cards' ? 'default' : 'outline'}
                       // size="sm"
                       // className={`text-xs ${viewMode === 'cards' ? 'bg-[#1a1a2e] text-white' : ''}`}
-                      className={`px-5 py-1 text-xs rounded-full cursor-pointer transition-all ${
+                      className={`px-5 py-1 h-8 text-xs rounded-full cursor-pointer transition-all ${
                         viewMode === 'cards'
                           ? 'bg-[#111827] text-white font-medium hover:bg-[#111827]'
                           : 'bg-transparent text-[#4B5563] hover:text-gray-700 hover:bg-transparent'
@@ -216,7 +261,7 @@ export default function Dashboard() {
                       // variant={viewMode === 'tabla' ? 'default' : 'outline'}
                       // size="sm"
                       // className={`text-xs ${viewMode === 'tabla' ? 'bg-[#1a1a2e] text-white' : ''}`}
-                      className={`px-5 py-1 text-xs rounded-full cursor-pointer transition-all ${
+                      className={`px-5 py-1 h-8 text-xs rounded-full cursor-pointer transition-all ${
                         viewMode === 'tabla'
                           ? 'bg-[#111827] text-white font-medium hover:bg-[#111827]'
                           : 'bg-transparent text-[#4B5563] hover:text-gray-700 hover:bg-transparent'
@@ -237,7 +282,7 @@ export default function Dashboard() {
             </div>
 
             {/* Candidates Grid */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               {mockCandidates.map((candidate) => (
                 <Card
                   key={candidate.id}
@@ -325,7 +370,7 @@ export default function Dashboard() {
                       className="text-black h-8 w-30"
                     >
                       <Heart size={18} />
-                      Guardar
+                      <span className="hidden sm:inline">Guardar</span>
                     </Button>
                   </div>
                 </Card>
