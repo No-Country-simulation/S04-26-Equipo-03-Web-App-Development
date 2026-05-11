@@ -1,21 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import SiteHeader from '@/components/layout/SiteHeader';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
+import FormField from '@/components/common/FormField';
+import RememberField from '@/components/common/RememberField';
+import AuthRedirect from '@/components/common/AuthRedirect';
+import AuthHeader from '@/components/common/ AuthHeader';
 
 export default function LoginPage() {
-  const [isSelected, setIsSelected] = useState(true);
-
-  const toggleLevel = (isSelected: boolean) => {
-    setIsSelected(isSelected);
-  };
-
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <SiteHeader
@@ -34,59 +29,31 @@ export default function LoginPage() {
           >
             <ArrowLeft size={16} className="mr-1" /> Atrás
           </Link>
-          <h1 className="text-2xl font-bold text-[#1a1a2e]">Iniciar sesión</h1>
-          <p className="text-gray-500 mb-0">
-            Accedé al pool de talento validado.
-          </p>
+          <AuthHeader
+            title="Iniciar sesión"
+            subtitle="Accedé al pool de talento validado."
+          />
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a2e] mb-2">
-                Email corporativo
-              </label>
-              <Input
-                type="email"
-                placeholder="nombre@empresa.com"
-                className="h-12 border-gray-200 rounded-md"
-              />
-            </div>
+            <FormField
+              type="email"
+              name="email"
+              label="Email corporativo"
+              placeholder="nombre@empresa.com"
+              hint="No aceptamos cuentas personales (gmail, hotmail, yahoo, etc)."
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-[#1a1a2e] mb-2">
-                Contraseña
-              </label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                className="h-12 border-gray-200 rounded-md"
-              />
-            </div>
+            <FormField
+              label="Contraseña"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+            />
 
-            <div className="flex items-center justify-between">
-              <label
-                key="recordar"
-                className="flex items-center gap-3 cursor-pointer"
-              >
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => toggleLevel(!isSelected)}
-                  className={`${
-                    isSelected
-                      ? 'data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]'
-                      : ''
-                  }`}
-                />
-                <span className="text-sm text-[#1a1a2e] whitespace-nowrap">
-                  Recordar mi cuenta
-                </span>
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-[#4f46e5] text-[12px] font-normal font-['Inter'] leading-4.5 whitespace-nowrap hover:underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
+            <RememberField
+              label="Recordar mi cuenta"
+              forgotHref="/forgot-password"
+            />
 
             <Link href="/onboarding/company">
               <Button className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer">
@@ -94,15 +61,7 @@ export default function LoginPage() {
               </Button>
             </Link>
 
-            <p className="text-sm text-gray-500 text-center mt-4">
-              ¿No tienes cuenta?{' '}
-              <a
-                href="/signup-company"
-                className="text-[#4f46e5] hover:underline font-medium"
-              >
-                Registrate
-              </a>
-            </p>
+            <AuthRedirect type="login" />
 
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px bg-gray-200"></div>
