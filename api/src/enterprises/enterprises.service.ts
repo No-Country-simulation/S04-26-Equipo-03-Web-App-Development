@@ -128,4 +128,75 @@ export class EnterprisesService {
     if (error) throw new InternalServerErrorException(error.message);
     return { message: 'Empresa eliminada exitosamente' };
   }
+
+  // ── Favoritos del reclutador ─────────────────────────────────────────────
+
+  private async getRecruiterRow(userId: string) {
+    const client = this.supabaseService.getClient();
+    const { data, error } = (await client
+      .from('Recruiter_enterprise')
+      .select('id, fav_talents')
+      .eq('user_id', userId)
+      .eq('active', true)
+      .maybeSingle()) as {
+      data: { id: string; fav_talents: string[] | null } | null;
+      error: any;
+    };
+    if (error) throw new InternalServerErrorException(error.message);
+    if (!data)
+      throw new NotFoundException(
+        'No sos reclutador o no tenés empresa asignada',
+      );
+    return data;
+  }
+
+  async getFavorites(userId: string) {
+    const recruiter = await this.getRecruiterRow(userId);
+    const ids = recruiter.fav_talents ?? [];
+    if (ids.length === 0) return { favorites: [] };
+
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client
+      .from('Talent_profile')
+      .select('*, User(id, first_name, last_name, active)')
+      .in('id', ids);
+
+    if (error) throw new InternalServerErrorException(error.message);
+    return { favorites: data ?? [] };
+  }
+
+  async addFavorite(
+    userId: string,
+    talentProfileId: string,
+  ): Promise<{ message: string; fav_talents: string[] }> {
+    const recruiter = await this.getRecruiterRow(userId);
+    const current = recruiter.fav_talents ?? [];
+    if (current.includes(talentProfileId)) {
+      return { message: 'Ya estaba en favoritos', fav_talents: current };
+    }
+    const updated = [...current, talentProfileId];
+    const client = this.supabaseService.getClient();
+    const { error } = await client
+      .from('Recruiter_enterprise')
+      .update({ fav_talents: updated })
+      .eq('id', recruiter.id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { message: 'Talento agregado a favoritos', fav_talents: updated };
+  }
+
+  async removeFavorite(
+    userId: string,
+    talentProfileId: string,
+  ): Promise<{ message: string; fav_talents: string[] }> {
+    const recruiter = await this.getRecruiterRow(userId);
+    const current = recruiter.fav_talents ?? [];
+    const updated = current.filter((id) => id !== talentProfileId);
+    const client = this.supabaseService.getClient();
+    const { error } = await client
+      .from('Recruiter_enterprise')
+      .update({ fav_talents: updated })
+      .eq('id', recruiter.id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { message: 'Talento eliminado de favoritos', fav_talents: updated };
+  }
 }
