@@ -1,47 +1,25 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsArray,
-  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsStrongPassword,
   IsUUID,
 } from 'class-validator';
 import { TalentAvailability } from './talent-availability.enum';
 
 export class CreateTalentRegisterDto {
-  @ApiPropertyOptional({ example: 'Juan' })
+  @ApiProperty({ example: 'Juan' })
   @IsString()
   @IsNotEmpty()
   first_name!: string;
 
-  @ApiPropertyOptional({ example: 'Pérez' })
+  @ApiProperty({ example: 'Pérez' })
   @IsString()
   @IsNotEmpty()
   last_name!: string;
-
-  @ApiPropertyOptional({ example: 'juan@gmail.com' })
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
-
-  @ApiPropertyOptional({
-    example: 'secreto123',
-    description: 'Contraseña (reglas fuertes)',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsStrongPassword({
-    minLength: 8,
-    minNumbers: 1,
-    minSymbols: 1,
-    minUppercase: 1,
-    minLowercase: 1,
-  })
-  password!: string;
 
   @ApiPropertyOptional({ example: 'Buenos Aires, Argentina' })
   @IsOptional()
@@ -82,4 +60,12 @@ export class CreateTalentRegisterDto {
   @IsArray()
   @IsUUID('4', { each: true })
   blocked_enterprise_ids?: string[];
+
+  /**
+   * Declarado aquí solo para que ValidationPipe (forbidNonWhitelisted) no
+   * rechace el campo cuando Swagger lo envía vacío en multipart.
+   * El archivo real se recibe por @UploadedFile(), no por dto.file.
+   */
+  @IsOptional()
+  file?: unknown;
 }

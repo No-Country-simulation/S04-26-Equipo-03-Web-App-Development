@@ -20,10 +20,26 @@ export class AuthController {
 
   @Post('register/talent')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Registro de talento' })
-  @ApiResponse({ status: 201, description: 'Talento registrado exitosamente.' })
-  registerTalent(@Body() dto: RegisterTalentDto) {
-    return this.authService.registerTalent(dto);
+  @ApiOperation({ summary: 'Registro de talento (solo email + password)' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Cuenta creada y sesión iniciada. Devuelve access_token y setea cookie.',
+  })
+  async registerTalent(
+    @Body() dto: RegisterTalentDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.registerTalent(dto);
+
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return result;
   }
 
   @Post('register/enterprise')

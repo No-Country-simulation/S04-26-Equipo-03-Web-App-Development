@@ -34,7 +34,7 @@ export class UsersController {
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @Get('me')
   getMe(@Req() req: Request) {
-    return this.usersService.findOne(req['user'].id as string);
+    return this.usersService.findMe(req['user'].id as string);
   }
 
   // GET /users
