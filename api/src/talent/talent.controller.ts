@@ -9,17 +9,22 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import type { Request } from 'express';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateTalentRegisterDto } from './dto/create-talent-register.dto';
 import { UpdateTalentProfileDto } from './dto/update-talent-profile.dto';
 import { UpdateTalentRoleSkillsDto } from './dto/update-talent-role-skills.dto';
@@ -30,38 +35,23 @@ import { TalentService } from './talent.service';
 export class TalentController {
   constructor(private readonly talentService: TalentService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Registrar talento (JSON, sin foto)',
-    description:
-      'Misma lógica que POST /talent/register pero sin multipart. Foto: avatar por iniciales en Cloudinary.',
-  })
-  @ApiResponse({
-    status: 201,
-    description:
-      'Creado: { message }; opcional persistence_notes si availability/avatar_url no pudieron persistirse (falta migración). Tokens vía login.',
-  })
-  registerJson(@Body() dto: CreateTalentRegisterDto) {
-    return this.talentService.registerJson(dto);
-  }
-
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Registrar talento (multipart, archivo opcional paso 1 Figma)',
+    summary:
+      'Crear perfil de talento (multipart, foto opcional) — Paso 1 onboarding',
     description:
-      'Campos texto + archivo opcional `file` (mismo nombre que en el cliente / Cloudinary). Si no hay archivo, se sube avatar SVG con iniciales.',
+      'Requiere token. Igual que POST /talent pero acepta foto de perfil.',
   })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['email', 'password', 'first_name', 'last_name'],
+      required: ['first_name', 'last_name'],
       properties: {
-        email: { type: 'string', format: 'email' },
-        password: { type: 'string' },
         first_name: { type: 'string' },
         last_name: { type: 'string' },
         location: { type: 'string' },
@@ -88,13 +78,15 @@ export class TalentController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Creado: ver POST /talent.',
+    description: 'Perfil creado correctamente.',
   })
   registerMultipart(
+    @Req() req: Request,
     @UploadedFile() file: unknown,
     @Body() dto: CreateTalentRegisterDto,
   ) {
-    return this.talentService.register(file, dto);
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.register(userId, file, dto);
   }
 
   @Get('profiles')
@@ -107,6 +99,21 @@ export class TalentController {
     return this.talentService.listProfiles();
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Get('me')
+  @ApiOperation({
+    summary: 'Obtener el perfil completo del talento autenticado',
+    description:
+      'Devuelve profile, user, roles, skills y blocked_enterprises del talento autenticado.',
+  })
+  getMyProfile(@Req() req: Request) {
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.findMyProfile(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get('profile/:profileId')
   @ApiOperation({
     summary: 'Obtener perfil de talento (pasos Figma agregados en DB)',
@@ -115,6 +122,8 @@ export class TalentController {
     return this.talentService.findProfileById(profileId);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId')
   @ApiOperation({
     summary:
@@ -127,6 +136,8 @@ export class TalentController {
     return this.talentService.updateProfile(profileId, dto);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId/role-skills')
   @ApiOperation({
     summary: 'Paso 2 Figma: rol principal + stack (mín. 3 skills por id)',
@@ -138,6 +149,8 @@ export class TalentController {
     return this.talentService.updateRoleAndSkills(profileId, dto);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId/portfolio/pdf')
   @UseInterceptors(FileInterceptor('portfolio'))
   @ApiConsumes('multipart/form-data')
@@ -158,6 +171,8 @@ export class TalentController {
     return this.talentService.uploadPortfolioPdf(profileId, portfolio);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Delete('profile/:profileId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Desactivar talento (User.active = false)' })

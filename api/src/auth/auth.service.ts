@@ -15,23 +15,34 @@ export class AuthService {
 
   async registerTalent(dto: RegisterTalentDto) {
     const client = this.supabaseService.getClient();
-    const { data, error } = await client.auth.signUp({
+
+    // 1. Crear cuenta en auth
+    const { error: signError } = await client.auth.signUp({
       email: dto.email,
       password: dto.password,
       options: {
         data: {
-          first_name: dto.first_name,
-          last_name: dto.last_name,
           role: 'TALENT',
           active: true,
         },
       },
     });
 
-    if (error) throwFromAuthSignUpError(error);
+    if (signError) throwFromAuthSignUpError(signError);
+
+    // 2. Auto-login para devolver el token al frontend
+    const { data: loginData, error: loginError } =
+      await client.auth.signInWithPassword({
+        email: dto.email,
+        password: dto.password,
+      });
+
+    if (loginError) throw new InternalServerErrorException(loginError.message);
+
     return {
-      message: 'Talento registrado exitosamente',
-      userId: data.user?.id,
+      message: 'Cuenta creada exitosamente',
+      user_metadata: loginData.user.user_metadata,
+      access_token: loginData.session.access_token,
     };
   }
 

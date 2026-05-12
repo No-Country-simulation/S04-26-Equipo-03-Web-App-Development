@@ -5,10 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { throwFromAuthSignUpError } from '../common/map-supabase-auth-error';
 import {
   isPostgrestMissingColumnOrSchemaCacheError,
-  type PostgrestLikeError,
   throwMappedPostgrestError,
 } from '../common/map-postgrest-error';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -67,44 +65,22 @@ export class TalentService {
   }
 
   /**
-   * Registro JSON (sin foto). Misma lógica que register con archivo opcional ausente.
-   */
-  async registerJson(dto: CreateTalentRegisterDto) {
-    return this.register(undefined, dto);
-  }
-
-  /**
    * Registro con archivo opcional (multipart campo `file`).
-   * Tokens: el cliente los obtiene en el login, no en el registro.
+   * El usuario ya fue creado en auth — recibe userId del token.
    */
-  async register(file: unknown, dto: CreateTalentRegisterDto) {
+  async register(userId: string, file: unknown, dto: CreateTalentRegisterDto) {
     const client = this.supabaseService.getClient();
 
-    const { data: signData, error: signError } = await client.auth.signUp({
-      email: dto.email,
-      password: dto.password,
-      options: {
-        data: {
-          first_name: dto.first_name,
-          last_name: dto.last_name,
-          role: 'TALENT',
-          active: true,
-        },
+    // Actualizar first_name y last_name en auth metadata y en public.User
+    await client.auth.admin.updateUserById(userId, {
+      user_metadata: {
+        first_name: dto.first_name,
+        last_name: dto.last_name,
       },
     });
 
-    if (signError) throwFromAuthSignUpError(signError);
-
-    const userId = signData.user?.id;
-    if (!userId) {
-      throw new InternalServerErrorException(
-        'No se pudo obtener el id del usuario',
-      );
-    }
-
     const userRow = {
       id: userId,
-      email: dto.email,
       first_name: dto.first_name,
       last_name: dto.last_name,
       role: 'TALENT' as const,
@@ -122,7 +98,6 @@ export class TalentService {
       const { error: userUpdateError } = await client
         .from('User')
         .update({
-          email: dto.email,
           first_name: dto.first_name,
           last_name: dto.last_name,
           role: 'TALENT',
@@ -170,10 +145,7 @@ export class TalentService {
         .eq('id', profile.id);
       if (
         patchErr &&
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- PostgREST error shape
-        isPostgrestMissingColumnOrSchemaCacheError(
-          patchErr as PostgrestLikeError,
-        ) &&
+        isPostgrestMissingColumnOrSchemaCacheError(patchErr) &&
         dto.availability !== undefined &&
         'availability' in patch
       ) {
@@ -208,10 +180,7 @@ export class TalentService {
           }
           profile = again;
         } else if (
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- PostgREST error shape
-          isPostgrestMissingColumnOrSchemaCacheError(
-            profileError as PostgrestLikeError,
-          ) &&
+          isPostgrestMissingColumnOrSchemaCacheError(profileError) &&
           !legacyForced &&
           dto.availability !== undefined &&
           'availability' in profileInsert
@@ -252,10 +221,7 @@ export class TalentService {
 
       if (
         avatarUpdateError &&
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- PostgREST error shape
-        isPostgrestMissingColumnOrSchemaCacheError(
-          avatarUpdateError as PostgrestLikeError,
-        )
+        isPostgrestMissingColumnOrSchemaCacheError(avatarUpdateError)
       ) {
         persistenceNotes.push(
           'avatar_url no se guardó en BD: falta la columna o PostgREST sin refrescar el esquema.',
@@ -278,8 +244,10 @@ export class TalentService {
     }
 
     return {
-      message:
-        'Cuenta registrada correctamente. Iniciá sesión para obtener token y refresh_token.',
+      message: 'Perfil creado correctamente.',
+      profile_id: profile.id,
+      user_id: userId,
+      avatar_url: avatar.secure_url,
       ...(persistenceNotes.length > 0 && {
         persistence_notes: persistenceNotes,
       }),
@@ -305,6 +273,21 @@ export class TalentService {
 
     if (error) throwMappedPostgrestError(error);
     return { profiles: data ?? [] };
+  }
+
+  async findMyProfile(userId: string) {
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client
+      .from('Talent_profile')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) throwMappedPostgrestError(error);
+    if (!data)
+      throw new NotFoundException('No tenés un perfil de talento creado');
+
+    return this.findProfileById(data.id);
   }
 
   async findProfileById(profileId: string): Promise<{
@@ -469,11 +452,6 @@ export class TalentService {
     profileId: string,
     file: unknown,
   ): Promise<TalentProfileRow> {
-    if (!this.isExtendedTalentProfileSchema()) {
-      throw new BadRequestException(
-        'Portfolio en BD requiere columnas nuevas y SUPABASE_TALENT_EXTENDED_SCHEMA=true (tras migrar Supabase).',
-      );
-    }
     await this.findProfileById(profileId);
     const uploaded =
       await this.cloudinaryService.uploadTalentPortfolioPdf(file);

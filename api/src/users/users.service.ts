@@ -68,6 +68,41 @@ export class UsersService {
     return data;
   }
 
+  async findMe(
+    id: string,
+  ): Promise<
+    UserRow & {
+      talent_profile_id?: string | null;
+      recruiter_id?: string | null;
+    }
+  > {
+    const user = await this.findOne(id);
+    if (!user)
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+
+    const client = this.supabaseService.getClient();
+
+    if (user.role === 'TALENT') {
+      const { data } = await client
+        .from('Talent_profile')
+        .select('id')
+        .eq('user_id', id)
+        .maybeSingle();
+      return { ...user, talent_profile_id: data?.id ?? null };
+    }
+
+    if (user.role === 'RECRUITER') {
+      const { data } = await client
+        .from('Recruiter_enterprise')
+        .select('id')
+        .eq('user_id', id)
+        .maybeSingle();
+      return { ...user, recruiter_id: data?.id ?? null };
+    }
+
+    return user;
+  }
+
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
