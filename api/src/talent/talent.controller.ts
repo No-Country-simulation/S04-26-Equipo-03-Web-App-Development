@@ -99,6 +99,21 @@ export class TalentController {
     return this.talentService.listProfiles();
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Get('me')
+  @ApiOperation({
+    summary: 'Obtener el perfil completo del talento autenticado',
+    description:
+      'Devuelve profile, user, roles, skills y blocked_enterprises del talento autenticado.',
+  })
+  getMyProfile(@Req() req: Request) {
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.findMyProfile(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get('profile/:profileId')
   @ApiOperation({
     summary: 'Obtener perfil de talento (pasos Figma agregados en DB)',
@@ -107,6 +122,8 @@ export class TalentController {
     return this.talentService.findProfileById(profileId);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId')
   @ApiOperation({
     summary:
@@ -119,6 +136,8 @@ export class TalentController {
     return this.talentService.updateProfile(profileId, dto);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId/role-skills')
   @ApiOperation({
     summary: 'Paso 2 Figma: rol principal + stack (mín. 3 skills por id)',
@@ -130,6 +149,8 @@ export class TalentController {
     return this.talentService.updateRoleAndSkills(profileId, dto);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/:profileId/portfolio/pdf')
   @UseInterceptors(FileInterceptor('portfolio'))
   @ApiConsumes('multipart/form-data')
@@ -150,6 +171,8 @@ export class TalentController {
     return this.talentService.uploadPortfolioPdf(profileId, portfolio);
   }
 
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Delete('profile/:profileId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Desactivar talento (User.active = false)' })

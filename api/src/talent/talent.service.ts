@@ -7,7 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   isPostgrestMissingColumnOrSchemaCacheError,
-  type PostgrestLikeError,
   throwMappedPostgrestError,
 } from '../common/map-postgrest-error';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -276,6 +275,21 @@ export class TalentService {
     return { profiles: data ?? [] };
   }
 
+  async findMyProfile(userId: string) {
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client
+      .from('Talent_profile')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (error) throwMappedPostgrestError(error);
+    if (!data)
+      throw new NotFoundException('No tenés un perfil de talento creado');
+
+    return this.findProfileById(data.id);
+  }
+
   async findProfileById(profileId: string): Promise<{
     profile: TalentProfileRow;
     user: Database['public']['Tables']['User']['Row'] | null;
@@ -438,11 +452,6 @@ export class TalentService {
     profileId: string,
     file: unknown,
   ): Promise<TalentProfileRow> {
-    if (!this.isExtendedTalentProfileSchema()) {
-      throw new BadRequestException(
-        'Portfolio en BD requiere columnas nuevas y SUPABASE_TALENT_EXTENDED_SCHEMA=true (tras migrar Supabase).',
-      );
-    }
     await this.findProfileById(profileId);
     const uploaded =
       await this.cloudinaryService.uploadTalentPortfolioPdf(file);
