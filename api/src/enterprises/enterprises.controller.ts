@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Post,
   Delete,
   Param,
   Body,
@@ -9,6 +10,8 @@ import {
   Req,
   ForbiddenException,
   ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -158,5 +161,54 @@ export class EnterprisesController {
       );
     }
     return this.enterprisesService.remove(id);
+  }
+
+  // GET /enterprises/recruiters/me/favorites
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Obtener talentos favoritos del reclutador autenticado',
+  })
+  @ApiResponse({ status: 200, description: 'Lista de perfiles favoritos.' })
+  @ApiResponse({ status: 404, description: 'El usuario no es reclutador.' })
+  @Get('recruiters/me/favorites')
+  getFavorites(@Req() req: Request) {
+    return this.enterprisesService.getFavorites(req['user'].id as string);
+  }
+
+  // POST /enterprises/recruiters/me/favorites/:talentProfileId
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Agregar un talento a favoritos' })
+  @ApiResponse({ status: 201, description: 'Talento agregado a favoritos.' })
+  @ApiResponse({ status: 404, description: 'El usuario no es reclutador.' })
+  @HttpCode(HttpStatus.CREATED)
+  @Post('recruiters/me/favorites/:talentProfileId')
+  addFavorite(
+    @Req() req: Request,
+    @Param('talentProfileId', ParseUUIDPipe) talentProfileId: string,
+  ) {
+    return this.enterprisesService.addFavorite(
+      req['user'].id as string,
+      talentProfileId,
+    );
+  }
+
+  // DELETE /enterprises/recruiters/me/favorites/:talentProfileId
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Eliminar un talento de favoritos' })
+  @ApiResponse({ status: 200, description: 'Talento eliminado de favoritos.' })
+  @ApiResponse({ status: 404, description: 'El usuario no es reclutador.' })
+  @HttpCode(HttpStatus.OK)
+  @Delete('recruiters/me/favorites/:talentProfileId')
+  removeFavorite(
+    @Req() req: Request,
+    @Param('talentProfileId', ParseUUIDPipe) talentProfileId: string,
+  ) {
+    return this.enterprisesService.removeFavorite(
+      req['user'].id as string,
+      talentProfileId,
+    );
   }
 }
