@@ -8,6 +8,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { UsersModule } from './users/users.module';
 import { TalentModule } from './talent/talent.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { SkillsModule } from './skills/skills.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     EnterprisesModule,
     TalentModule,
     CloudinaryModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
