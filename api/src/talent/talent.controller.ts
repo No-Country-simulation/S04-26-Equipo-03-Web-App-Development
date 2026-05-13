@@ -139,14 +139,43 @@ export class TalentController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @Patch('profile/:profileId/role-skills')
+  @UseInterceptors(FileInterceptor('cv'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Paso 2 Figma: rol principal + stack (mín. 3 skills por id)',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['role_name', 'skills'],
+      properties: {
+        role_name: { type: 'string', example: 'Product Designer' },
+        skills: {
+          type: 'string',
+          description:
+            'JSON array de skills con skill_id y self_rating opcional (1–10)',
+          example:
+            '[{"skill_id":"uuid-1","self_rating":8},{"skill_id":"uuid-2"},{"skill_id":"uuid-3"}]',
+        },
+        cv: {
+          type: 'string',
+          format: 'binary',
+          description: 'PDF del CV (opcional, máx. 10 MiB)',
+        },
+      },
+    },
+  })
   updateRoleSkills(
     @Param('profileId', ParseUUIDPipe) profileId: string,
-    @Body() dto: UpdateTalentRoleSkillsDto,
+    @UploadedFile() cv: unknown,
+    @Body() body: Record<string, string>,
   ) {
-    return this.talentService.updateRoleAndSkills(profileId, dto);
+    const dto = new UpdateTalentRoleSkillsDto();
+    dto.role_name = body.role_name;
+    dto.skills = UpdateTalentRoleSkillsDto.deserializeSkills(
+      body.skills ?? '[]',
+    );
+    return this.talentService.updateRoleAndSkills(profileId, dto, cv);
   }
 
   @UseGuards(AuthGuard)

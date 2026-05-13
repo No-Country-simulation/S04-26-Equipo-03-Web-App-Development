@@ -199,6 +199,31 @@ export class CloudinaryService implements OnModuleInit {
   }
 
   /**
+   * CV PDF (onboarding paso 2): hasta 10 MiB, carpeta `talent/cvs`.
+   */
+  async uploadTalentCvPdf(file: unknown): Promise<CloudinaryUploadResult> {
+    const { buffer, mimetype } = parseMemoryUploadedFile(file);
+    const maxBytes = parsePositiveInt(
+      this.config.get<string>('CLOUDINARY_CV_MAX_FILE_BYTES'),
+      10 * 1024 * 1024,
+    );
+    if (buffer.byteLength > maxBytes) {
+      throw new BadRequestException(
+        `El CV supera el máximo permitido (${maxBytes} bytes)`,
+      );
+    }
+    if (mimetype !== 'application/pdf') {
+      throw new BadRequestException('El CV debe ser un PDF');
+    }
+    const dataUri = `data:${mimetype};base64,${Buffer.from(buffer).toString('base64')}`;
+    const options: Record<string, unknown> = {
+      resource_type: 'raw',
+      ...this.buildFolderOnlyOptions('talent/cvs'),
+    };
+    return uploadDataUriWithCloudinary(this.cloudinary, dataUri, options);
+  }
+
+  /**
    * Portfolio PDF (Figma): hasta 10 MiB, carpeta `talent/portfolios`.
    */
   async uploadTalentPortfolioPdf(
