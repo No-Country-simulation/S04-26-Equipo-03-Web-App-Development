@@ -169,13 +169,26 @@ export class EnterprisesService {
     userId: string,
     talentProfileId: string,
   ): Promise<{ message: string; fav_talents: string[] }> {
+    const client = this.supabaseService.getClient();
+
+    const { data: talentExists, error: talentErr } = await client
+      .from('Talent_profile')
+      .select('id')
+      .eq('id', talentProfileId)
+      .maybeSingle();
+
+    if (talentErr) throw new InternalServerErrorException(talentErr.message);
+    if (!talentExists)
+      throw new NotFoundException(
+        `No existe un perfil de talento con id ${talentProfileId}`,
+      );
+
     const recruiter = await this.getRecruiterRow(userId);
     const current = recruiter.fav_talents ?? [];
     if (current.includes(talentProfileId)) {
       return { message: 'Ya estaba en favoritos', fav_talents: current };
     }
     const updated = [...current, talentProfileId];
-    const client = this.supabaseService.getClient();
     const { error } = await client
       .from('Recruiter_enterprise')
       .update({ fav_talents: updated })

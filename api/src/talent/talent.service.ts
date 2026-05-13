@@ -9,7 +9,10 @@ import {
   isPostgrestMissingColumnOrSchemaCacheError,
   throwMappedPostgrestError,
 } from '../common/map-postgrest-error';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import {
+  CloudinaryService,
+  isNonEmptyUploadedFile,
+} from '../cloudinary/cloudinary.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import type { Database } from '../types/database.types';
 import { CreateTalentRegisterDto } from './dto/create-talent-register.dto';
@@ -412,9 +415,35 @@ export class TalentService {
   async updateRoleAndSkills(
     profileId: string,
     dto: UpdateTalentRoleSkillsDto,
+    file?: unknown,
   ): Promise<{ role: unknown; skills: unknown }> {
     await this.findProfileById(profileId);
     const client = this.supabaseService.getClient();
+
+    const skillIds = (
+      dto.skills as Array<{ skill_id: string; self_rating?: number }>
+    ).map((s) => s.skill_id);
+
+    const { data: existingSkills, error: skillCheckErr } = await client
+      .from('Skill')
+      .select('id')
+      .in('id', skillIds);
+
+    if (skillCheckErr) throwMappedPostgrestError(skillCheckErr);
+
+    const foundIds = new Set((existingSkills ?? []).map((s) => s.id));
+    const missing = skillIds.filter((id) => !foundIds.has(id));
+    if (missing.length > 0) {
+      throw new BadRequestException(
+        `Las siguientes skills no existen: ${missing.join(', ')}`,
+      );
+    }
+
+    let cvUrl: string | null = null;
+    if (isNonEmptyUploadedFile(file)) {
+      const uploaded = await this.cloudinaryService.uploadTalentCvPdf(file);
+      cvUrl = uploaded.secure_url;
+    }
 
     await client.from('Talent_Role').delete().eq('profile_id', profileId);
 
@@ -424,7 +453,7 @@ export class TalentService {
         profile_id: profileId,
         role_name: dto.role_name,
         visible: true,
-        cv_url: dto.cv_url ?? null,
+        cv_url: cvUrl,
       })
       .select('*')
       .single();
@@ -433,9 +462,12 @@ export class TalentService {
 
     await client.from('Talent_skill').delete().eq('profile_id', profileId);
 
-    const skillInserts = dto.skill_ids.map((skill_id) => ({
+    const skillInserts = (
+      dto.skills as Array<{ skill_id: string; self_rating?: number }>
+    ).map((s) => ({
       profile_id: profileId,
-      skill_id,
+      skill_id: s.skill_id,
+      ...(s.self_rating !== undefined && { self_rating: s.self_rating }),
     }));
 
     const { data: skills, error: skErr } = await client
