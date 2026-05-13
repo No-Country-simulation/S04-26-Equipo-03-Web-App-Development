@@ -2,37 +2,25 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Star, Heart, ChevronLeft, Download } from 'lucide-react';
+import { Heart, ChevronLeft, Download } from 'lucide-react';
 import Link from 'next/link';
+import Header from '../common/header';
+import { useState } from 'react';
+import SkillBadge from '@/components/common/SkillBadge';
+import { Badge } from '@/components/ui/badge';
+import RatingDisplay from '../common/RatingDisplay';
+import { mockExperience, mockReviews, mockSkills } from './_data';
+import SkillPill from '@/components/common/SkillPill';
+import ReviewCard from '../common/ReviewCard';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CandidateProfile() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#1a1a2e] rounded-md flex items-center justify-center text-white text-xs font-bold">
-              TB
-            </div>
-            <span className="font-bold text-[#1a1a2e]">TalentBridge</span>
-          </div>
-          <nav className="flex items-center gap-6 text-sm">
-            <a href="#" className="text-[#1a1a2e] hover:text-[#1a1a2e]/80">
-              Candidatos
-            </a>
-            <a href="#" className="text-[#1a1a2e] hover:text-[#1a1a2e]/80">
-              Mis guardados
-            </a>
-            <a href="#" className="text-[#1a1a2e] hover:text-[#1a1a2e]/80">
-              Mis posiciones
-            </a>
-            <a href="#" className="text-[#1a1a2e] hover:text-[#1a1a2e]/80">
-              MR
-            </a>
-          </nav>
-        </div>
-      </header>
+      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Back Link */}
@@ -67,127 +55,62 @@ export default function CandidateProfile() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-3 flex-wrap">
-                    <span className="bg-[#4f46e5] text-white px-3 py-1 rounded text-xs font-medium">
-                      ✓ Semi-Senior
-                    </span>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4].map((i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 fill-[#fbbf24] text-[#fbbf24]"
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-gray-600">4.7 (8)</span>
-                    <span className="bg-[#1a1a2e] text-white px-2 py-1 rounded text-xs">
-                      ✓ 100% verificado
-                    </span>
-                    <span className="text-xs text-gray-600">12 años exp.</span>
+                    <SkillBadge variant="level">Semi-Senior</SkillBadge>
+                    <RatingDisplay stars={4} label="4.7 (8)" />
+                    <SkillBadge variant="star">100% verificado</SkillBadge>
+                    <Badge className="bg-[#F3F4F6] text-xs text-[#6B7280] mt-2 border border-[#E5E7EB] rounded-full">
+                      12 años exp.
+                    </Badge>
                   </div>
                 </div>
               </div>
             </Card>
 
             {/* Skills */}
-            <Card className="p-6 border-gray-200">
+            <Card className="p-6 border-[#E5E7EB]">
               <h2 className="text-lg font-bold text-[#1a1a2e] mb-2">Skills</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Click en una skill para ver el detalle de la validación.
               </p>
               <div className="flex flex-wrap gap-2">
-                {[
-                  { name: 'Figma', level: 'Senior', count: '11' },
-                  { name: 'Design Systems', level: 'Senior', count: '0' },
-                  { name: 'User Research', level: 'Semi-Senior', count: '0' },
-                  { name: 'Prototyping', level: 'Senior', count: '11' },
-                  { name: 'Accessibility', level: 'Junior', count: '0' },
-                  { name: 'Design Tokens', level: 'pendiente', count: '' },
-                  { name: 'UX Writing', level: 'pendiente', count: '' },
-                ].map((skill) => (
-                  <div
+                {mockSkills.map((skill) => (
+                  <SkillPill
                     key={skill.name}
-                    className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full text-sm"
-                  >
-                    <span className="text-gray-700">✓ {skill.name}</span>
-                    {skill.level && (
-                      <span className="text-xs text-gray-600">
-                        · {skill.level}
-                      </span>
-                    )}
-                    {skill.count && (
-                      <span className="text-xs text-gray-600">
-                        ({skill.count})
-                      </span>
-                    )}
-                  </div>
+                    name={skill.name}
+                    level={skill.level}
+                    count={skill.count}
+                  />
                 ))}
               </div>
             </Card>
 
             {/* Reviews */}
-            <Card className="p-6 border-gray-200">
-              <div className="mb-6">
+            <Card className="p-6 border-{#E5E7EB}">
+              <div className="mb-0">
                 <h2 className="text-lg font-bold text-[#1a1a2e]">Reseñas</h2>
                 <p className="text-sm text-gray-600">habilidades blandas</p>
               </div>
-              <div className="flex items-baseline gap-4 mb-6">
+              <div className="flex items-baseline gap-4 mb-0">
                 <div className="text-4xl font-bold text-[#1a1a2e]">4.7</div>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${i <= 4 ? 'fill-[#fbbf24] text-[#fbbf24]' : 'text-gray-300'}`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600">
-                  8 reseñas verificadas
-                </span>
+                <RatingDisplay stars={5} label="8 reseñas verificadas" />
               </div>
               <div className="space-y-4">
-                {[
-                  {
-                    author: 'Lucía B.',
-                    role: 'FintechCo · Reclutador / empleado',
-                    review:
-                      'Comunicación clara y productiva. Alineaba stakeholders sin perder tiempo del equipo.',
-                  },
-                  {
-                    author: 'Pedro R.',
-                    role: 'Compariers — Empresa A · Compañero de trabajo',
-                    review:
-                      'Excelente mentora. Genera espacio para que el equipo pruebe sin miedo.',
-                  },
-                ].map((item, i) => (
-                  <div
+                {mockReviews.map((item, i) => (
+                  <ReviewCard
                     key={i}
-                    className="border-b border-gray-200 pb-4 last:border-0"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-semibold text-sm text-[#1a1a2e]">
-                          {item.author}
-                        </p>
-                        <p className="text-xs text-gray-600">{item.role}</p>
-                      </div>
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star
-                            key={i}
-                            className="w-3 h-3 fill-[#fbbf24] text-[#fbbf24]"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-700">{item.review}</p>
-                  </div>
+                    author={item.author}
+                    company={item.company}
+                    role={item.role}
+                    rating={5}
+                    review={item.review}
+                  />
                 ))}
               </div>
             </Card>
 
             {/* Resume */}
-            <Card className="p-6 border-gray-200">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-4">Resumen</h2>
+            <Card className="p-6 border-[#E5E7EB]">
+              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">Resumen</h2>
               <p className="text-sm text-gray-700 leading-relaxed">
                 12 años diseñando productos digitales para fintech y ecommerce.
                 Especializada en design systems, research y mentoring de equipos
@@ -196,42 +119,32 @@ export default function CandidateProfile() {
             </Card>
 
             {/* Experience */}
-            <Card className="p-6 border-gray-200">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-6">
+            <Card className="p-6 border-[#E5E7EB]">
+              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">
                 Experiencia
               </h2>
               <div className="space-y-6">
-                {[
-                  {
-                    title: 'Sr Product Designer',
-                    company: 'Empresa A · 2023 – Presente',
-                    years: '2 años',
-                  },
-                  {
-                    title: 'Product Designer',
-                    company: 'Empresa B · 2022 – 2023',
-                    years: '1 año',
-                  },
-                  {
-                    title: 'UX Designer',
-                    company: 'Empresa C · 2020 – 2022',
-                    years: '2 años',
-                  },
-                ].map((exp, i) => (
-                  <div key={i}>
-                    <h3 className="font-semibold text-[#1a1a2e] text-sm">
-                      {exp.title}
-                    </h3>
-                    <p className="text-xs text-gray-600">{exp.company}</p>
-                    <div className="mt-2 bg-gray-300 h-2 rounded-full"></div>
+                {mockExperience.map((exp, i) => (
+                  <div key={i} className="flex gap-3 pb-3 not-last:border-b">
+                    <Skeleton className="bg-[#E5E7EB] h-10 w-10 rounded-md" />
+                    <div className="w-full">
+                      <h3 className="font-semibold text-[#1a1a2e] text-sm">
+                        {exp.title}
+                      </h3>
+                      <p className="text-xs text-gray-600">{exp.company}</p>
+                      <div className="space-y-2 mt-4">
+                        <Skeleton className="bg-[#E5E7EB] h-3 w-full rounded-full" />
+                        <Skeleton className="bg-[#E5E7EB] h-3 w-10/12 rounded-full" />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </Card>
 
             {/* Education */}
-            <Card className="p-6 border-gray-200">
-              <div className="flex justify-between items-center mb-4">
+            <Card className="p-6 border-[#E5E7EB]">
+              <div className="flex justify-between items-center mb-0">
                 <h2 className="text-lg font-bold text-[#1a1a2e]">Educación</h2>
                 <a href="#" className="text-xs text-[#4f46e5] font-semibold">
                   + Agregar
@@ -246,18 +159,18 @@ export default function CandidateProfile() {
             </Card>
 
             {/* Portfolio */}
-            <Card className="p-6 border-gray-200">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-4">
+            <Card className="p-6 border-[#E5E7EB]">
+              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">
                 Portfolio
               </h2>
               <div className="grid grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div
+                  <Skeleton
                     key={i}
-                    className="bg-gray-200 aspect-square rounded-lg flex items-center justify-center text-gray-500"
+                    className="bg-[#E5E7EB] aspect-square rounded-lg flex items-center justify-center text-gray-500"
                   >
                     {i}
-                  </div>
+                  </Skeleton>
                 ))}
               </div>
             </Card>

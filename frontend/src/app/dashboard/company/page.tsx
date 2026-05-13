@@ -20,6 +20,7 @@ import {
   mockLevel,
   mockModality,
 } from './_data';
+import Header from './common/header';
 
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
@@ -28,7 +29,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-[#e5e5e5]">
+      {/* <header className="bg-white border-b border-[#e5e5e5]">
         <div className="flex items-center justify-between px-4 md:px-6 lg:px-8 py-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-6 h-6 bg-[#1a1a2e] rounded-sm flex items-center justify-center text-white text-xs font-bold">
@@ -60,7 +61,9 @@ export default function Dashboard() {
             <Menu className="w-5 h-5" />
           </button>
         </div>
-      </header>
+      </header> */}
+
+      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex flex-col lg:flex-row relative">
         {/* Mobile backdrop */}
