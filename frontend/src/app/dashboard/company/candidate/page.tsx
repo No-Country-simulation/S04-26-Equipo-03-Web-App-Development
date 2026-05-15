@@ -13,6 +13,7 @@ import { mockExperience, mockReviews, mockSkills } from './_data';
 import SkillPill from '@/components/common/SkillPill';
 import ReviewCard from '../common/ReviewCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import CardSection from '@/components/common/CardSection';
 
 export default function CandidateProfile() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,12 +68,11 @@ export default function CandidateProfile() {
             </Card>
 
             {/* Skills */}
-            <Card className="p-6 border-[#E5E7EB]">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-2">Skills</h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Click en una skill para ver el detalle de la validación.
-              </p>
-              <div className="flex flex-wrap gap-2">
+            <CardSection
+              title="Skills"
+              description="Click en una skill para ver el detalle de la validación."
+            >
+              <div className="flex flex-wrap gap-2 mt-6">
                 {mockSkills.map((skill) => (
                   <SkillPill
                     key={skill.name}
@@ -82,15 +82,11 @@ export default function CandidateProfile() {
                   />
                 ))}
               </div>
-            </Card>
+            </CardSection>
 
             {/* Reviews */}
-            <Card className="p-6 border-{#E5E7EB}">
-              <div className="mb-0">
-                <h2 className="text-lg font-bold text-[#1a1a2e]">Reseñas</h2>
-                <p className="text-sm text-gray-600">habilidades blandas</p>
-              </div>
-              <div className="flex items-baseline gap-4 mb-0">
+            <CardSection title="Reseñas" description="Reseñas">
+              <div className="flex items-baseline gap-4 mb-2 mt-6">
                 <div className="text-4xl font-bold text-[#1a1a2e]">4.7</div>
                 <RatingDisplay stars={5} label="8 reseñas verificadas" />
               </div>
@@ -106,24 +102,19 @@ export default function CandidateProfile() {
                   />
                 ))}
               </div>
-            </Card>
+            </CardSection>
 
             {/* Resume */}
-            <Card className="p-6 border-[#E5E7EB]">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">Resumen</h2>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                12 años diseñando productos digitales para fintech y ecommerce.
-                Especializada en design systems, research y mentoring de equipos
-                junior.
-              </p>
-            </Card>
+            <CardSection
+              title="Resumen"
+              description="12 años diseñando productos digitales para fintech y
+                  ecommerce. Especializada en design systems, research y
+                  mentoring de equipos junior."
+            />
 
             {/* Experience */}
-            <Card className="p-6 border-[#E5E7EB]">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">
-                Experiencia
-              </h2>
-              <div className="space-y-6">
+            <CardSection title="Experiencia">
+              <div className="space-y-6 mt-6">
                 {mockExperience.map((exp, i) => (
                   <div key={i} className="flex gap-3 pb-3 not-last:border-b">
                     <Skeleton className="bg-[#E5E7EB] h-10 w-10 rounded-md" />
@@ -140,30 +131,27 @@ export default function CandidateProfile() {
                   </div>
                 ))}
               </div>
-            </Card>
+            </CardSection>
 
             {/* Education */}
-            <Card className="p-6 border-[#E5E7EB]">
-              <div className="flex justify-between items-center mb-0">
-                <h2 className="text-lg font-bold text-[#1a1a2e]">Educación</h2>
-                <a href="#" className="text-xs text-[#4f46e5] font-semibold">
-                  + Agregar
-                </a>
-              </div>
-              <div>
+            {/*
+              OJO: Despues del h2 estaba el siguiente fragmento de codigo, no lo inclui ya que no se necesita para la vista de la compañia
+              <a href="#" className="text-xs text-[#4f46e5] font-semibold">
+                + Agregar
+              </a>
+            */}
+            <CardSection title="Educación">
+              <div className="mt-6">
                 <h3 className="font-semibold text-sm text-[#1a1a2e]">
                   Lic. en Diseño Gráfico
                 </h3>
                 <p className="text-xs text-gray-600">UBA · 2008</p>
               </div>
-            </Card>
+            </CardSection>
 
             {/* Portfolio */}
-            <Card className="p-6 border-[#E5E7EB]">
-              <h2 className="text-lg font-bold text-[#1a1a2e] mb-0">
-                Portfolio
-              </h2>
-              <div className="grid grid-cols-3 gap-4">
+            <CardSection title="Portfolio">
+              <div className="grid grid-cols-3 gap-4 mt-6">
                 {[1, 2, 3].map((i) => (
                   <Skeleton
                     key={i}
@@ -173,7 +161,7 @@ export default function CandidateProfile() {
                   </Skeleton>
                 ))}
               </div>
-            </Card>
+            </CardSection>
           </div>
 
           {/* Right Sidebar */}
