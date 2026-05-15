@@ -13,7 +13,7 @@ export const mockReviews = [
     author: 'Lucía B.',
     company: 'FintechCo',
     role: 'Reclutador / empleado',
-    ratin:5,
+    ratin: 5,
     review:
       'Comunicación clara y productiva. Alineaba stakeholders sin perder tiempo del equipo.',
   },
@@ -21,7 +21,7 @@ export const mockReviews = [
     author: 'Pedro R.',
     company: 'Compañero — Empresa A',
     role: 'Compañero de trabajo',
-    ratin:5,
+    ratin: 5,
     review:
       'Excelente mentora. Genera espacio para que el equipo pruebe sin miedo.',
   },
@@ -44,3 +44,15 @@ export const mockExperience = [
     years: '2 años',
   },
 ];
+
+export const mockProfileCandidate = {
+  name: 'Marcela Rivero',
+  initials: 'MR',
+  role: 'Product Designer',
+  location: 'Buenos Aires, AR',
+  status: 'Open to work · Remoto',
+  level: 'Semi-Senior',
+  ratingStars: 4,
+  ratingLabel: '4.7 (8)',
+  experience: '12 años exp.',
+};

@@ -16,10 +16,9 @@ export default function ReviewCard({
   rating,
   review,
 }: ReviewItemProps) {
-  const avatarBg =
-    role === 'Reclutador / empleado'
-      ? 'bg-[#E0E7FF] text-[#4F46E5]'
-      : 'bg-[#E5E7EB] text-[#374151]';
+  const avatarBg = role.includes('Reclutador')
+    ? 'bg-[#E0E7FF] text-[#4F46E5]'
+    : 'bg-[#E5E7EB] text-[#374151]';
   return (
     <div className="border border-[#E5E7EB] p-4 rounded-md">
       <div className="flex justify-between items-center mb-2">
@@ -34,7 +33,11 @@ export default function ReviewCard({
               <p className="font-semibold text-sm text-[#1a1a2e]">{author}</p>
               <p className="text-xs text-gray-600">{company}</p>
             </div>
-            <SkillBadge variant="filter">{role}</SkillBadge>
+            <SkillBadge
+              variant={role.includes('Reclutador') ? 'filter' : 'muted'}
+            >
+              {role}
+            </SkillBadge>
           </div>
         </div>
         <RatingDisplay stars={rating} />

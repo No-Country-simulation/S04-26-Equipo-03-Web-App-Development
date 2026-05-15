@@ -1,20 +1,23 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Heart, ChevronLeft, Download } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import Header from '../common/header';
 import { useState } from 'react';
-import SkillBadge from '@/components/common/SkillBadge';
-import { Badge } from '@/components/ui/badge';
-import RatingDisplay from '../common/RatingDisplay';
-import { mockExperience, mockReviews, mockSkills } from './_data';
+import {
+  mockExperience,
+  mockProfileCandidate,
+  mockReviews,
+  mockSkills,
+} from './_data';
 import SkillPill from '@/components/common/SkillPill';
 import ReviewCard from '../common/ReviewCard';
-import { Skeleton } from '@/components/ui/skeleton';
 import CardSection from '@/components/common/CardSection';
-import { Progress } from '@/components/ui/progress';
+import CandidateHeader from './_components/CandidateHeader';
+import ExperienceItem from './_components/ExperienceItem';
+import ProfileSidebar from './_components/ProfileSidebar';
+import RatingDisplay from '../common/RatingDisplay';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CandidateProfile() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,35 +41,7 @@ export default function CandidateProfile() {
           {/* Main Content */}
           <div className="col-span-2 space-y-6">
             {/* Candidate Header */}
-            <Card className="p-6 border-gray-200">
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-[#1a1a2e] font-bold text-lg">
-                  MR
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-[#1a1a2e]">
-                    Marcela Rivero
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    Product Designer · Buenos Aires, AR
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span className="text-sm text-gray-600">
-                      Open to work · Remoto
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-3 flex-wrap">
-                    <SkillBadge variant="level">Semi-Senior</SkillBadge>
-                    <RatingDisplay stars={4} label="4.7 (8)" />
-                    <SkillBadge variant="star">100% verificado</SkillBadge>
-                    <Badge className="bg-[#F3F4F6] text-xs text-[#6B7280] mt-2 border border-[#E5E7EB] rounded-full">
-                      12 años exp.
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <CandidateHeader candidate={mockProfileCandidate} />
 
             {/* Skills */}
             <CardSection
@@ -117,19 +92,11 @@ export default function CandidateProfile() {
             <CardSection title="Experiencia">
               <div className="space-y-6 mt-6">
                 {mockExperience.map((exp, i) => (
-                  <div key={i} className="flex gap-3 pb-3 not-last:border-b">
-                    <Skeleton className="bg-[#E5E7EB] h-10 w-10 rounded-md" />
-                    <div className="w-full">
-                      <h3 className="font-semibold text-[#1a1a2e] text-sm">
-                        {exp.title}
-                      </h3>
-                      <p className="text-xs text-gray-600">{exp.company}</p>
-                      <div className="space-y-2 mt-4">
-                        <Skeleton className="bg-[#E5E7EB] h-3 w-full rounded-full" />
-                        <Skeleton className="bg-[#E5E7EB] h-3 w-10/12 rounded-full" />
-                      </div>
-                    </div>
-                  </div>
+                  <ExperienceItem
+                    key={i}
+                    title={exp.title}
+                    company={exp.company}
+                  />
                 ))}
               </div>
             </CardSection>
@@ -167,53 +134,7 @@ export default function CandidateProfile() {
 
           {/* Right Sidebar */}
           <div className="col-span-1">
-            <Card className="p-6 border-gray-200 sticky top-6">
-              <Button className="w-full bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white font-semibold mb-4 cursor-pointer">
-                Contactar
-              </Button>
-              <div className="flex gap-3 mb-6">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-gray-300 cursor-pointer"
-                >
-                  <Heart className="w-4 h-4" />
-                  Guardar
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-gray-300 cursor-pointer"
-                >
-                  Calificar
-                </Button>
-              </div>
-
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-sm font-semibold text-[#1a1a2e] mb-3">
-                  PROGRESO EN SU RUTA
-                </h3>
-                <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-2xl font-bold text-[#1a1a2e]">
-                      35%
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      Está actualizando sus habilidades
-                    </span>
-                  </div>
-                  <Progress
-                    value={35}
-                    className="bg-gray-200 **:data-[slot=progress-indicator]:bg-[#4f46e5]"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full border-gray-300 text-[#4f46e5] mb-4"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Descargar CV
-                </Button>
-              </div>
-            </Card>
+            <ProfileSidebar />
           </div>
         </div>
       </div>
