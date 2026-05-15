@@ -14,6 +14,7 @@ import SkillPill from '@/components/common/SkillPill';
 import ReviewCard from '../common/ReviewCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import CardSection from '@/components/common/CardSection';
+import { Progress } from '@/components/ui/progress';
 
 export default function CandidateProfile() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -167,15 +168,21 @@ export default function CandidateProfile() {
           {/* Right Sidebar */}
           <div className="col-span-1">
             <Card className="p-6 border-gray-200 sticky top-6">
-              <Button className="w-full bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white font-semibold mb-4">
+              <Button className="w-full bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white font-semibold mb-4 cursor-pointer">
                 Contactar
               </Button>
               <div className="flex gap-3 mb-6">
-                <Button variant="outline" className="flex-1 border-gray-300">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-gray-300 cursor-pointer"
+                >
                   <Heart className="w-4 h-4" />
                   Guardar
                 </Button>
-                <Button variant="outline" className="flex-1 border-gray-300">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-gray-300 cursor-pointer"
+                >
                   Calificar
                 </Button>
               </div>
@@ -193,9 +200,10 @@ export default function CandidateProfile() {
                       Está actualizando sus habilidades
                     </span>
                   </div>
-                  <div className="bg-gray-200 h-2 rounded-full overflow-hidden">
-                    <div className="bg-[#4f46e5] h-full w-[35%]"></div>
-                  </div>
+                  <Progress
+                    value={35}
+                    className="bg-gray-200 **:data-[slot=progress-indicator]:bg-[#4f46e5]"
+                  />
                 </div>
                 <Button
                   variant="outline"
