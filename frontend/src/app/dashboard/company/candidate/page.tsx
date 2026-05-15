@@ -16,6 +16,7 @@ import CardSection from '@/components/common/CardSection';
 import CandidateHeader from './_components/CandidateHeader';
 import ExperienceItem from './_components/ExperienceItem';
 import ProfileSidebar from './_components/ProfileSidebar';
+import HeaderNav from '../common/HeaderNav';
 import RatingDisplay from '../common/RatingDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -138,14 +139,17 @@ export default function CandidateProfile() {
           </div>
         </div>
 
-        {/* Mobile Drawer — Sidebar */}
+        {/* Mobile Drawer — Nav + Sidebar */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
               className="fixed inset-0 bg-black/50"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto">
+            <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-[#F9FAFB] shadow-xl overflow-y-auto">
+              <div className="flex flex-col gap-1 p-4 border-b border-gray-200">
+                <HeaderNav />
+              </div>
               <ProfileSidebar />
             </div>
           </div>

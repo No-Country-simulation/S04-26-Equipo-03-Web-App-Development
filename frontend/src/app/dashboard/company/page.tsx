@@ -20,6 +20,7 @@ import {
   mockModality,
 } from './_data';
 import Header from './common/header';
+import HeaderNav from './common/HeaderNav';
 
 export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
@@ -59,6 +60,9 @@ export default function Dashboard() {
             >
               <X size={20} />
             </button>
+          </div>
+          <div className="flex flex-col gap-1 mb-6 lg:hidden">
+            <HeaderNav />
           </div>
           <div className="space-y-6">
             {/* Search */}
