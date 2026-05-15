@@ -27,19 +27,19 @@ export default function CandidateProfile() {
       {/* Header */}
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Back Link */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-1 text-sm text-[#1a1a2e] mb-6 hover:opacity-80"
+          className="flex items-center gap-1 text-sm text-[#1a1a2e] mb-4 sm:mb-6 hover:opacity-80"
         >
           <ChevronLeft className="w-4 h-4" />
           Volver al dashboard
         </Link>
 
-        <div className="grid grid-cols-3 gap-8">
+        <div className="lg:grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Candidate Header */}
             <CandidateHeader candidate={mockProfileCandidate} />
 
@@ -132,11 +132,24 @@ export default function CandidateProfile() {
             </CardSection>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="col-span-1">
+          {/* Right Sidebar — Desktop */}
+          <div className="hidden lg:block lg:col-span-1">
             <ProfileSidebar />
           </div>
         </div>
+
+        {/* Mobile Drawer — Sidebar */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="fixed inset-0 bg-black/50"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto">
+              <ProfileSidebar />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

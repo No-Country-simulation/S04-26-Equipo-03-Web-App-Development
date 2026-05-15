@@ -14,7 +14,7 @@ export default function ProfileSidebar({ progress = 35 }: ProfileSidebarProps) {
     setSave((s) => !s);
   };
   return (
-    <Card className="p-6 border-gray-200 sticky top-6">
+    <Card className="p-6 border-0 shadow-none lg:border lg:border-gray-200 lg:sticky lg:top-6">
       <Button className="w-full bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white font-semibold mb-4 cursor-pointer">
         Contactar
       </Button>
