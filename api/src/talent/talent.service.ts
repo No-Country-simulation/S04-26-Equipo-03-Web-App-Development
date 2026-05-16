@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -352,11 +353,33 @@ export class TalentService {
     };
   }
 
+  private async verifyProfileOwnership(
+    userId: string,
+    profileId: string,
+  ): Promise<void> {
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client
+      .from('Talent_profile')
+      .select('user_id')
+      .eq('id', profileId)
+      .single();
+
+    if (error || !data) {
+      throw new NotFoundException(`Perfil no encontrado: ${profileId}`);
+    }
+    if (data.user_id !== userId) {
+      throw new ForbiddenException(
+        'No tienes permiso para modificar este perfil.',
+      );
+    }
+  }
+
   async updateProfile(
+    userId: string,
     profileId: string,
     dto: UpdateTalentProfileDto,
   ): Promise<TalentProfileRow> {
-    await this.findProfileById(profileId);
+    await this.verifyProfileOwnership(userId, profileId);
     const client = this.supabaseService.getClient();
 
     const extended = this.isExtendedTalentProfileSchema();
@@ -413,11 +436,12 @@ export class TalentService {
   }
 
   async updateRoleAndSkills(
+    userId: string,
     profileId: string,
     dto: UpdateTalentRoleSkillsDto,
     file?: unknown,
   ): Promise<{ role: unknown; skills: unknown }> {
-    await this.findProfileById(profileId);
+    await this.verifyProfileOwnership(userId, profileId);
     const client = this.supabaseService.getClient();
 
     const skillIds = (

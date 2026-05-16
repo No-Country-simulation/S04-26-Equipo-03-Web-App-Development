@@ -3,7 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { DiagnosticModule } from './diagnostic/diagnostic.module';
 import { EnterprisesModule } from './enterprises/enterprises.module';
+import { LearningPathModule } from './learning-path/learning-path.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { UsersModule } from './users/users.module';
 import { TalentModule } from './talent/talent.module';
@@ -20,6 +22,8 @@ import { SkillsModule } from './skills/skills.module';
     TalentModule,
     CloudinaryModule,
     SkillsModule,
+    DiagnosticModule,
+    LearningPathModule,
   ],
   controllers: [AppController],
   providers: [AppService],

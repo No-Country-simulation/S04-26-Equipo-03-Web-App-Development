@@ -38,6 +38,8 @@ export class UsersController {
   }
 
   // GET /users
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
   @ApiResponse({
     status: 200,
