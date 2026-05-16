@@ -55,6 +55,7 @@ export type Database = {
           completed_at: string | null;
           gap_analysis: Json | null;
           id: string;
+          skill_id: string | null;
           status: Database['public']['Enums']['diag_status'] | null;
           talent_profile_id: string | null;
           talent_role_id: string | null;
@@ -66,6 +67,7 @@ export type Database = {
           completed_at?: string | null;
           gap_analysis?: Json | null;
           id?: string;
+          skill_id?: string | null;
           status?: Database['public']['Enums']['diag_status'] | null;
           talent_profile_id?: string | null;
           talent_role_id?: string | null;
@@ -77,6 +79,7 @@ export type Database = {
           completed_at?: string | null;
           gap_analysis?: Json | null;
           id?: string;
+          skill_id?: string | null;
           status?: Database['public']['Enums']['diag_status'] | null;
           talent_profile_id?: string | null;
           talent_role_id?: string | null;
@@ -96,6 +99,13 @@ export type Database = {
             columns: ['talent_role_id'];
             isOneToOne: false;
             referencedRelation: 'Talent_Role';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'Diagnostic_skill_id_fkey';
+            columns: ['skill_id'];
+            isOneToOne: false;
+            referencedRelation: 'Skill';
             referencedColumns: ['id'];
           },
         ];

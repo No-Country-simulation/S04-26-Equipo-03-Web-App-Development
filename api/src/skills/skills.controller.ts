@@ -9,8 +9,10 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { SkillsService } from './skills.service';
@@ -36,6 +38,7 @@ export class SkillsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear una nueva skill' })
   @ApiResponse({ status: 201, description: 'Skill creada.' })
@@ -44,6 +47,7 @@ export class SkillsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Actualizar una skill' })
   @ApiResponse({ status: 200, description: 'Skill actualizada.' })
   @ApiResponse({ status: 404, description: 'Skill no encontrada.' })
@@ -52,6 +56,7 @@ export class SkillsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar una skill' })
   @ApiResponse({ status: 204, description: 'Skill eliminada.' })

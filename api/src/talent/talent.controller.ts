@@ -130,10 +130,12 @@ export class TalentController {
       'Actualizar perfil (ubicación, disponibilidad, bio, portfolio link, experiencia, educación)',
   })
   updateProfile(
+    @Req() req: Request,
     @Param('profileId', ParseUUIDPipe) profileId: string,
     @Body() dto: UpdateTalentProfileDto,
   ) {
-    return this.talentService.updateProfile(profileId, dto);
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.updateProfile(userId, profileId, dto);
   }
 
   @UseGuards(AuthGuard)
@@ -166,16 +168,18 @@ export class TalentController {
     },
   })
   updateRoleSkills(
+    @Req() req: Request,
     @Param('profileId', ParseUUIDPipe) profileId: string,
     @UploadedFile() cv: unknown,
     @Body() body: Record<string, string>,
   ) {
+    const userId = (req['user'] as { id: string }).id;
     const dto = new UpdateTalentRoleSkillsDto();
     dto.role_name = body.role_name;
     dto.skills = UpdateTalentRoleSkillsDto.deserializeSkills(
       body.skills ?? '[]',
     );
-    return this.talentService.updateRoleAndSkills(profileId, dto, cv);
+    return this.talentService.updateRoleAndSkills(userId, profileId, dto, cv);
   }
 
   @UseGuards(AuthGuard)
