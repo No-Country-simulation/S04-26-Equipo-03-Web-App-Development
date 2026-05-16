@@ -9,19 +9,17 @@ import { Button } from '@/components/ui/button';
 
 export default function CompanyOnboardingPage() {
   return (
-    <div className="min-h-dvh flex flex-col bg-white">
-      <div className="">
-        <SiteHeader
-          rightContent={
-            <Link href="/" className="text-sm text-gray-500">
-              Volver al inicio
-            </Link>
-          }
-        />
-      </div>
-      <Card className="w-md mx-auto mt-12 p-6">
+    <main className="min-h-dvh flex flex-col bg-white">
+      <SiteHeader
+        rightContent={
+          <Link href="/" className="text-sm text-gray-500">
+            Volver al inicio
+          </Link>
+        }
+      />
+      <Card className="max-w-md mx-4 sm:mx-auto mt-12 p-6 flex flex-col gap-6">
         <div className="mx-auto flex flex-row items-center gap-3">
-          <div className="bg-[#EEF2FF] py-3 px-2.5 w-15 rounded-full items-center">
+          <div className="bg-[#EEF2FF] size-14 rounded-full flex items-center justify-center">
             <Image src={email} alt="email" width={40} height={40} />
           </div>
           <h1>Revisá tu bandeja</h1>
@@ -34,17 +32,19 @@ export default function CompanyOnboardingPage() {
             registro.
           </span>
         </p>
-        <Button variant="outline" className="cursor-pointer">
-          Reenviar email
-        </Button>
-        <Button variant="link" className="cursor-pointer">
-          Cambiar email
-        </Button>
+        <div className="flex flex-col gap-3">
+          <Button variant="outline" className="cursor-pointer w-full">
+            Reenviar email
+          </Button>
+          <Button variant="link" className="cursor-pointer w-full">
+            Cambiar email
+          </Button>
+        </div>
         <p className="bg-[#F9FAFB] text-[#4B5563] text-sm p-6 text-center rounded-md">
           Avanzaremos automáticamente cuando confirmes el email. Si no recibís
           nada en 5 minutos, revisá la carpeta de spam.
         </p>
       </Card>
-    </div>
+    </main>
   );
 }
