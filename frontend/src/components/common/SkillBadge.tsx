@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import type { ReactNode } from 'react';
 interface SkillBadgeProps {
   children: ReactNode;
-  variant?: 'filter' | 'level' | 'verified' | 'pending' | 'star';
+  variant?: 'filter' | 'level' | 'verified' | 'pending' | 'star' | 'muted';
   /** Solo para variant="filter" — mustra el ícono X */
   onRemove?: () => void;
 }
@@ -13,6 +13,7 @@ const variantStyles: Record<string, string> = {
   verified: 'border-[#A7F3D0] text-[#065F46] bg-white',
   pending: 'text-[#4B5563] bg-white border-dashed border-[#D1D5DB]',
   star: 'bg-[#1a1a2e] text-white ml-2 rounded-md',
+  muted: 'bg-[#F3F4F6] text-[#374151] border-[#E5E7EB]',
 };
 export default function SkillBadge({
   children,
