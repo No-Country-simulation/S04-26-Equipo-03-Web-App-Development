@@ -126,7 +126,7 @@ export class LearningPathService {
     const { data: profile, error: profileErr } = await client
       .from('Talent_profile')
       .select('user_id')
-      .eq('id', path.talent_profile_id)
+      .eq('id', path.talent_profile_id as string)
       .single();
 
     if (profileErr || !profile || profile.user_id !== userId) {
