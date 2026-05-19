@@ -188,12 +188,52 @@ export type Database = {
           },
         ];
       };
+      Path_Module: {
+        Row: {
+          id: string;
+          title: string | null;
+          description: string | null;
+          order: number | null;
+          category: Database['public']['Enums']['path_category'] | null;
+          learning_path_id: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title?: string | null;
+          description?: string | null;
+          order?: number | null;
+          category?: Database['public']['Enums']['path_category'] | null;
+          learning_path_id?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string | null;
+          description?: string | null;
+          order?: number | null;
+          category?: Database['public']['Enums']['path_category'] | null;
+          learning_path_id?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'Path_Module_learning_path_id_fkey';
+            columns: ['learning_path_id'];
+            isOneToOne: false;
+            referencedRelation: 'Learning_Path';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       Path_Step: {
         Row: {
           description: string | null;
+          estimated_minutes: number | null;
           id: string;
           is_completed: boolean | null;
           learning_path_id: string | null;
+          module_id: string | null;
           order: number | null;
           resource_url: string | null;
           title: string | null;
@@ -201,9 +241,11 @@ export type Database = {
         };
         Insert: {
           description?: string | null;
+          estimated_minutes?: number | null;
           id?: string;
           is_completed?: boolean | null;
           learning_path_id?: string | null;
+          module_id?: string | null;
           order?: number | null;
           resource_url?: string | null;
           title?: string | null;
@@ -211,9 +253,11 @@ export type Database = {
         };
         Update: {
           description?: string | null;
+          estimated_minutes?: number | null;
           id?: string;
           is_completed?: boolean | null;
           learning_path_id?: string | null;
+          module_id?: string | null;
           order?: number | null;
           resource_url?: string | null;
           title?: string | null;
@@ -225,6 +269,13 @@ export type Database = {
             columns: ['learning_path_id'];
             isOneToOne: false;
             referencedRelation: 'Learning_Path';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'Path_Step_module_id_fkey';
+            columns: ['module_id'];
+            isOneToOne: false;
+            referencedRelation: 'Path_Module';
             referencedColumns: ['id'];
           },
         ];
@@ -475,6 +526,7 @@ export type Database = {
     Enums: {
       diag_status: 'PENDING' | 'FAILED' | 'COMPLETED';
       diag_type: 'INITIAL_ONBOARDING' | 'SKILL_VALIDATION';
+      path_category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
       path_status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
       skill_category: 'TECH' | 'SOFT' | 'COGNITIVE';
       step_type: 'VIDEO' | 'ARTICLE' | 'EXERCISE' | 'QUIZ';

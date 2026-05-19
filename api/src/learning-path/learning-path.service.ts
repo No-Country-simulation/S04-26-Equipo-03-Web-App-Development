@@ -66,9 +66,35 @@ export class LearningPathService {
       );
     }
 
+    // Obtener rol del talento para el título de la ruta
+    let roleName: string | null = null;
+    if (path.talent_profile_id) {
+      const { data: role } = await client
+        .from('Talent_Role')
+        .select('role_name')
+        .eq('profile_id', path.talent_profile_id as string)
+        .order('id', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      roleName = role?.role_name ?? null;
+    }
+
+    // Obtener módulos con sus pasos anidados
+    const { data: modules, error: modulesError } = await client
+      .from('Path_Module')
+      .select('id, title, description, order, category')
+      .eq('learning_path_id', pathId)
+      .order('order', { ascending: true });
+
+    if (modulesError) {
+      throw new InternalServerErrorException(modulesError.message);
+    }
+
     const { data: steps, error: stepsError } = await client
       .from('Path_Step')
-      .select('id, order, title, description, type, resource_url, is_completed')
+      .select(
+        'id, order, title, description, type, resource_url, is_completed, module_id, estimated_minutes',
+      )
       .eq('learning_path_id', pathId)
       .order('order', { ascending: true });
 
@@ -76,13 +102,33 @@ export class LearningPathService {
       throw new InternalServerErrorException(stepsError.message);
     }
 
-    const stepsList = steps ?? [];
-    const total = stepsList.length;
-    const completed = stepsList.filter((s) => s.is_completed).length;
+    const allSteps = steps ?? [];
+    const moduleList = (modules ?? []).map((mod) => {
+      const modSteps = allSteps.filter((s) => s.module_id === mod.id);
+      const modTotal = modSteps.length;
+      const modCompleted = modSteps.filter((s) => s.is_completed).length;
+      return {
+        ...mod,
+        steps: modSteps,
+        progress: {
+          total: modTotal,
+          completed: modCompleted,
+          percentage:
+            modTotal > 0 ? Math.round((modCompleted / modTotal) * 100) : 0,
+        },
+      };
+    });
+
+    // Pasos sin módulo asignado (compatibilidad con datos anteriores)
+    const ungroupedSteps = allSteps.filter((s) => !s.module_id);
+
+    const total = allSteps.length;
+    const completed = allSteps.filter((s) => s.is_completed).length;
 
     return {
       id: path.id,
       status: path.status,
+      role_name: roleName,
       diagnostic_id: path.diagnostic_id,
       talent_profile_id: path.talent_profile_id,
       created_at: path.created_at,
@@ -93,7 +139,8 @@ export class LearningPathService {
         completed,
         percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
       },
-      steps: stepsList,
+      modules: moduleList,
+      ungrouped_steps: ungroupedSteps,
     };
   }
 

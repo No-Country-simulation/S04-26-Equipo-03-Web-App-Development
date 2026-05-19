@@ -13,6 +13,7 @@ export const PUBLIC_ROUTES = [
 export const PRIVATE_ROUTES_TALENT = [
   '/talent/onboarding',
   '/talent/self-evaluation',
+  '/talent/learning-path',
   '/talent/notifications',
   '/talent/profile',
   '/talent/dashboard',
