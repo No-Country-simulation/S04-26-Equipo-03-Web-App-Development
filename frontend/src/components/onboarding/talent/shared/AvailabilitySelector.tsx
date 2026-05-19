@@ -9,20 +9,20 @@ interface AvailabilitySelectorProps {
 
 export const AvailabilitySelector = ({ selectedId, onSelect }: AvailabilitySelectorProps) => {
   const availabilityOptions = [
-    { 
-      id: 'active', 
-      title: 'Disponible activamente', 
-      description: 'Estoy buscando trabajo ahora' 
+    {
+      id: 'ACTIVE_JOB_SEARCH',
+      title: 'Disponible activamente',
+      description: 'Estoy buscando trabajo ahora'
     },
-    { 
-      id: 'open', 
-      title: 'Trabajando pero abierto/a', 
-      description: 'Escucharía buenas oportunidades' 
+    {
+      id: 'OPEN_TO_OFFERS',
+      title: 'Trabajando pero abierto/a',
+      description: 'Escucharía buenas oportunidades'
     },
-    { 
-      id: 'not-now', 
-      title: 'Por ahora no', 
-      description: 'Solo quiero medir mi nivel' 
+    {
+      id: 'NOT_LOOKING_ASSESSMENT_ONLY',
+      title: 'Por ahora no',
+      description: 'Solo quiero medir mi nivel'
     },
   ];
 
@@ -32,16 +32,16 @@ export const AvailabilitySelector = ({ selectedId, onSelect }: AvailabilitySelec
         Disponibilidad
       </label>
       <div className="flex flex-col gap-[8px] w-full">
-        {availabilityOptions.map((option) => (
+        { availabilityOptions.map((option) => (
           <AvailabilityCard
-            key={option.id}
-            id={option.id}
-            title={option.title}
-            description={option.description}
-            isSelected={selectedId === option.id}
-            onClick={() => onSelect(option.id)}
+            key={ option.id }
+            id={ option.id }
+            title={ option.title }
+            description={ option.description }
+            isSelected={ selectedId === option.id }
+            onClick={ () => onSelect(option.id) }
           />
-        ))}
+        )) }
       </div>
     </div>
   );

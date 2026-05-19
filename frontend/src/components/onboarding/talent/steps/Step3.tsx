@@ -17,29 +17,29 @@ export function Step3({ data, onUpdate }: Step3Props) {
   const [openSection, setOpenSection] = useState<string | null>('experience');
 
   const sections = [
-    { 
-      id: 'experience', 
-      title: 'Experiencia laboral', 
+    {
+      id: 'experience',
+      title: 'Experiencia laboral',
       subtitle: 'Empresa, rol, fechas. Podés agregar varias entradas.',
-      icon: <Briefcase className="size-[18px]" /> 
+      icon: <Briefcase className="size-[18px]" />
     },
-    { 
-      id: 'education', 
-      title: 'Educación', 
+    {
+      id: 'education',
+      title: 'Educación',
       subtitle: 'Institución, título, año de graduación.',
-      icon: <GraduationCap className="size-[18px]" /> 
+      icon: <GraduationCap className="size-[18px]" />
     },
-    { 
-      id: 'about', 
-      title: 'Descripción personal', 
+    {
+      id: 'about',
+      title: 'Descripción personal',
       subtitle: 'Una breve presentación que aparece en tu perfil.',
-      icon: <User className="size-[18px]" /> 
+      icon: <User className="size-[18px]" />
     },
-    { 
-      id: 'portfolio', 
-      title: 'Portafolio', 
+    {
+      id: 'portfolio',
+      title: 'Portafolio',
       subtitle: 'Subí un PDF o pegá un link — solo una de las dos opciones.',
-      icon: <LinkIcon className="size-[18px]" /> 
+      icon: <LinkIcon className="size-[18px]" />
     },
   ];
 
@@ -49,28 +49,50 @@ export function Step3({ data, onUpdate }: Step3Props) {
 
   return (
     <div className="flex flex-col items-start w-full animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
-      <StepHeader 
-        badge={{ text: 'Opcional', variant: 'opcional' }}
+      <StepHeader
+        badge={ { text: 'Opcional', variant: 'opcional' } }
         title="Sumá detalles si querés"
         subtitle="Esto enriquece tu perfil pero no es necesario para empezar el diagnóstico. Podés completarlo cuando quieras desde tu perfil."
       />
 
       <div className="flex flex-col gap-[12px] w-full mb-[24px]">
-        {sections.map((section) => (
+        { sections.map((section) => (
           <AccordionItem
-            key={section.id}
-            id={section.id}
-            title={section.title}
-            subtitle={section.subtitle}
-            isOpen={openSection === section.id}
-            onToggle={() => toggleSection(section.id)}
+            key={ section.id }
+            id={ section.id }
+            title={ section.title }
+            subtitle={ section.subtitle }
+            isOpen={ openSection === section.id }
+            onToggle={ () => toggleSection(section.id) }
           >
-            {section.id === 'experience' && <ExperienceForm />}
-            {section.id === 'education' && <EducationForm />}
-            {section.id === 'about' && <AboutMeForm />}
-            {section.id === 'portfolio' && <PortfolioForm />}
+            { section.id === 'experience' && (
+              <ExperienceForm
+                value={ data.work_experience }
+                onChange={ (v) => onUpdate({ work_experience: v }) }
+              />
+            ) }
+            { section.id === 'education' && (
+              <EducationForm
+                value={ data.education }
+                onChange={ (v) => onUpdate({ education: v }) }
+              />
+            ) }
+            { section.id === 'about' && (
+              <AboutMeForm
+                value={ data.bio }
+                onChange={ (v) => onUpdate({ bio: v }) }
+              />
+            ) }
+            { section.id === 'portfolio' && (
+              <PortfolioForm
+                portfolioFile={ data.portfolio_file }
+                portfolioUrl={ data.portfolio_url }
+                onFileChange={ (f) => onUpdate({ portfolio_file: f }) }
+                onUrlChange={ (url) => onUpdate({ portfolio_url: url }) }
+              />
+            ) }
           </AccordionItem>
-        ))}
+        )) }
       </div>
 
       <InfoBox>
