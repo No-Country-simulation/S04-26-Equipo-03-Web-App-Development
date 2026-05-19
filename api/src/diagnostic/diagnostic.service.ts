@@ -549,37 +549,79 @@ export class DiagnosticService {
       );
     }
 
-    const steps = await this.generatePathSteps(gapAnalysis);
+    const modules = await this.generatePathModules(gapAnalysis);
 
-    const stepInserts = steps.map((step, index) => ({
-      learning_path_id: path.id,
-      order: index + 1,
-      title: step.title,
-      description: step.description,
-      type: step.type,
-      resource_url: step.resource_url,
-      is_completed: false,
-    }));
+    const result: Array<{
+      module_title: string;
+      category: string;
+      steps: object[];
+    }> = [];
 
-    const { error: stepsErr } = await client
-      .from('Path_Step')
-      .insert(stepInserts);
+    for (const [modIndex, mod] of modules.entries()) {
+      // Insertar el módulo
+      const { data: insertedModule, error: modErr } = await client
+        .from('Path_Module')
+        .insert({
+          learning_path_id: path.id,
+          title: mod.module_title,
+          description: mod.module_description ?? null,
+          order: modIndex + 1,
+          category: mod.category,
+        })
+        .select('id')
+        .single();
 
-    if (stepsErr) {
-      throw new InternalServerErrorException(
-        `Error al crear los pasos: ${stepsErr.message}`,
-      );
+      if (modErr || !insertedModule) {
+        throw new InternalServerErrorException(
+          `Error al crear el módulo "${mod.module_title}": ${modErr?.message ?? 'sin datos'}`,
+        );
+      }
+
+      // Insertar los pasos del módulo
+      const stepInserts = mod.steps.map((step, stepIndex) => ({
+        learning_path_id: path.id,
+        module_id: insertedModule.id,
+        order: stepIndex + 1,
+        title: step.title,
+        description: step.description,
+        type: step.type,
+        resource_url: step.resource_url,
+        estimated_minutes: step.estimated_minutes ?? null,
+        is_completed: false,
+      }));
+
+      const { error: stepsErr } = await client
+        .from('Path_Step')
+        .insert(stepInserts);
+
+      if (stepsErr) {
+        throw new InternalServerErrorException(
+          `Error al crear los pasos del módulo "${mod.module_title}": ${stepsErr.message}`,
+        );
+      }
+
+      result.push({
+        module_title: mod.module_title,
+        category: mod.category,
+        steps: mod.steps,
+      });
     }
 
-    return { id: path.id, steps };
+    return { id: path.id, modules: result };
   }
 
-  private async generatePathSteps(gapAnalysis: GapAnalysis): Promise<
+  private async generatePathModules(gapAnalysis: GapAnalysis): Promise<
     Array<{
-      title: string;
-      description: string;
-      type: 'VIDEO' | 'ARTICLE' | 'EXERCISE' | 'QUIZ';
-      resource_url: string;
+      module_title: string;
+      module_description: string;
+      category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
+      steps: Array<{
+        title: string;
+        description: string;
+        type: 'VIDEO' | 'ARTICLE';
+        resource_url: string;
+        estimated_minutes: number;
+      }>;
     }>
   > {
     const model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -590,7 +632,9 @@ export class DiagnosticService {
       .join('\n');
 
     const prompt = `
-Eres un diseñador instruccional experto en tecnología. Basado en el siguiente análisis de brechas de un profesional, genera una ruta de aprendizaje simulada con entre 5 y 8 pasos concretos y progresivos.
+Eres un diseñador instruccional experto en tecnología y desarrollo profesional.
+Basado en el análisis de brechas de un profesional, generá una ruta de aprendizaje
+estructurada en módulos agrupados por categoría.
 
 Recomendación general: ${gapAnalysis.recommendation}
 
@@ -600,19 +644,34 @@ Brechas identificadas:
 Scores por skill:
 ${skillScores}
 
-Para cada paso incluí:
-- Un título claro y accionable
-- Una descripción breve (2-3 oraciones) de qué aprenderá y por qué es importante
-- El tipo de recurso: VIDEO, ARTICLE, EXERCISE o QUIZ
-- Una URL simulada (puede ser ficticia pero con formato real, ej: https://learn.example.com/path/to/resource)
+Categorías disponibles:
+- TECH: habilidades técnicas y de herramientas (código, diseño, datos, etc.)
+- SOFT: habilidades blandas (comunicación, liderazgo, trabajo en equipo, etc.)
+- EMPLOYABILITY: empleabilidad (CV, entrevistas, networking, marca personal, etc.)
+
+Generá entre 2 y 4 módulos por categoría (total 6-12 módulos).
+Cada módulo debe tener entre 2 y 4 recursos (pasos).
+Los módulos dentro de cada categoría deben estar ordenados de menor a mayor dificultad.
+
+Tipos de recurso permitidos (SOLO estos dos valores exactos):
+- "VIDEO": recurso en formato video
+- "ARTICLE": recurso en formato artículo, lectura o tutorial escrito
 
 Responde ÚNICAMENTE con un JSON válido, sin markdown ni texto adicional:
 [
   {
-    "title": "título del paso",
-    "description": "descripción breve",
-    "type": "VIDEO",
-    "resource_url": "https://..."
+    "module_title": "Título del módulo",
+    "module_description": "Descripción breve del objetivo del módulo (1-2 oraciones)",
+    "category": "TECH",
+    "steps": [
+      {
+        "title": "Título del recurso",
+        "description": "Descripción breve de qué aprenderá y por qué es importante",
+        "type": "VIDEO",
+        "resource_url": "https://learn.example.com/path/to/resource",
+        "estimated_minutes": 20
+      }
+    ]
   }
 ]
 `.trim();
@@ -621,12 +680,33 @@ Responde ÚNICAMENTE con un JSON válido, sin markdown ni texto adicional:
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
       const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      return JSON.parse(clean) as Array<{
-        title: string;
-        description: string;
-        type: 'VIDEO' | 'ARTICLE' | 'EXERCISE' | 'QUIZ';
-        resource_url: string;
+      const parsed = JSON.parse(clean) as Array<{
+        module_title: string;
+        module_description: string;
+        category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
+        steps: Array<{
+          title: string;
+          description: string;
+          type: string;
+          resource_url: string;
+          estimated_minutes: number;
+        }>;
       }>;
+
+      // Normalizar: solo VIDEO o ARTICLE
+      const normalizeType = (raw: string): 'VIDEO' | 'ARTICLE' => {
+        const up = raw.toUpperCase();
+        if (up.includes('VIDEO')) return 'VIDEO';
+        return 'ARTICLE';
+      };
+
+      return parsed.map((mod) => ({
+        ...mod,
+        steps: mod.steps.map((step) => ({
+          ...step,
+          type: normalizeType(step.type),
+        })),
+      }));
     } catch (err) {
       throw new InternalServerErrorException(
         `Error al generar la ruta de aprendizaje con Gemini: ${String(err)}`,

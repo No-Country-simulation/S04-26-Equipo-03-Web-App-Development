@@ -20,25 +20,32 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  first_name: string, // TODO: remove this
-  last_name: string, // TODO: remove this
   email: string;
   password?: string;
 }
 
 export interface RegisterResponse {
   message: string;
-  userId: string;
+  access_token: string;
+  user_metadata: LoginResponse['user_metadata'];
 }
 
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
+    const response = await apiClient.post<LoginResponse>(
+      '/auth/login',
+      credentials
+    );
     return response.data;
   },
 
-  registerTalent: async (credentials: RegisterRequest): Promise<RegisterResponse> => {
-    const response = await apiClient.post<RegisterResponse>('/auth/register/talent', credentials);
+  registerTalent: async (
+    credentials: RegisterRequest
+  ): Promise<RegisterResponse> => {
+    const response = await apiClient.post<RegisterResponse>(
+      '/auth/register/talent',
+      credentials
+    );
     return response.data;
   },
 };

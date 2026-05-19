@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi, RegisterRequest } from '@/lib/api/auth';
+import { setCookie } from '@/lib/utils/cookies';
+import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
 export const useRegisterTalent = () => {
   const router = useRouter();
@@ -34,7 +36,7 @@ export const useRegisterTalent = () => {
 
   const register = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
 
     setIsLoading(true);
@@ -42,20 +44,23 @@ export const useRegisterTalent = () => {
 
     try {
       const payload: RegisterRequest = {
-        first_name: " ", // TODO: remove this
-        last_name: " ", // TODO: remove this
         email: formData.email,
         password: formData.password,
       };
 
-      await authApi.registerTalent(payload);
-      
+      const data = await authApi.registerTalent(payload);
+      setCookie(AUTH_COOKIE_NAME, data.access_token);
+
       router.push('/talent/onboarding');
-    } catch (err: any) {
-      console.error('Registration error:', err);
+    } catch (err: unknown) {
+      const axiosMsg =
+        err instanceof Error &&
+        'response' in err &&
+        (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message;
       setError(
-        err.response?.data?.message || 
-        'Ocurrió un error al registrarse. Por favor intenta de nuevo.'
+        axiosMsg ||
+          'Ocurrió un error al registrarse. Por favor intenta de nuevo.'
       );
     } finally {
       setIsLoading(false);
