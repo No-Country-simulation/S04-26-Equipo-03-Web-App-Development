@@ -12,11 +12,12 @@ export const PUBLIC_ROUTES = [
 
 export const PRIVATE_ROUTES_TALENT = [
   '/talent/onboarding',
-  '/talent/self-evaluation',
+  '/talent/pre-diagnostic',
   '/talent/learning-path',
   '/talent/notifications',
   '/talent/profile',
   '/talent/dashboard',
+  '/talent/diagnostic',
 ];
 
 export const PRIVATE_ROUTES_COMPANY = [

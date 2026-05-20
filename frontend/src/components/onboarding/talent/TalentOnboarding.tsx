@@ -121,7 +121,7 @@ export function TalentOnboarding() {
         await talentApi.uploadPortfolioPdf(token, profileId, formData.portfolio_file);
       }
 
-      router.push('/talent/self-evaluation');
+      router.push('/talent/pre-diagnostic');
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Ocurrió un error al guardar tu perfil.';

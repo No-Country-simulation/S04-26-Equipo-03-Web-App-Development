@@ -14,7 +14,18 @@ import { SubmitResponsesDto } from './dto/submit-responses.dto';
 export interface SkillContext {
   title: string;
   category: string;
-  self_rating: number | null;
+  self_rating: string | null;
+}
+
+/** Convierte el label de self_rating a un número representativo para prompts */
+function selfRatingToScore(rating: string | null): number | null {
+  if (rating === null) return null;
+  if (rating === 'no_lo_conozco') return 2;
+  if (rating === 'lo_uso') return 5;
+  if (rating === 'lo_domino') return 8;
+  // fallback numérico legacy (por si queda algún número guardado como string)
+  const n = Number(rating);
+  return isNaN(n) ? null : n;
 }
 
 export interface GeneratedQuestion {
@@ -624,7 +635,7 @@ export class DiagnosticService {
       }>;
     }>
   > {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const gapsList = gapAnalysis.gaps.join('\n- ');
     const skillScores = gapAnalysis.skill_scores
@@ -722,12 +733,12 @@ Responde ÚNICAMENTE con un JSON válido, sin markdown ni texto adicional:
     skills: SkillContext[],
     diagnosticType: 'INITIAL_ONBOARDING' | 'SKILL_VALIDATION',
   ): Promise<GeneratedQuestion[]> {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const skillList = skills
       .map(
         (s) =>
-          `- ${s.title} (${s.category})${s.self_rating !== null ? `, autoevaluación: ${s.self_rating}/10` : ''}`,
+          `- ${s.title} (${s.category})${s.self_rating !== null ? `, autoevaluación: ${selfRatingToScore(s.self_rating) ?? '?'}/10` : ''}`,
       )
       .join('\n');
 
@@ -827,7 +838,7 @@ ${jsonFormat}
     skills: SkillContext[],
     objectiveScore?: number,
   ): Promise<GapAnalysis> {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const qa = questions
       .map((q) => {
@@ -844,7 +855,7 @@ ${jsonFormat}
     const skillList = skills
       .map(
         (s) =>
-          `- ${s.title}${s.self_rating !== null ? ` (autoevaluación: ${s.self_rating}/10)` : ''}`,
+          `- ${s.title}${s.self_rating !== null ? ` (autoevaluación: ${selfRatingToScore(s.self_rating) ?? '?'}/10)` : ''}`,
       )
       .join('\n');
 
