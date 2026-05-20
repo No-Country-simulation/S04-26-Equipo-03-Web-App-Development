@@ -11,7 +11,7 @@ export const mockSkills = [
 
 export const mockReviews = [
   {
-    author: 'Lucía B.',
+    author: 'Lucía Bertone',
     company: 'FintechCo',
     role: 'Reclutador / empleado',
     ratin: 5,
@@ -20,7 +20,7 @@ export const mockReviews = [
     status: 'verified',
   },
   {
-    author: 'Pedro R.',
+    author: 'Pedro Ruiz',
     company: 'Compañero — Empresa A',
     role: 'Compañero de trabajo',
     ratin: 5,

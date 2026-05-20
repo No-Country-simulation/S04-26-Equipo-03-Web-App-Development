@@ -265,10 +265,10 @@ export default function TalentProfile() {
                   <ReviewCard
                     key={i}
                     name={item.author}
-                    initial={item.author.charAt(0)}
                     rating={item.ratin}
                     text={item.review}
                     source={item.role}
+                    company={item.company}
                     status={item.status as 'verified' | 'pending' | 'reported'}
                   />
                 ))}
