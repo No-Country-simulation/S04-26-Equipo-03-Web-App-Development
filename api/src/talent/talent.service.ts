@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   isPostgrestMissingColumnOrSchemaCacheError,
   throwMappedPostgrestError,
@@ -19,6 +20,7 @@ import type { Database } from '../types/database.types';
 import { CreateTalentRegisterDto } from './dto/create-talent-register.dto';
 import { UpdateTalentProfileDto } from './dto/update-talent-profile.dto';
 import { UpdateTalentRoleSkillsDto } from './dto/update-talent-role-skills.dto';
+import { SaveSkillRatingsDto } from './dto/save-skill-ratings.dto';
 
 type TalentProfileRow = Database['public']['Tables']['Talent_profile']['Row'];
 type TalentProfileUpdate =
@@ -40,11 +42,16 @@ function isUniqueViolation(err: { code?: string; message?: string }): boolean {
 
 @Injectable()
 export class TalentService {
+  private readonly gemini: GoogleGenerativeAI;
+
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+    const apiKey = this.config.getOrThrow<string>('GEMINI_API_KEY');
+    this.gemini = new GoogleGenerativeAI(apiKey);
+  }
 
   /** Fuerza solo `user_id` + `location` en registro (sin intentar columnas extendidas). */
   private isForcedLegacySchema(): boolean {
@@ -491,7 +498,7 @@ export class TalentService {
     ).map((s) => ({
       profile_id: profileId,
       skill_id: s.skill_id,
-      ...(s.self_rating !== undefined && { self_rating: s.self_rating }),
+      self_rating: s.self_rating != null ? String(s.self_rating) : null,
     }));
 
     const { data: skills, error: skErr } = await client
@@ -542,5 +549,165 @@ export class TalentService {
 
     if (error) throwMappedPostgrestError(error);
     return { message: 'Talento desactivado' };
+  }
+
+  /** Sugiere 4-5 skills via IA basándose en rol y skills existentes del talento */
+  async suggestSkills(
+    userId: string,
+    profileId: string,
+  ): Promise<{
+    suggestions: Array<{ id: string; title: string; type: string }>;
+    role_name: string | null;
+  }> {
+    await this.verifyProfileOwnership(userId, profileId);
+    const client = this.supabaseService.getClient();
+
+    // Rol del talento
+    const { data: roleRow } = await client
+      .from('Talent_Role')
+      .select('role_name')
+      .eq('profile_id', profileId)
+      .order('id', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // Skills actuales del talento
+    const { data: existingTalentSkills } = await client
+      .from('Talent_skill')
+      .select('skill_id, Skill(id, title, type)')
+      .eq('profile_id', profileId);
+
+    const existingIds = (existingTalentSkills ?? [])
+      .map((ts) => (ts.Skill as { id: string } | null)?.id)
+      .filter((id): id is string => !!id);
+
+    const existingTypes = (existingTalentSkills ?? []).map((ts) => {
+      const s = ts.Skill as { type: string } | null;
+      return s?.type ?? '';
+    });
+
+    const existingSkillsText =
+      (existingTalentSkills ?? [])
+        .map((ts) => {
+          const s = ts.Skill as { title: string; type: string } | null;
+          return `- ${s?.title} (${s?.type})`;
+        })
+        .join('\n') || 'Ninguna seleccionada aún';
+
+    // Todas las skills disponibles no seleccionadas
+    let availableQuery = client.from('Skill').select('id, title, type');
+    if (existingIds.length > 0) {
+      availableQuery = availableQuery.not(
+        'id',
+        'in',
+        `(${existingIds.join(',')})`,
+      );
+    }
+    const { data: availableSkills } = await availableQuery;
+    const pool = availableSkills ?? [];
+
+    if (pool.length === 0) {
+      return { suggestions: [], role_name: roleRow?.role_name ?? null };
+    }
+
+    const hasSOFT = existingTypes.includes('SOFT');
+    const poolList = pool
+      .map((s) => `ID:${s.id} | ${s.title} | ${s.type}`)
+      .join('\n');
+
+    const prompt = `
+Eres un asesor de carrera experto. Un profesional con rol objetivo "${
+      roleRow?.role_name ?? 'Profesional'
+    }" tiene actualmente estas habilidades:
+${existingSkillsText}
+
+${!hasSOFT ? 'IMPORTANTE: El talento NO tiene skills de tipo SOFT. Debes incluir al menos 2 skills SOFT para equilibrar su perfil.\n' : ''}
+De la siguiente lista de skills disponibles, seleccioná EXACTAMENTE entre 4 y 5 que:
+1. Sean más relevantes para el rol objetivo
+2. Complementen las skills que ya tiene
+3. LO MAS IMPORTANTE: Equilibren los tipos (TECH, SOFT, COGNITIVE), si el talento solo tiene skills de un tipo, debes sugerir skills de otros tipos para equilibrar su perfil.
+
+Lista de skills disponibles:
+${poolList}
+
+Responde ÚNICAMENTE con un JSON válido sin markdown: ["uuid1", "uuid2", ...]
+Solo IDs de la lista, entre 4 y 5 elementos.
+    `.trim();
+
+    let suggestedIds: string[] = [];
+    try {
+      const model = this.gemini.getGenerativeModel({
+        model: 'gemini-3.5-flash',
+      });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      suggestedIds = JSON.parse(clean) as string[];
+    } catch {
+      // Si falla la IA, devolver las primeras 5 del pool
+      suggestedIds = pool.slice(0, 5).map((s) => s.id);
+    }
+
+    // Filtrar solo IDs válidos del pool
+    const validIdSet = new Set(pool.map((s) => s.id));
+    const filteredIds = suggestedIds
+      .filter((id) => validIdSet.has(id))
+      .slice(0, 5);
+
+    // Si no hay suficientes, completar con del pool
+    if (filteredIds.length < 4) {
+      for (const s of pool) {
+        if (!filteredIds.includes(s.id)) filteredIds.push(s.id);
+        if (filteredIds.length >= 4) break;
+      }
+    }
+
+    const suggestions = filteredIds
+      .map((id) => pool.find((s) => s.id === id))
+      .filter((s): s is NonNullable<typeof s> => s != null)
+      .map((s) => ({
+        id: s.id,
+        title: s.title ?? '',
+        type: s.type ?? 'TECH',
+      }));
+
+    return { suggestions, role_name: roleRow?.role_name ?? null };
+  }
+
+  /** Guarda las auto-calificaciones de skills del pre-diagnóstico */
+  async saveSkillRatings(
+    userId: string,
+    profileId: string,
+    dto: SaveSkillRatingsDto,
+  ): Promise<{ saved: number }> {
+    await this.verifyProfileOwnership(userId, profileId);
+    const client = this.supabaseService.getClient();
+
+    for (const entry of dto.ratings) {
+      const { data: existing } = await client
+        .from('Talent_skill')
+        .select('id')
+        .eq('profile_id', profileId)
+        .eq('skill_id', entry.skill_id)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await client
+          .from('Talent_skill')
+          .update({ self_rating: entry.self_rating })
+          .eq('id', existing.id);
+        if (error) throwMappedPostgrestError(error);
+      } else {
+        const { error } = await client.from('Talent_skill').insert({
+          profile_id: profileId,
+          skill_id: entry.skill_id,
+          self_rating: entry.self_rating,
+          validated: false,
+        });
+        if (error) throwMappedPostgrestError(error);
+      }
+    }
+
+    return { saved: dto.ratings.length };
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -28,6 +29,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { CreateTalentRegisterDto } from './dto/create-talent-register.dto';
 import { UpdateTalentProfileDto } from './dto/update-talent-profile.dto';
 import { UpdateTalentRoleSkillsDto } from './dto/update-talent-role-skills.dto';
+import { SaveSkillRatingsDto } from './dto/save-skill-ratings.dto';
 import { TalentService } from './talent.service';
 
 @ApiTags('talent')
@@ -179,6 +181,9 @@ export class TalentController {
     dto.skills = UpdateTalentRoleSkillsDto.deserializeSkills(
       body.skills ?? '[]',
     );
+    if (dto.skills.length < 3) {
+      throw new BadRequestException('Se requieren mínimo 3 skills');
+    }
     return this.talentService.updateRoleAndSkills(userId, profileId, dto, cv);
   }
 
@@ -211,5 +216,41 @@ export class TalentController {
   @ApiOperation({ summary: 'Desactivar talento (User.active = false)' })
   deactivate(@Param('profileId', ParseUUIDPipe) profileId: string) {
     return this.talentService.deactivateProfile(profileId);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Get(':profileId/skill-suggestions')
+  @ApiOperation({
+    summary: 'Sugerencias de skills via IA para pre-diagnóstico',
+    description:
+      'Devuelve 4-5 skills sugeridas por Gemini según el rol objetivo del talento, ' +
+      'equilibrando tipos (TECH/SOFT/COGNITIVE) y excluyendo skills ya seleccionadas.',
+  })
+  getSkillSuggestions(
+    @Param('profileId', ParseUUIDPipe) profileId: string,
+    @Req() req: Request,
+  ) {
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.suggestSkills(userId, profileId);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Post(':profileId/skill-ratings')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Guardar auto-calificaciones de skills (pre-diagnóstico)',
+    description:
+      'Inserta o actualiza las Talent_skill con el self_rating elegido ' +
+      '("no_lo_conozco" | "lo_uso" | "lo_domino").',
+  })
+  saveSkillRatings(
+    @Param('profileId', ParseUUIDPipe) profileId: string,
+    @Body() dto: SaveSkillRatingsDto,
+    @Req() req: Request,
+  ) {
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.saveSkillRatings(userId, profileId, dto);
   }
 }

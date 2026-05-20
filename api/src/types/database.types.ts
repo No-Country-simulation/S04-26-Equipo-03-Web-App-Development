@@ -437,7 +437,7 @@ export type Database = {
           last_diagnostic_id: string | null;
           profile_id: string | null;
           score: number | null;
-          self_rating: number | null;
+          self_rating: string | null;
           skill_id: string | null;
           validated: boolean | null;
           validated_at: string | null;
@@ -447,7 +447,7 @@ export type Database = {
           last_diagnostic_id?: string | null;
           profile_id?: string | null;
           score?: number | null;
-          self_rating?: number | null;
+          self_rating?: string | null;
           skill_id?: string | null;
           validated?: boolean | null;
           validated_at?: string | null;
@@ -457,7 +457,7 @@ export type Database = {
           last_diagnostic_id?: string | null;
           profile_id?: string | null;
           score?: number | null;
-          self_rating?: number | null;
+          self_rating?: string | null;
           skill_id?: string | null;
           validated?: boolean | null;
           validated_at?: string | null;

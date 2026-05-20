@@ -21,7 +21,7 @@ export function LearningPathEmpty() {
 
       <div className="flex flex-col sm:flex-row gap-[12px]">
         <Link
-          href="/talent/self-evaluation"
+          href="/talent/pre-diagnostic"
           className="inline-flex items-center justify-center gap-[8px] bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-medium px-[20px] py-[10px] rounded-[8px] transition-colors"
         >
           <Sparkles className="w-[15px] h-[15px]" />
