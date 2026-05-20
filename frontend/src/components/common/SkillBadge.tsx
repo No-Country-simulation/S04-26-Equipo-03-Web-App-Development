@@ -34,9 +34,9 @@ export default function SkillBadge({
         />
       )}
       {children}
-      {variant === 'pending' && (
+      {/* {variant === 'pending' && (
         <span className="ml-1 text-xs text-[#6B7280]">pendiente</span>
-      )}
+      )} */}
       {variant === 'filter' && onRemove && (
         <X
           className="text-[#6B7280] color-[#6B7280] cursor-pointer ml-1"

@@ -5,48 +5,24 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Star,
-  Check,
+  // Check,
   MessageCircle,
   Download,
   Upload,
-  AlertCircle,
+  // AlertCircle,
 } from 'lucide-react';
+import ProfileHeader from './ProfileHeader';
+import CardSection from '@/components/common/CardSection';
+import { mockReviews, mockSkills } from './_data';
+import SkillBadge from '@/components/common/SkillBadge';
+import RatingDisplay from '@/app/talent/profile/RatingDisplay';
+import { ReviewCard } from '@/components/talent/profile/ReviewCard';
 
 export default function TalentProfile() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header Navigation */}
-      <header className="border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
-              <span className="text-white text-sm font-bold">TB</span>
-            </div>
-            <span className="font-bold text-lg">TalentBridge</span>
-          </div>
-          <nav className="flex items-center gap-8">
-            <a href="#" className="text-sm font-medium text-[#4f46e5]">
-              Perfil
-            </a>
-            <a href="#" className="text-sm text-gray-700">
-              Diagnóstico
-            </a>
-            <a href="#" className="text-sm text-gray-700">
-              Mi ruta
-            </a>
-            <a
-              href="#"
-              className="text-sm text-gray-700 flex items-center gap-1"
-            >
-              Notificaciones
-              <span className="bg-[#4f46e5] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                1
-              </span>
-            </a>
-            <span className="text-sm font-medium text-gray-700">MR</span>
-          </nav>
-        </div>
-      </header>
+      <ProfileHeader />
 
       {/* Progress Bar */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -130,14 +106,18 @@ export default function TalentProfile() {
             </div>
 
             {/* Resumen */}
-            <div className="border border-gray-200 rounded-lg p-6">
+            {/* <div className="border border-gray-200 rounded-lg p-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Resumen</h2>
               <p className="text-sm text-gray-700 leading-relaxed">
                 12 años diseñando productos digitales para fintech y ecommerce.
                 Especializada en design systems, research y mentoring de equipos
                 junior. Buscando roles senior en producto con foco en impacto.
               </p>
-            </div>
+            </div> */}
+            <CardSection
+              title="Resumen"
+              description="12 años diseñando productos digitales para fintech y ecommerce. Especializada en design systems, research y mentoring de equipos junior. Buscando roles senior en producto con foco en impacto."
+            />
 
             {/* Skills */}
             <div className="border border-gray-200 rounded-lg p-6">
@@ -154,38 +134,24 @@ export default function TalentProfile() {
               </p>
 
               <div className="flex flex-wrap gap-2 mb-4">
-                <Badge className="bg-green-50 text-gray-900 border border-gray-200">
-                  ✓ Figma · Senior
-                </Badge>
-                <Badge className="bg-green-50 text-gray-900 border border-gray-200">
-                  ✓ Design Systems · Senior
-                </Badge>
-                <Badge className="bg-green-50 text-gray-900 border border-gray-200">
-                  ✓ User Research · Semi-Senior
-                </Badge>
-                <Badge className="bg-green-50 text-gray-900 border border-gray-200">
-                  ✓ Prototyping · Senior
-                </Badge>
-                <Badge className="bg-gray-50 text-gray-900 border border-gray-200">
-                  Accessibility · Junior
-                </Badge>
-                <Badge className="bg-gray-50 text-gray-900 border border-gray-200">
-                  Design Tokens
-                </Badge>
-                <Badge className="bg-gray-50 text-gray-900 border border-gray-200">
-                  Motion / Lottie
-                </Badge>
-                <Badge className="bg-gray-50 text-gray-900 border border-gray-200">
-                  UX Writing
-                </Badge>
+                {mockSkills.map((skill) => {
+                  if (skill.level === 'pendiente')
+                    return (
+                      <SkillBadge key={skill.name} variant="pending">
+                        {skill.name}
+                      </SkillBadge>
+                    );
+                  return (
+                    <SkillBadge key={skill.name} variant="verified">
+                      {skill.name} · {skill.level}
+                    </SkillBadge>
+                  );
+                })}
               </div>
 
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-600 flex items-center gap-1">
                 5 de 8 skills validadas. Valida las 3 restantes para desbloquear
-                el badge{' '}
-                <Badge className="inline-block bg-black text-white text-xs">
-                  100% verificado
-                </Badge>
+                el badge <SkillBadge variant="star">100% verificado</SkillBadge>
               </p>
             </div>
 
@@ -201,25 +167,16 @@ export default function TalentProfile() {
                 </a>
               </div>
 
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-3xl font-bold text-gray-900">4.7</div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    Promedio sobre 8 reseñas verificadas
-                  </p>
-                </div>
+              <div className="flex items-center gap-4 mb-6 mt-6 border-b border-[#E5E7EB] pb-4">
+                <div className="text-4xl font-bold text-[#1a1a2e]">4.7</div>
+                <RatingDisplay
+                  stars={5}
+                  label="Promedio sobre 8 reseñas verificadas"
+                />
               </div>
 
               <div className="space-y-4">
-                <div className="border-b border-gray-100 pb-4">
+                {/* <div className="border-b border-gray-100 pb-4">
                   <div className="flex items-start gap-3 mb-2">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-semibold">
                       L
@@ -302,7 +259,19 @@ export default function TalentProfile() {
                     equipo. Solo vos podés ver este estado. Ningún reclutador ve
                     esta reseña hasta que un administrador la revise.
                   </p>
-                </div>
+                </div> */}
+
+                {mockReviews.map((item, i) => (
+                  <ReviewCard
+                    key={i}
+                    name={item.author}
+                    initial={item.author.charAt(0)}
+                    rating={item.ratin}
+                    text={item.review}
+                    source={item.role}
+                    status={item.status as 'verified' | 'pending' | 'reported'}
+                  />
+                ))}
               </div>
             </div>
 
@@ -395,8 +364,8 @@ export default function TalentProfile() {
                   </div>
                 </div>
                 <p className="text-xs text-gray-300 mb-4">
-                  "Todas las skills verificadas" aumenta tu visibilidad — los
-                  reclutadores pueden filtrar por este badge.
+                  &quot;Todas las skills verificadas&quot; aumenta tu
+                  visibilidad — los reclutadores pueden filtrar por este badge.
                 </p>
                 <Button className="w-full bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white text-sm h-9">
                   Validar skills
@@ -469,7 +438,7 @@ export default function TalentProfile() {
               {/* IA Feedback */}
               <Card className="border border-blue-200 bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
-                  <MessageCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <MessageCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs font-semibold text-gray-900 mb-2">
                       ¿Cuería que revise tu CV para el rol que elegiste?
