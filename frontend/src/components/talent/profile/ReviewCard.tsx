@@ -9,6 +9,12 @@ interface NormalReviewProps {
   source: string;
 }
 
+const avatarStyles: Record<string, string> = {
+  verified: 'bg-indigo-100 text-indigo-600',
+  pending: 'bg-gray-200 text-gray-700',
+  reported: 'bg-indigo-100 text-indigo-600',
+};
+
 export function ReviewCard(props: NormalReviewProps) {
   return (
     <div className="border-b border-gray-100 pb-4">
@@ -27,21 +33,13 @@ function NormalReview({
   rating,
   source,
   text,
+  status = 'verified',
 }: NormalReviewProps) {
-  const avatarColors = [
-    'bg-blue-100 text-blue-600',
-    'bg-purple-100 text-purple-600',
-    'bg-pink-100 text-pink-600',
-    'bg-green-100 text-green-600',
-    'bg-orange-100 text-orange-600',
-  ];
-  const colorClass = avatarColors[name.charCodeAt(0) % avatarColors.length];
-
   return (
     <>
       <div className="flex items-start gap-3 mb-2">
         <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${colorClass}`}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${avatarStyles[status]}`}
         >
           {initial}
         </div>
@@ -69,7 +67,7 @@ function ReportedReview() {
   return (
     <>
       <div className="flex items-start gap-3 mb-2">
-        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-indigo-100 text-indigo-600">
           —
         </div>
         <div className="flex-1">
@@ -84,9 +82,11 @@ function ReportedReview() {
         Esta reseña fue denunciada y está siendo revisada por el equipo.
       </p>
       <p className="text-sm text-gray-500 italic">
-        Solo vos podés ver este estado. Ningún reclutador ve esta reseña hasta
+        Solo vos podés ver este estado. ningún reclutador ve esta reseña hasta
         que un administrador la revise.
       </p>
     </>
   );
 }
+
+
