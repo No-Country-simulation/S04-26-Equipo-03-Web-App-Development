@@ -17,12 +17,29 @@ interface Props {
   roleName: string;
 }
 
+const STARTING_MESSAGES = [
+  'Analizando tu perfil y skills...',
+  'Generando preguntas con IA...',
+  'Personalizando el cuestionario...',
+  '¡Casi listo! Preparando tu test...',
+];
+
 export function DiagnosticIntro({ profileId, roleName }: Props) {
   const router = useRouter();
   const [starting, setStarting] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [lastDiagnostic, setLastDiagnostic] = useState<PastDiagnostic | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    if (!starting) return;
+    setLoadingStep(0);
+    const id = setInterval(() => {
+      setLoadingStep((s) => Math.min(s + 1, STARTING_MESSAGES.length - 1));
+    }, 3500);
+    return () => clearInterval(id);
+  }, [starting]);
 
   useEffect(() => {
     const token = getCookie(AUTH_COOKIE_NAME);
@@ -75,6 +92,38 @@ export function DiagnosticIntro({ profileId, roleName }: Props) {
       month: 'long',
     })
     : null;
+
+  if (starting) {
+    return (
+      <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
+        <div className="text-[72px] mb-[16px] animate-pulse select-none">🤖</div>
+        <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
+          Preparando tu diagnóstico
+        </h2>
+        <p className="text-[14px] text-[#6b7280] text-center max-w-[380px] mb-[40px]">
+          Estamos generando preguntas personalizadas según tu perfil y skills.
+        </p>
+        <div className="flex flex-col gap-[14px] w-full max-w-[360px]">
+          { STARTING_MESSAGES.map((msg, i) => (
+            <div
+              key={ msg }
+              className={ 'flex items-center gap-[12px] text-[14px] transition-opacity duration-500 ' + (i <= loadingStep ? 'opacity-100' : 'opacity-25') }
+            >
+              <span className={ 'shrink-0 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-bold ' + (i < loadingStep ? 'bg-[#22c55e] text-white' : i === loadingStep ? 'bg-[#4f46e5] text-white' : 'bg-[#e5e7eb] text-[#9ca3af]') }>
+                { i < loadingStep ? '✓' : i + 1 }
+              </span>
+              <span className={ i === loadingStep ? 'text-[#111827] font-medium' : 'text-[#6b7280]' }>
+                { msg }
+              </span>
+              { i === loadingStep && (
+                <span className="ml-auto shrink-0 w-[14px] h-[14px] rounded-full border-[2px] border-[#4f46e5] border-t-transparent animate-spin" />
+              ) }
+            </div>
+          )) }
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f9fafb] flex flex-col">
@@ -131,12 +180,9 @@ export function DiagnosticIntro({ profileId, roleName }: Props) {
         <div className="flex gap-[12px] flex-wrap justify-center">
           <button
             onClick={ handleStart }
-            disabled={ starting }
-            className="flex items-center gap-[8px] px-[28px] py-[11px] rounded-[8px] bg-[#4f46e5] text-white text-[14px] font-semibold hover:bg-[#4338ca] transition-colors cursor-pointer disabled:opacity-60"
+            disabled={ starting || !!cooldownDays }
+            className="flex items-center gap-[8px] px-[28px] py-[11px] rounded-[8px] bg-[#4f46e5] text-white text-[14px] font-semibold hover:bg-[#4338ca] transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            { starting && (
-              <span className="w-[14px] h-[14px] rounded-full border-[2px] border-white border-t-transparent animate-spin" />
-            ) }
             Empezar el diagnóstico
           </button>
           <Link

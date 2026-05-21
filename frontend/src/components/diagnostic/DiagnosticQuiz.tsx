@@ -11,13 +11,30 @@ import {
 import { getCookie, deleteCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
+const SUBMITTING_MESSAGES = [
+  'Evaluando tus respuestas...',
+  'Calculando tu brecha de habilidades...',
+  'Diseñando tu ruta de aprendizaje...',
+  '¡Finalizando! Un momento más...',
+];
+
 export function DiagnosticQuiz() {
   const router = useRouter();
   const [session, setSession] = useState<DiagnosticSession | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, 'a' | 'b' | 'c' | 'd'>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [submittingStep, setSubmittingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!submitting) return;
+    setSubmittingStep(0);
+    const id = setInterval(() => {
+      setSubmittingStep((s) => Math.min(s + 1, SUBMITTING_MESSAGES.length - 1));
+    }, 3500);
+    return () => clearInterval(id);
+  }, [submitting]);
 
   useEffect(() => {
     const raw = sessionStorage.getItem(DIAGNOSTIC_SESSION_KEY);
@@ -95,6 +112,35 @@ export function DiagnosticQuiz() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      { submitting && (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center px-[24px]">
+          <div className="text-[72px] mb-[16px] animate-pulse select-none">🧠</div>
+          <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
+            Analizando tus resultados
+          </h2>
+          <p className="text-[14px] text-[#6b7280] text-center max-w-[380px] mb-[40px]">
+            Estamos evaluando tus respuestas y preparando tu ruta personalizada.
+          </p>
+          <div className="flex flex-col gap-[14px] w-full max-w-[360px]">
+            { SUBMITTING_MESSAGES.map((msg, i) => (
+              <div
+                key={ msg }
+                className={ 'flex items-center gap-[12px] text-[14px] transition-opacity duration-500 ' + (i <= submittingStep ? 'opacity-100' : 'opacity-25') }
+              >
+                <span className={ 'shrink-0 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-bold ' + (i < submittingStep ? 'bg-[#22c55e] text-white' : i === submittingStep ? 'bg-[#4f46e5] text-white' : 'bg-[#e5e7eb] text-[#9ca3af]') }>
+                  { i < submittingStep ? '✓' : i + 1 }
+                </span>
+                <span className={ i === submittingStep ? 'text-[#111827] font-medium' : 'text-[#6b7280]' }>
+                  { msg }
+                </span>
+                { i === submittingStep && (
+                  <span className="ml-auto shrink-0 w-[14px] h-[14px] rounded-full border-[2px] border-[#4f46e5] border-t-transparent animate-spin" />
+                ) }
+              </div>
+            )) }
+          </div>
+        </div>
+      ) }
       {/* Header */ }
       <header className="shrink-0 border-b border-[#e5e7eb] px-[24px] py-[14px] bg-white">
         <div className="max-w-[720px] mx-auto flex items-center justify-between">
@@ -203,9 +249,6 @@ export function DiagnosticQuiz() {
             disabled={ submitting }
             className="flex items-center gap-[8px] px-[28px] py-[10px] rounded-[8px] bg-[#4f46e5] text-white text-[14px] font-semibold hover:bg-[#4338ca] transition-colors cursor-pointer disabled:opacity-60"
           >
-            { submitting && (
-              <span className="w-[14px] h-[14px] rounded-full border-[2px] border-white border-t-transparent animate-spin" />
-            ) }
             { isLast ? 'Finalizar' : 'Siguiente →' }
           </button>
         </div>
