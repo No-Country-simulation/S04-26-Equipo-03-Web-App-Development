@@ -12,6 +12,20 @@ import {
 import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
+const LOADING_MESSAGES = [
+  'Analizando tu rol objetivo...',
+  'Buscando habilidades relevantes...',
+  'Personalizando sugerencias...',
+  '¡Casi listo!',
+];
+
+const SUBMITTING_MESSAGES = [
+  'Guardando tus calificaciones...',
+  'Calibrando el diagnóstico...',
+  'Preparando preguntas personalizadas...',
+  '¡Listo! Redirigiendo...',
+];
+
 const RATING_OPTIONS: { label: string; value: SelfRatingLabel; }[] = [
   { label: 'No lo conozco', value: 'no_lo_conozco' },
   { label: 'Lo uso', value: 'lo_uso' },
@@ -29,6 +43,8 @@ export function PreDiagnosticView({ profileId }: Props) {
   const [ratings, setRatings] = useState<Record<string, SelfRatingLabel>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const [submittingStep, setSubmittingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,12 +53,22 @@ export function PreDiagnosticView({ profileId }: Props) {
       router.replace('/talent/login');
       return;
     }
+    setLoadingStep(0);
+    const id = setInterval(() => setLoadingStep((s) => Math.min(s + 1, LOADING_MESSAGES.length - 1)), 2500);
     preDiagnosticApi
       .getSuggestions(token, profileId)
       .then(({ suggestions: s }) => setSuggestions(s))
       .catch(() => setError('No se pudieron cargar las sugerencias. Intentá de nuevo.'))
-      .finally(() => setLoading(false));
+      .finally(() => { clearInterval(id); setLoading(false); });
+    return () => clearInterval(id);
   }, [profileId, router]);
+
+  useEffect(() => {
+    if (!submitting) return;
+    setSubmittingStep(0);
+    const id = setInterval(() => setSubmittingStep((s) => Math.min(s + 1, SUBMITTING_MESSAGES.length - 1)), 3000);
+    return () => clearInterval(id);
+  }, [submitting]);
 
   const handleRating = useCallback((skillId: string, value: SelfRatingLabel) => {
     setRatings((prev) => ({ ...prev, [skillId]: value }));
@@ -66,22 +92,73 @@ export function PreDiagnosticView({ profileId }: Props) {
     try {
       await preDiagnosticApi.saveRatings(token, profileId, ratingsToSave);
       router.push('/talent/diagnostic');
+      // No reseteamos submitting: la pantalla de carga permanece hasta que
+      // Next.js complete la navegación y desmonte el componente.
     } catch {
       setError('Ocurrió un error al guardar. Intentá de nuevo.');
-    } finally {
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <TalentAppHeader activeTab="diagnostic" />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto mb-[16px] w-[44px] h-[44px] rounded-full border-[3px] border-[#e5e7eb] border-t-[#4f46e5] animate-spin" />
-            <p className="text-[14px] text-[#6b7280]">La IA está analizando tu perfil…</p>
-          </div>
+      <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
+        <div className="text-[72px] mb-[16px] animate-pulse select-none">🙂</div>
+        <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
+          Preparando tu perfil
+        </h2>
+        <p className="text-[14px] text-[#6b7280] text-center max-w-[380px] mb-[40px]">
+          Estamos buscando las habilidades más relevantes para tu rol.
+        </p>
+        <div className="flex flex-col gap-[14px] w-full max-w-[360px]">
+          { LOADING_MESSAGES.map((msg, i) => (
+            <div
+              key={ msg }
+              className={ 'flex items-center gap-[12px] text-[14px] transition-opacity duration-500 ' + (i <= loadingStep ? 'opacity-100' : 'opacity-25') }
+            >
+              <span className={ 'shrink-0 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-bold ' + (i < loadingStep ? 'bg-[#22c55e] text-white' : i === loadingStep ? 'bg-[#4f46e5] text-white' : 'bg-[#e5e7eb] text-[#9ca3af]') }>
+                { i < loadingStep ? '✓' : i + 1 }
+              </span>
+              <span className={ i === loadingStep ? 'text-[#111827] font-medium' : 'text-[#6b7280]' }>
+                { msg }
+              </span>
+              { i === loadingStep && (
+                <span className="ml-auto shrink-0 w-[14px] h-[14px] rounded-full border-[2px] border-[#4f46e5] border-t-transparent animate-spin" />
+              ) }
+            </div>
+          )) }
+        </div>
+      </div>
+    );
+  }
+
+  if (submitting) {
+    return (
+      <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
+        <div className="text-[72px] mb-[16px] animate-pulse select-none">🧠</div>
+        <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
+          Guardando tu perfil de habilidades
+        </h2>
+        <p className="text-[14px] text-[#6b7280] text-center max-w-[380px] mb-[40px]">
+          Estamos calibrando el diagnóstico con tus calificaciones.
+        </p>
+        <div className="flex flex-col gap-[14px] w-full max-w-[360px]">
+          { SUBMITTING_MESSAGES.map((msg, i) => (
+            <div
+              key={ msg }
+              className={ 'flex items-center gap-[12px] text-[14px] transition-opacity duration-500 ' + (i <= submittingStep ? 'opacity-100' : 'opacity-25') }
+            >
+              <span className={ 'shrink-0 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[11px] font-bold ' + (i < submittingStep ? 'bg-[#22c55e] text-white' : i === submittingStep ? 'bg-[#4f46e5] text-white' : 'bg-[#e5e7eb] text-[#9ca3af]') }>
+                { i < submittingStep ? '✓' : i + 1 }
+              </span>
+              <span className={ i === submittingStep ? 'text-[#111827] font-medium' : 'text-[#6b7280]' }>
+                { msg }
+              </span>
+              { i === submittingStep && (
+                <span className="ml-auto shrink-0 w-[14px] h-[14px] rounded-full border-[2px] border-[#4f46e5] border-t-transparent animate-spin" />
+              ) }
+            </div>
+          )) }
         </div>
       </div>
     );
@@ -174,9 +251,6 @@ export function PreDiagnosticView({ profileId }: Props) {
               disabled={ submitting }
               className="flex items-center gap-[8px] px-[28px] py-[10px] rounded-[8px] bg-[#4f46e5] text-white text-[14px] font-semibold hover:bg-[#4338ca] transition-colors cursor-pointer disabled:opacity-60"
             >
-              { submitting && (
-                <span className="w-[14px] h-[14px] rounded-full border-[2px] border-white border-t-transparent animate-spin" />
-              ) }
               Continuar →
             </button>
           ) : (
