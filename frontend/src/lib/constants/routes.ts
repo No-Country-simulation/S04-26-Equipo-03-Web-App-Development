@@ -18,6 +18,8 @@ export const PRIVATE_ROUTES_TALENT = [
   '/talent/profile',
   '/talent/dashboard',
   '/talent/diagnostic',
+  '/talent/diagnostic/quiz',
+  '/talent/diagnostic/results',
 ];
 
 export const PRIVATE_ROUTES_COMPANY = [

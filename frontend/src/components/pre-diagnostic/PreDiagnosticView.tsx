@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { TalentAppHeader } from '@/components/layout/TalentAppHeader';
 import {
   type SkillSuggestion,
   type SelfRatingLabel,
@@ -76,7 +76,7 @@ export function PreDiagnosticView({ profileId }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <AppHeader />
+        <TalentAppHeader activeTab="diagnostic" />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="mx-auto mb-[16px] w-[44px] h-[44px] rounded-full border-[3px] border-[#e5e7eb] border-t-[#4f46e5] animate-spin" />
@@ -89,7 +89,7 @@ export function PreDiagnosticView({ profileId }: Props) {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <AppHeader />
+      <TalentAppHeader activeTab="diagnostic" />
 
       {/* Content */ }
       <div className="flex-1 max-w-[860px] mx-auto w-full px-[24px] py-[40px]">
@@ -193,35 +193,4 @@ export function PreDiagnosticView({ profileId }: Props) {
   );
 }
 
-function AppHeader() {
-  return (
-    <header className="shrink-0 border-b border-[#e5e7eb] px-[24px] py-[14px]">
-      <div className="max-w-[860px] mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-[8px]">
-          <div className="w-[28px] h-[28px] bg-[#1a1a2e] rounded-[6px] flex items-center justify-center">
-            <span className="text-white text-[11px] font-bold">T</span>
-          </div>
-          <span className="font-semibold text-[#1a1a2e] text-[15px]">TalentBridge</span>
-        </Link>
 
-        <nav className="hidden sm:flex items-center gap-[28px]">
-          <Link href="/talent/profile" className="text-[14px] text-[#6b7280] hover:text-[#111827]">
-            Perfil
-          </Link>
-          <Link
-            href="#"
-            className="text-[14px] text-[#4f46e5] font-medium border-b-[2px] border-[#4f46e5] pb-[2px]"
-          >
-            Diagnóstico
-          </Link>
-          <Link href="/talent/learning-path" className="text-[14px] text-[#6b7280] hover:text-[#111827]">
-            Mi ruta
-          </Link>
-          <Link href="/talent/notifications" className="text-[14px] text-[#6b7280] hover:text-[#111827]">
-            Notificaciones
-          </Link>
-        </nav>
-      </div>
-    </header>
-  );
-}

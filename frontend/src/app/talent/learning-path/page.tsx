@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
+import { TalentAppHeader } from '@/components/layout/TalentAppHeader';
 import { learningPathApi } from '@/lib/api/learning-path';
 import { LearningPathView } from '@/components/learning-path/LearningPathView';
 import { LearningPathEmpty } from '@/components/learning-path/LearningPathEmpty';
@@ -28,10 +29,7 @@ export default async function LearningPathPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header placeholder — reemplazar por el header de la app cuando esté listo */ }
-      <div className="border-b border-[#e5e7eb] px-[24px] py-[14px]">
-        <span className="font-semibold text-[#1a1a2e] text-[15px]">TalentBridge</span>
-      </div>
+      <TalentAppHeader activeTab="learning-path" />
 
       <div className="flex-1 flex flex-col">
         { pathData ? (
