@@ -52,6 +52,19 @@ export interface GapAnalysis {
   recommendation: string;
 }
 
+type PathModuleInput = {
+  module_title: string;
+  module_description: string;
+  category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
+  steps: Array<{
+    title: string;
+    description: string;
+    type: 'VIDEO' | 'ARTICLE';
+    resource_url: string;
+    estimated_minutes: number;
+  }>;
+};
+
 /** Puntuación mínima para aprobar una validación de skill (90% en escala 0-10) */
 const PASS_SCORE = 9;
 /** Cantidad de preguntas que Gemini debe generar por diagnóstico */
@@ -112,6 +125,11 @@ export class DiagnosticService {
       throw new BadRequestException(
         'skill_id no aplica para diagnósticos de tipo INITIAL_ONBOARDING.',
       );
+    }
+
+    // Verificar cooldown si es diagnóstico inicial
+    if (diagnosticType === 'INITIAL_ONBOARDING') {
+      await this.checkInitialOnboardingCooldown(client, dto.talent_profile_id);
     }
 
     // Verificar cooldown si es validación de skill
@@ -208,14 +226,71 @@ export class DiagnosticService {
     diagnosticId: string,
     dto: SubmitResponsesDto,
   ) {
+    // Pre-cargar contexto para llamada combinada a Gemini (evita dos round-trips)
+    const dbClient = this.supabaseService.getClient();
+    const { data: diagRow } = await dbClient
+      .from('Diagnostic')
+      .select('ai_generated_questions, talent_profile_id')
+      .eq('id', diagnosticId)
+      .single();
+
+    let precomputedGapAnalysis: GapAnalysis | undefined;
+    let precomputedModules: PathModuleInput[] | undefined;
+
+    if (diagRow?.talent_profile_id) {
+      const { data: talentSkills } = await dbClient
+        .from('Talent_skill')
+        .select('self_rating, Skill(title, type)')
+        .eq('profile_id', diagRow.talent_profile_id);
+
+      const questions: GeneratedQuestion[] =
+        (
+          (diagRow.ai_generated_questions as unknown as {
+            questions?: GeneratedQuestion[];
+          }) ?? {}
+        ).questions ?? [];
+
+      const skillsCtx: SkillContext[] = (talentSkills ?? []).map((ts) => {
+        const skill = ts.Skill as {
+          title: string | null;
+          type: string | null;
+        } | null;
+        return {
+          title: skill?.title ?? 'Skill desconocida',
+          category: skill?.type ?? 'TECH',
+          self_rating: ts.self_rating ?? null,
+        };
+      });
+
+      const typedResponses = dto.responses as Array<{
+        question_id: number;
+        selected_option: 'a' | 'b' | 'c' | 'd';
+      }>;
+
+      // Una sola llamada a Gemini: gap analysis + módulos de la ruta
+      const combined = await this.generateGapAnalysisAndModules(
+        questions,
+        typedResponses,
+        skillsCtx,
+      );
+      precomputedGapAnalysis = combined.gapAnalysis;
+      precomputedModules = combined.modules;
+    }
+
     const { client, updated, gapAnalysis, diagnostic } =
-      await this.processResponses(diagnosticId, dto, 'INITIAL_ONBOARDING');
+      await this.processResponses(
+        diagnosticId,
+        dto,
+        'INITIAL_ONBOARDING',
+        precomputedGapAnalysis,
+      );
 
     const learningPath = await this.createLearningPath(
       diagnosticId,
       diagnostic.talent_profile_id!,
       gapAnalysis,
       client,
+      precomputedModules,
     );
 
     return {
@@ -253,6 +328,7 @@ export class DiagnosticService {
     diagnosticId: string,
     dto: SubmitResponsesDto,
     expectedType: 'INITIAL_ONBOARDING' | 'SKILL_VALIDATION',
+    precomputedGapAnalysis?: GapAnalysis,
   ) {
     const client = this.supabaseService.getClient();
 
@@ -332,13 +408,15 @@ export class DiagnosticService {
         ? this.calculateObjectiveScore(questions, typedResponses)
         : undefined;
 
-    // Generar gap analysis con Gemini
-    const gapAnalysis = await this.generateGapAnalysis(
-      questions,
-      typedResponses,
-      skillsCtx,
-      objectiveScore,
-    );
+    // Generar gap analysis con Gemini (o usar el precomputado para evitar doble llamada)
+    const gapAnalysis =
+      precomputedGapAnalysis ??
+      (await this.generateGapAnalysis(
+        questions,
+        typedResponses,
+        skillsCtx,
+        objectiveScore,
+      ));
 
     // Actualizar Diagnostic
     const { data: updated, error: uErr } = await client
@@ -482,6 +560,40 @@ export class DiagnosticService {
     };
   }
 
+  // ── Cooldown de diagnóstico inicial (30 días) ─────────────────────────
+
+  private async checkInitialOnboardingCooldown(
+    client: ReturnType<SupabaseService['getClient']>,
+    talentProfileId: string,
+  ) {
+    const COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
+
+    const { data: last } = await client
+      .from('Diagnostic')
+      .select('completed_at')
+      .eq('talent_profile_id', talentProfileId)
+      .eq('type', 'INITIAL_ONBOARDING')
+      .eq('status', 'COMPLETED')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!last?.completed_at) return;
+
+    const completedAt = new Date(last.completed_at);
+    const diffMs = Date.now() - completedAt.getTime();
+
+    if (diffMs < COOLDOWN_MS) {
+      const unlocksAt = new Date(completedAt.getTime() + COOLDOWN_MS);
+      const days = Math.ceil(
+        (unlocksAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000),
+      );
+      throw new BadRequestException(
+        `Ya completaste el diagnóstico inicial recientemente. Podés volver a tomarlo en ${days} día${days !== 1 ? 's' : ''} (${unlocksAt.toISOString().split('T')[0]}).`,
+      );
+    }
+  }
+
   // ── Cooldown de validación de skill ────────────────────────────────────
 
   private async checkSkillValidationCooldown(
@@ -541,6 +653,7 @@ export class DiagnosticService {
     talentProfileId: string,
     gapAnalysis: GapAnalysis,
     client: ReturnType<SupabaseService['getClient']>,
+    precomputedModules?: PathModuleInput[],
   ) {
     const { data: path, error: pathErr } = await client
       .from('Learning_Path')
@@ -560,7 +673,8 @@ export class DiagnosticService {
       );
     }
 
-    const modules = await this.generatePathModules(gapAnalysis);
+    const modules =
+      precomputedModules ?? (await this.generatePathModules(gapAnalysis));
 
     const result: Array<{
       module_title: string;
@@ -827,6 +941,133 @@ ${jsonFormat}
       return resp?.selected_option === q.correct_answer;
     }).length;
     return Math.round((correct / questions.length) * 100) / 10;
+  }
+
+  /**
+   * Llamada Gemini combinada: genera gap analysis + módulos de ruta de aprendizaje
+   * en un solo round-trip, reduciendo ~50% el tiempo de espera al enviar respuestas.
+   */
+  private async generateGapAnalysisAndModules(
+    questions: GeneratedQuestion[],
+    responses: Array<{
+      question_id: number;
+      selected_option: 'a' | 'b' | 'c' | 'd';
+    }>,
+    skills: SkillContext[],
+  ): Promise<{ gapAnalysis: GapAnalysis; modules: PathModuleInput[] }> {
+    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
+
+    const qa = questions
+      .map((q) => {
+        const resp = responses.find((r) => r.question_id === q.id);
+        const sel = resp?.selected_option ?? null;
+        const selText = sel ? q.options[sel] : '(sin respuesta)';
+        const isCorrect = sel === q.correct_answer;
+        return `P${q.id} (${q.skill_related}, ${q.difficulty}): ${q.question_text}\nElegida: ${sel ?? '-'}) ${selText} | Correcta: ${q.correct_answer}) ${q.options[q.correct_answer]} | Acierto: ${isCorrect ? 'SÍ' : 'NO'}`;
+      })
+      .join('\n\n');
+
+    const skillList = skills
+      .map(
+        (s) =>
+          `- ${s.title}${s.self_rating !== null ? ` (autoevaluación: ${selfRatingToScore(s.self_rating) ?? '?'}/10)` : ''}`,
+      )
+      .join('\n');
+
+    const skillNames = skills.map((s) => s.title).join(', ');
+
+    const prompt = `
+Eres un evaluador técnico experto y diseñador instruccional. Analiza las respuestas del candidato y realiza dos tareas.
+
+Skills evaluadas: ${skillNames}
+
+Skills con autoevaluación del candidato:
+${skillList}
+
+Preguntas y respuestas del candidato:
+${qa}
+
+═══════════════════════════════════════
+TAREA 1 — GAP ANALYSIS
+═══════════════════════════════════════
+Calcula para CADA skill una puntuación individual (0-10) basada EXCLUSIVAMENTE en su desempeño en las preguntas de esa skill.
+Reglas estrictas:
+- Cada skill DEBE tener un score DIFERENTE que refleje su rendimiento real en esas preguntas
+- Si acertó la mayoría de preguntas de una skill → score alto (7-10)
+- Si erró la mayoría → score bajo (1-4)
+- Si tuvo resultados mixtos → score medio (4-7)
+- NO promedies ni iguales los scores entre skills
+- El overall_score es el promedio ponderado de todos los skill_scores
+
+═══════════════════════════════════════
+TAREA 2 — RUTA DE APRENDIZAJE
+═══════════════════════════════════════
+Diseña módulos de aprendizaje para cerrar las brechas encontradas.
+Categorías: TECH (habilidades técnicas), SOFT (habilidades blandas), EMPLOYABILITY (CV, entrevistas, networking).
+Genera entre 4 y 10 módulos en total. Cada módulo entre 2 y 4 recursos. Tipos: "VIDEO" o "ARTICLE" (únicamente).
+
+Responde ÚNICAMENTE con JSON válido, sin markdown ni texto extra.
+El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.length} entradas), con scores distintos:
+{
+  "gap_analysis": {
+    "overall_score": 6.5,
+    "skill_scores": [
+      { "skill": "NombreSkill1", "score": 8.0, "feedback": "Descripción breve de su desempeño en esta skill" },
+      { "skill": "NombreSkill2", "score": 4.5, "feedback": "Descripción breve de su desempeño en esta skill" },
+      { "skill": "NombreSkill3", "score": 7.0, "feedback": "Descripción breve de su desempeño en esta skill" }
+    ],
+    "strengths": ["fortaleza concreta 1", "fortaleza concreta 2"],
+    "gaps": ["brecha concreta 1", "brecha concreta 2"],
+    "recommendation": "Recomendación de aprendizaje personalizada"
+  },
+  "learning_path": [
+    {
+      "module_title": "Título del módulo",
+      "module_description": "Descripción breve (1-2 oraciones)",
+      "category": "TECH",
+      "steps": [
+        {
+          "title": "Título del recurso",
+          "description": "Descripción breve de qué aprenderá",
+          "type": "VIDEO",
+          "resource_url": "https://learn.example.com/path",
+          "estimated_minutes": 20
+        }
+      ]
+    }
+  ]
+}
+`.trim();
+
+    try {
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      const parsed = JSON.parse(clean) as {
+        gap_analysis: GapAnalysis;
+        learning_path: PathModuleInput[];
+      };
+
+      const normalizeType = (raw: string): 'VIDEO' | 'ARTICLE' => {
+        const up = raw.toUpperCase();
+        if (up.includes('VIDEO')) return 'VIDEO';
+        return 'ARTICLE';
+      };
+
+      const modules: PathModuleInput[] = parsed.learning_path.map((mod) => ({
+        ...mod,
+        steps: mod.steps.map((step) => ({
+          ...step,
+          type: normalizeType(step.type),
+        })),
+      }));
+
+      return { gapAnalysis: parsed.gap_analysis, modules };
+    } catch (err) {
+      throw new InternalServerErrorException(
+        `Error al generar el análisis y ruta con Gemini: ${String(err)}`,
+      );
+    }
   }
 
   private async generateGapAnalysis(

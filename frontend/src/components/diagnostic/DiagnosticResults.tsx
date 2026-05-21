@@ -74,16 +74,21 @@ export function DiagnosticResults() {
             <h2 className="text-[15px] font-semibold text-[#111827] mb-[16px]">
               Skills evaluadas en este diagnóstico
             </h2>
-            <div className="flex flex-col gap-[12px]">
+            <div className="flex flex-col gap-[14px]">
               { gapAnalysis.skill_scores.map((s) => (
-                <div
-                  key={ s.skill }
-                  className="flex items-center justify-between gap-[16px] py-[4px] border-b border-[#f3f4f6] last:border-0"
-                >
-                  <span className="text-[14px] text-[#374151]">{ s.skill }</span>
-                  <span className="shrink-0 text-[15px] font-semibold text-[#4f46e5]">
-                    { s.score.toFixed(1) } / 10
-                  </span>
+                <div key={ s.skill } className="flex flex-col gap-[6px]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[14px] text-[#374151]">{ s.skill }</span>
+                    <span className="text-[13px] font-semibold text-[#374151]">
+                      { s.score.toFixed(1) } / 10
+                    </span>
+                  </div>
+                  <div className="w-full h-[8px] rounded-full bg-[#e5e7eb]">
+                    <div
+                      className="h-[8px] rounded-full bg-[#22c55e] transition-all duration-500"
+                      style={ { width: `${(s.score / 10) * 100}%` } }
+                    />
+                  </div>
                 </div>
               )) }
             </div>
