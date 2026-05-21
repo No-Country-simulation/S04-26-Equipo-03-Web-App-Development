@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation';
 import { authApi, LoginRequest } from '@/lib/api/auth';
 import {
   AUTH_COOKIE_NAME,
-  PRIVATE_ROUTES_TALENT,
   PRIVATE_ROUTES_COMPANY,
 } from '@/lib/constants/routes';
 import { setCookie } from '@/lib/utils/cookies';
@@ -33,7 +32,7 @@ export const useLoginForm = () => {
       if (role === 'RECRUITER') {
         router.push(PRIVATE_ROUTES_COMPANY[0]);
       } else if (role === 'TALENT') {
-        router.push(PRIVATE_ROUTES_TALENT[0]);
+        router.push('/talent/learning-path');
       } else if (role === 'ADMIN') {
         router.push('/');
       } else {
