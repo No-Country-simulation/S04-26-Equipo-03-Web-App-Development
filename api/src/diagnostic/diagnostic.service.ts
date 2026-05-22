@@ -290,7 +290,7 @@ export class DiagnosticService {
       diagnostic.talent_profile_id!,
       gapAnalysis,
       client,
-      precomputedModules,
+      precomputedModules!,
     );
 
     return {
@@ -653,7 +653,7 @@ export class DiagnosticService {
     talentProfileId: string,
     gapAnalysis: GapAnalysis,
     client: ReturnType<SupabaseService['getClient']>,
-    precomputedModules?: PathModuleInput[],
+    precomputedModules: PathModuleInput[],
   ) {
     const { data: path, error: pathErr } = await client
       .from('Learning_Path')
@@ -673,8 +673,7 @@ export class DiagnosticService {
       );
     }
 
-    const modules =
-      precomputedModules ?? (await this.generatePathModules(gapAnalysis));
+    const modules = precomputedModules;
 
     const result: Array<{
       module_title: string;
@@ -733,110 +732,6 @@ export class DiagnosticService {
     }
 
     return { id: path.id, modules: result };
-  }
-
-  private async generatePathModules(gapAnalysis: GapAnalysis): Promise<
-    Array<{
-      module_title: string;
-      module_description: string;
-      category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
-      steps: Array<{
-        title: string;
-        description: string;
-        type: 'VIDEO' | 'ARTICLE';
-        resource_url: string;
-        estimated_minutes: number;
-      }>;
-    }>
-  > {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
-
-    const gapsList = gapAnalysis.gaps.join('\n- ');
-    const skillScores = gapAnalysis.skill_scores
-      .map((s) => `${s.skill}: ${s.score}/10 — ${s.feedback}`)
-      .join('\n');
-
-    const prompt = `
-Eres un diseñador instruccional experto en tecnología y desarrollo profesional.
-Basado en el análisis de brechas de un profesional, generá una ruta de aprendizaje
-estructurada en módulos agrupados por categoría.
-
-Recomendación general: ${gapAnalysis.recommendation}
-
-Brechas identificadas:
-- ${gapsList}
-
-Scores por skill:
-${skillScores}
-
-Categorías disponibles:
-- TECH: habilidades técnicas y de herramientas (código, diseño, datos, etc.)
-- SOFT: habilidades blandas (comunicación, liderazgo, trabajo en equipo, etc.)
-- EMPLOYABILITY: empleabilidad (CV, entrevistas, networking, marca personal, etc.)
-
-Generá entre 2 y 4 módulos por categoría (total 6-12 módulos).
-Cada módulo debe tener entre 2 y 4 recursos (pasos).
-Los módulos dentro de cada categoría deben estar ordenados de menor a mayor dificultad.
-
-Tipos de recurso permitidos (SOLO estos dos valores exactos):
-- "VIDEO": recurso en formato video
-- "ARTICLE": recurso en formato artículo, lectura o tutorial escrito
-
-Responde ÚNICAMENTE con un JSON válido, sin markdown ni texto adicional:
-[
-  {
-    "module_title": "Título del módulo",
-    "module_description": "Descripción breve del objetivo del módulo (1-2 oraciones)",
-    "category": "TECH",
-    "steps": [
-      {
-        "title": "Título del recurso",
-        "description": "Descripción breve de qué aprenderá y por qué es importante",
-        "type": "VIDEO",
-        "resource_url": "https://learn.example.com/path/to/resource",
-        "estimated_minutes": 20
-      }
-    ]
-  }
-]
-`.trim();
-
-    try {
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      const parsed = JSON.parse(clean) as Array<{
-        module_title: string;
-        module_description: string;
-        category: 'TECH' | 'SOFT' | 'EMPLOYABILITY';
-        steps: Array<{
-          title: string;
-          description: string;
-          type: string;
-          resource_url: string;
-          estimated_minutes: number;
-        }>;
-      }>;
-
-      // Normalizar: solo VIDEO o ARTICLE
-      const normalizeType = (raw: string): 'VIDEO' | 'ARTICLE' => {
-        const up = raw.toUpperCase();
-        if (up.includes('VIDEO')) return 'VIDEO';
-        return 'ARTICLE';
-      };
-
-      return parsed.map((mod) => ({
-        ...mod,
-        steps: mod.steps.map((step) => ({
-          ...step,
-          type: normalizeType(step.type),
-        })),
-      }));
-    } catch (err) {
-      throw new InternalServerErrorException(
-        `Error al generar la ruta de aprendizaje con Gemini: ${String(err)}`,
-      );
-    }
   }
 
   // ── Gemini helpers ──────────────────────────────────────────────────────
@@ -1003,8 +898,11 @@ Reglas estrictas:
 TAREA 2 — RUTA DE APRENDIZAJE
 ═══════════════════════════════════════
 Diseña módulos de aprendizaje para cerrar las brechas encontradas.
-Categorías: TECH (habilidades técnicas), SOFT (habilidades blandas), EMPLOYABILITY (CV, entrevistas, networking).
-Genera entre 4 y 10 módulos en total. Cada módulo entre 2 y 4 recursos. Tipos: "VIDEO" o "ARTICLE" (únicamente).
+Categorías y cantidad EXACTA de módulos:
+- TECH: exactamente 3 módulos
+- SOFT: exactamente 1 módulo
+- EMPLOYABILITY: exactamente 1 módulo
+Cada módulo debe tener EXACTAMENTE 2 recursos (pasos). Tipos: "VIDEO" o "ARTICLE" (únicamente).
 
 Responde ÚNICAMENTE con JSON válido, sin markdown ni texto extra.
 El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.length} entradas), con scores distintos:
