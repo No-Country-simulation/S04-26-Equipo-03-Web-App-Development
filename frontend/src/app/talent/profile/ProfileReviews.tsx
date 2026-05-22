@@ -15,9 +15,14 @@ const ProfileReviews = () => {
         </a>
       </div>
 
-      <div className="flex items-center gap-4 mb-6 mt-6 border-b border-[#E5E7EB] pb-4">
-        <div className="text-4xl font-bold text-[#1a1a2e]">4.7</div>
-        <RatingDisplay stars={5} label="Promedio sobre 8 reseñas verificadas" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6 mt-6 border-b border-[#E5E7EB] pb-4">
+        <div className="flex items-center gap-3">
+          <div className="text-3xl sm:text-4xl font-bold text-[#1a1a2e]">4.7</div>
+          <RatingDisplay stars={5} />
+        </div>
+        <p className="text-xs text-gray-600">
+          Promedio sobre 8 reseñas verificadas
+        </p>
       </div>
 
       <div className="space-y-4">
