@@ -37,3 +37,21 @@ export const mockReviews = [
     status: 'reported',
   },
 ];
+
+export const mockExperience = [
+  {
+    title: 'Sr Product Designer',
+    organization: 'Empresa A',
+    period: '2023 – Presente',
+  },
+  {
+    title: 'Product Designer',
+    organization: 'Empresa B',
+    period: '2022 – 2023',
+  },
+  {
+    title: 'UX Designer',
+    organization: 'Empresa C',
+    period: '2020 – 2022',
+  },
+];

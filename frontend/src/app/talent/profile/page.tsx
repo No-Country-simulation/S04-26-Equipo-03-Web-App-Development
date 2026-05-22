@@ -19,6 +19,8 @@ import SkillBadge from '@/components/common/SkillBadge';
 import RatingDisplay from '@/app/talent/profile/RatingDisplay';
 import { ReviewCard } from '@/components/talent/profile/ReviewCard';
 import RatingStars from '@/components/common/RatingStars';
+import ProfileExperience from './ProfileExperience';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TalentProfile() {
   return (
@@ -189,33 +191,7 @@ export default function TalentProfile() {
                   + Agregar
                 </a>
               </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    Sr Product Designer
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Empresa A · 2023 – Presente
-                  </p>
-                  <div className="mt-2 h-2 bg-gray-200 rounded w-1/2"></div>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    Product Designer
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Empresa B · 2022 – 2023
-                  </p>
-                  <div className="mt-2 h-2 bg-gray-200 rounded w-2/3"></div>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">UX Designer</p>
-                  <p className="text-xs text-gray-500">
-                    Empresa C · 2020 – 2022
-                  </p>
-                  <div className="mt-2 h-2 bg-gray-200 rounded w-3/5"></div>
-                </div>
-              </div>
+              <ProfileExperience />
             </div>
 
             {/* Educación */}
@@ -226,11 +202,16 @@ export default function TalentProfile() {
                   + Agregar
                 </a>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900">
-                  Lic. en Diseño Gráfico
-                </p>
-                <p className="text-xs text-gray-500">UBA · 2008</p>
+              <div className="flex items-start gap-4">
+                <div>
+                  <Skeleton className="h-10 w-10 bg-gray-300" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    Lic. en Diseño Gráfico
+                  </p>
+                  <p className="text-xs text-gray-500">UBA · 2008</p>
+                </div>
               </div>
             </div>
 
@@ -240,15 +221,14 @@ export default function TalentProfile() {
                 Portfolio
               </h2>
               <div className="grid grid-cols-3 gap-4">
-                <div className="aspect-square bg-gray-200 rounded flex items-center justify-center text-gray-500">
-                  1
-                </div>
-                <div className="aspect-square bg-gray-200 rounded flex items-center justify-center text-gray-500">
-                  2
-                </div>
-                <div className="aspect-square bg-gray-200 rounded flex items-center justify-center text-gray-500">
-                  3
-                </div>
+                {Array.from({ length: 3 }, (_, i) => (
+                  <Skeleton
+                    key={i}
+                    className="aspect-square bg-gray-300 flex items-center justify-center"
+                  >
+                    {i + 1}
+                  </Skeleton>
+                ))}
               </div>
             </div>
           </div>
