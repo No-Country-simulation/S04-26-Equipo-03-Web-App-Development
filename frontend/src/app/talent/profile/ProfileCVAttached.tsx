@@ -34,18 +34,23 @@ const ProfileCVAttached = () => {
             <Illutration1 />
           </div>
           <div className="relative inline-block">
-            {/* Triángulo/punta a la izquierda */}
-            <div
-              className="absolute left-0 top-10 w-0 h-0 -translate-x-2"
-              style={{
-                borderTop: '8px solid transparent',
-                borderBottom: '8px solid transparent',
-                borderRight: '12px solid #EEF2FF',
-              }}
-            />
-
-            {/* Globo de mensaje */}
-            <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-2xl p-4 max-w-sm flex flex-col items-center">
+            <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-2xl p-4 max-w-sm flex flex-col items-center relative">
+              {/* Triángulo exterior (color del borde) */}
+              <div
+                className="absolute left-0 top-10 -translate-x-4.5"
+                style={{
+                  border: '9px solid transparent',
+                  borderRightColor: '#C7D2FE',
+                }}
+              />
+              {/* Triángulo interior (color del fondo) */}
+              <div
+                className="absolute left-0 top-10 -translate-x-4 translate-y-px"
+                style={{
+                  border: '8px solid transparent',
+                  borderRightColor: '#EEF2FF',
+                }}
+              />
               <p className="text-[#1F2937] text-sm leading-relaxed mb-4">
                 ¿Querés que revise tu CV para el rol que elegiste? Te marcó lo
                 que se puede mejorar.
