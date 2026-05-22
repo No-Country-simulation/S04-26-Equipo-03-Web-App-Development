@@ -17,6 +17,7 @@ import { mockReviews, mockSkills } from './_data';
 import SkillBadge from '@/components/common/SkillBadge';
 import RatingDisplay from '@/app/talent/profile/RatingDisplay';
 import { ReviewCard } from '@/components/talent/profile/ReviewCard';
+import RatingStars from '@/components/common/RatingStars';
 
 export default function TalentProfile() {
   return (
@@ -82,15 +83,8 @@ export default function TalentProfile() {
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge className="bg-[#4f46e5] text-white">Semi-Senior</Badge>
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                    />
-                  ))}
-                </div>
+                <SkillBadge variant="level">Semi-Senior</SkillBadge>
+                <RatingDisplay stars={4.7} />
                 <span className="text-sm text-gray-600">4.7 (8)</span>
                 <Badge variant="outline" className="text-xs">
                   100% verificado
@@ -106,14 +100,6 @@ export default function TalentProfile() {
             </div>
 
             {/* Resumen */}
-            {/* <div className="border border-gray-200 rounded-lg p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Resumen</h2>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                12 años diseñando productos digitales para fintech y ecommerce.
-                Especializada en design systems, research y mentoring de equipos
-                junior. Buscando roles senior en producto con foco en impacto.
-              </p>
-            </div> */}
             <CardSection
               title="Resumen"
               description="12 años diseñando productos digitales para fintech y ecommerce. Especializada en design systems, research y mentoring de equipos junior. Buscando roles senior en producto con foco en impacto."
@@ -176,91 +162,6 @@ export default function TalentProfile() {
               </div>
 
               <div className="space-y-4">
-                {/* <div className="border-b border-gray-100 pb-4">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-semibold">
-                      L
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-gray-900">
-                          Lucia Bertone
-                        </p>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Reclutador / empleador
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    Comunicación clara y proactiva durante el proceso. Documentó
-                    decisiones y se anticipó a bloqueos del equipo de eng. Lo
-                    destacable fue su capacidad para alinear stakeholders sin
-                    perder tiempo del equipo.
-                  </p>
-                </div>
-
-                <div className="border-b border-gray-100 pb-4">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-sm font-semibold">
-                      P
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-gray-900">
-                          Pedro Ruiz
-                        </p>
-                        <div className="flex gap-0.5">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Compañero de trabajo
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700">
-                    Excelente mentora con perfiles junior. Genera espacio para
-                    que el equipo pruebe sin miedo y ofrece feedback concreto.
-                    Una de las personas más confiables con las que trabajé.
-                  </p>
-                </div>
-
-                <div>
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 text-sm font-semibold">
-                      —
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-gray-900">—</p>
-                        <p className="text-xs text-gray-500">En revisión</p>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Reclutador / empleador
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Esta reseña fue denunciada y está siendo revisada por el
-                    equipo. Solo vos podés ver este estado. Ningún reclutador ve
-                    esta reseña hasta que un administrador la revise.
-                  </p>
-                </div> */}
-
                 {mockReviews.map((item, i) => (
                   <ReviewCard
                     key={i}

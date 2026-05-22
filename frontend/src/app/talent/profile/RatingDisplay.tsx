@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react';
+import { Star, StarHalf } from 'lucide-react';
 interface RatingDisplayProps {
   stars: number;
   /** Texto después de las estrellas, ej: "4.7 (8)" */
@@ -10,6 +10,7 @@ export default function RatingDisplay({
   label,
   size = 16,
 }: RatingDisplayProps) {
+  const roundedStars = Math.round(stars);
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-1">
@@ -20,6 +21,13 @@ export default function RatingDisplay({
             className="fill-[#fbbf24] text-[#fbbf24]"
           />
         ))}
+        {roundedStars > stars && (
+          <StarHalf
+            key={roundedStars}
+            size={size}
+            className="fill-[#fbbf24] text-[#fbbf24]"
+          />
+        )}
       </div>
       {label && <p className="text-xs text-gray-600 ml-1">{label}</p>}
     </div>
