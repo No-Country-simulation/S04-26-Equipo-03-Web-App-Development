@@ -29,15 +29,18 @@ const ProfileCVAttached = () => {
             Reemplazar
           </Button>
         </div>
-        <div className="flex flex-row gap-4 mt-4">
-          <div>
+        <div className="flex flex-col sm:flex-row gap-4 mt-4 items-center sm:items-start">
+          <div className="hidden sm:block">
             <Illutration1 />
           </div>
-          <div className="relative inline-block">
-            <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-2xl p-4 max-w-sm flex flex-col items-center relative">
+          <div className="block sm:hidden">
+            <Illutration1 className="w-12 h-auto" />
+          </div>
+          <div className="relative w-full sm:w-auto">
+            <div className="bg-[#EEF2FF] border border-[#C7D2FE] rounded-2xl p-4 w-full sm:max-w-sm flex flex-col items-center relative">
               {/* Triángulo exterior (color del borde) */}
               <div
-                className="absolute left-0 top-10 -translate-x-4.5"
+                className="absolute left-0 top-10 -translate-x-4.5 hidden sm:block"
                 style={{
                   border: '9px solid transparent',
                   borderRightColor: '#C7D2FE',
@@ -45,17 +48,17 @@ const ProfileCVAttached = () => {
               />
               {/* Triángulo interior (color del fondo) */}
               <div
-                className="absolute left-0 top-10 -translate-x-4 translate-y-px"
+                className="absolute left-0 top-10 -translate-x-4 translate-y-px hidden sm:block"
                 style={{
                   border: '8px solid transparent',
                   borderRightColor: '#EEF2FF',
                 }}
               />
-              <p className="text-[#1F2937] text-sm leading-relaxed mb-4">
+              <p className="text-[#1F2937] text-xs sm:text-sm leading-relaxed mb-4 text-center sm:text-left">
                 ¿Querés que revise tu CV para el rol que elegiste? Te marcó lo
                 que se puede mejorar.
               </p>
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition w-full sm:w-auto">
                 Revisar con Ruty
               </Button>
             </div>

@@ -4,7 +4,7 @@ const ProfilePortfolio = () => {
   return (
     <div className="border border-gray-200 rounded-lg p-6">
       <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {Array.from({ length: 3 }, (_, i) => (
           <Skeleton
             key={i}

@@ -1,12 +1,8 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { MessageCircle, Download, Upload } from 'lucide-react';
 import ProfileHeader from './ProfileHeader';
 import CardSection from '@/components/common/CardSection';
 import ProfileExperience from './ProfileExperience';
-import { Skeleton } from '@/components/ui/skeleton';
 import ProfileProgressBar from './ProfileProgressBar';
 import ProfileDataBase from './ProfileDataBase';
 import ProfileSkills from './ProfileSkills';
@@ -27,10 +23,10 @@ export default function TalentProfile() {
       <ProfileProgressBar />
 
       {/* Main Content */}
-      <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Profile Header */}
             <ProfileDataBase />
 
