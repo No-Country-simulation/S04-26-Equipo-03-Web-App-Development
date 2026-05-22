@@ -1,7 +1,6 @@
 import RatingDisplay from '@/app/talent/profile/RatingDisplay';
 import SkillBadge from '@/components/common/SkillBadge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Star } from 'lucide-react';
 
 interface NormalReviewProps {
   name: string;
@@ -42,26 +41,28 @@ function NormalReview({
 }: NormalReviewProps) {
   return (
     <>
-      <div className="flex justify-between items-center mb-3">
-        <div className="flex items-center gap-3">
-          <Avatar>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3">
+        <div className="flex items-start gap-3 min-w-0">
+          <Avatar className="size-10 shrink-0">
             <AvatarFallback className={`font-bold ${avatarStyles[status]}`}>
               {name[0]}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-row items-center gap-4">
-            <div className="flex flex-col gap-1 items-start">
-              <p className="font-semibold text-sm text-[#1a1a2e]">{name}</p>
-              <p className="text-xs text-gray-600">{company}</p>
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+              <p className="font-semibold text-sm text-[#1a1a2e] truncate">
+                {name}
+              </p>
+              <SkillBadge
+                variant={source.includes('Reclutador') ? 'filter' : 'muted'}
+              >
+                {source}
+              </SkillBadge>
             </div>
-            <SkillBadge
-              variant={source.includes('Reclutador') ? 'filter' : 'muted'}
-            >
-              {source}
-            </SkillBadge>
+            <p className="text-xs text-gray-600 truncate">{company}</p>
           </div>
         </div>
-        <RatingDisplay stars={rating} />
+        <RatingDisplay stars={rating} size={14} />
       </div>
       <p className="text-sm text-gray-700">{text}</p>
     </>
@@ -72,23 +73,21 @@ function ReportedReview({ source, status = 'reported' }: NormalReviewProps) {
   return (
     <>
       <div className="flex items-start gap-3 mb-3">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className={`font-bold ${avatarStyles[status]}`}>
-              -
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-row items-center gap-4">
-            <div className="flex flex-col gap-1 items-start">
-              <p className="font-semibold text-sm text-[#1a1a2e]">-</p>
-              <p className="text-xs text-gray-500">En revisión</p>
-            </div>
+        <Avatar className="size-10 shrink-0">
+          <AvatarFallback className={`font-bold ${avatarStyles[status]}`}>
+            -
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+            <p className="font-semibold text-sm text-[#1a1a2e]">-</p>
             <SkillBadge
               variant={source.includes('Reclutador') ? 'filter' : 'muted'}
             >
               {source}
             </SkillBadge>
           </div>
+          <p className="text-xs text-gray-500">En revisión</p>
         </div>
       </div>
       <p className="text-sm text-gray-600 italic mb-1">
