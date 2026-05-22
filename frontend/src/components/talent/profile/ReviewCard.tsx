@@ -94,7 +94,7 @@ function ReportedReview({ source, status = 'reported' }: NormalReviewProps) {
       <p className="text-sm text-gray-600 italic mb-1">
         Esta reseña fue denunciada y está siendo revisada por el equipo.
       </p>
-      <p className="text-sm text-gray-600 italic">
+      <p className="text-sm text-gray-600 italic font-light">
         Solo vos podés ver este estado. ningún reclutador ve esta reseña hasta
         que un administrador la revise.
       </p>

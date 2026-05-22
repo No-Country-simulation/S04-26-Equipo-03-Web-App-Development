@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Download,
   Upload,
+  Eye,
   // AlertCircle,
 } from 'lucide-react';
 import ProfileHeader from './ProfileHeader';
@@ -66,7 +67,7 @@ export default function TalentProfile() {
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-green-500 font-semibold">
                         Open to work · Remoto
                       </span>
                     </div>
@@ -86,16 +87,20 @@ export default function TalentProfile() {
                 <SkillBadge variant="level">Semi-Senior</SkillBadge>
                 <RatingDisplay stars={4.7} />
                 <span className="text-sm text-gray-600">4.7 (8)</span>
-                <Badge variant="outline" className="text-xs">
-                  100% verificado
-                </Badge>
-                <span className="text-sm text-gray-600">12 años exp.</span>
               </div>
 
-              <p className="text-xs text-gray-500 mt-4">
-                Basado en tus skills validados, tu perfil corresponde a{' '}
-                <strong>Semi-Senior</strong> · 12 reclutadores vieron tu perfil
-                esta semana
+              <p className="text-xs text-gray-500 mt-4 flex justify-between">
+                <span className="italic">
+                  Basado en tus skills validados, tu perfil corresponde a{' '}
+                  <strong>Semi-Senior.</strong>
+                </span>
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <span className="flex items-center gap-1 font-bold">
+                    <Eye className="w-3.5 h-3.5" />
+                    12 reclutadores
+                  </span>
+                  vieron tu perfil esta semana
+                </span>
               </p>
             </div>
 
