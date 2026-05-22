@@ -2,25 +2,17 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Star,
-  // Check,
-  MessageCircle,
-  Download,
-  Upload,
-  Eye,
-  // AlertCircle,
-} from 'lucide-react';
+import { MessageCircle, Download, Upload } from 'lucide-react';
 import ProfileHeader from './ProfileHeader';
 import CardSection from '@/components/common/CardSection';
-import { mockReviews, mockSkills } from './_data';
-import SkillBadge from '@/components/common/SkillBadge';
-import RatingDisplay from '@/app/talent/profile/RatingDisplay';
-import { ReviewCard } from '@/components/talent/profile/ReviewCard';
-import RatingStars from '@/components/common/RatingStars';
 import ProfileExperience from './ProfileExperience';
 import { Skeleton } from '@/components/ui/skeleton';
+import ProfileProgressBar from './ProfileProgressBar';
+import ProfileDataBase from './ProfileDataBase';
+import ProfileSkills from './ProfileSkills';
+import ProfileReviews from './ProfileReviews';
+import ProfileEducation from './ProfileEducation';
+import ProfilePortfolio from './ProfilePortfolio';
 
 export default function TalentProfile() {
   return (
@@ -29,24 +21,7 @@ export default function TalentProfile() {
       <ProfileHeader />
 
       {/* Progress Bar */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-900">
-              70% completado — completa tu perfil para recibir 3+ más visitas
-            </span>
-            <Button className="bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white text-sm h-8">
-              Continuar
-            </Button>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-[#4f46e5] h-2 rounded-full"
-              style={{ width: '70%' }}
-            ></div>
-          </div>
-        </div>
-      </div>
+      <ProfileProgressBar />
 
       {/* Main Content */}
       <div className="px-6 py-8">
@@ -54,57 +29,7 @@ export default function TalentProfile() {
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Profile Header */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-gray-300 rounded flex items-center justify-center text-gray-600 font-bold">
-                    MR
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      Marcela Rivero
-                    </h1>
-                    <p className="text-gray-600">
-                      Product Designer · Buenos Aires, AR
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-sm text-green-500 font-semibold">
-                        Open to work · Remoto
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="text-sm">
-                    Editar perfil
-                  </Button>
-                  <Button variant="outline" className="text-sm">
-                    Ver como reclutador
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <SkillBadge variant="level">Semi-Senior</SkillBadge>
-                <RatingDisplay stars={4.7} />
-                <span className="text-sm text-gray-600">4.7 (8)</span>
-              </div>
-
-              <p className="text-xs text-gray-500 mt-4 flex justify-between">
-                <span className="italic">
-                  Basado en tus skills validados, tu perfil corresponde a{' '}
-                  <strong>Semi-Senior.</strong>
-                </span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <span className="flex items-center gap-1 font-bold">
-                    <Eye className="w-3.5 h-3.5" />
-                    12 reclutadores
-                  </span>
-                  vieron tu perfil esta semana
-                </span>
-              </p>
-            </div>
+            <ProfileDataBase />
 
             {/* Resumen */}
             <CardSection
@@ -113,124 +38,19 @@ export default function TalentProfile() {
             />
 
             {/* Skills */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Skills</h2>
-                <a href="#" className="text-sm text-[#4f46e5] font-medium">
-                  Validar más skills
-                </a>
-              </div>
-              <p className="text-xs text-gray-500 mb-4">
-                Validadas en verde. Declaradas pendientes en gris — no afectan
-                la visibilidad para muchos reclutadores filtran por
-                verificación.
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {mockSkills.map((skill) => {
-                  if (skill.level === 'pendiente')
-                    return (
-                      <SkillBadge key={skill.name} variant="pending">
-                        {skill.name}
-                      </SkillBadge>
-                    );
-                  return (
-                    <SkillBadge key={skill.name} variant="verified">
-                      {skill.name} · {skill.level}
-                    </SkillBadge>
-                  );
-                })}
-              </div>
-
-              <p className="text-xs text-gray-600 flex items-center gap-1">
-                5 de 8 skills validadas. Valida las 3 restantes para desbloquear
-                el badge <SkillBadge variant="star">100% verificado</SkillBadge>
-              </p>
-            </div>
+            <ProfileSkills />
 
             {/* Reseñas */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">Reseñas</h2>
-                  <p className="text-xs text-gray-500">habilidades blandas</p>
-                </div>
-                <a href="#" className="text-sm text-[#4f46e5] font-medium">
-                  + Solicitar reseña
-                </a>
-              </div>
-
-              <div className="flex items-center gap-4 mb-6 mt-6 border-b border-[#E5E7EB] pb-4">
-                <div className="text-4xl font-bold text-[#1a1a2e]">4.7</div>
-                <RatingDisplay
-                  stars={5}
-                  label="Promedio sobre 8 reseñas verificadas"
-                />
-              </div>
-
-              <div className="space-y-4">
-                {mockReviews.map((item, i) => (
-                  <ReviewCard
-                    key={i}
-                    name={item.author}
-                    rating={item.ratin}
-                    text={item.review}
-                    source={item.role}
-                    company={item.company}
-                    status={item.status as 'verified' | 'pending' | 'reported'}
-                  />
-                ))}
-              </div>
-            </div>
+            <ProfileReviews />
 
             {/* Experiencia */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Experiencia</h2>
-                <a href="#" className="text-sm text-[#4f46e5] font-medium">
-                  + Agregar
-                </a>
-              </div>
-              <ProfileExperience />
-            </div>
+            <ProfileExperience />
 
             {/* Educación */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">Educación</h2>
-                <a href="#" className="text-sm text-[#4f46e5] font-medium">
-                  + Agregar
-                </a>
-              </div>
-              <div className="flex items-start gap-4">
-                <div>
-                  <Skeleton className="h-10 w-10 bg-gray-300" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">
-                    Lic. en Diseño Gráfico
-                  </p>
-                  <p className="text-xs text-gray-500">UBA · 2008</p>
-                </div>
-              </div>
-            </div>
+            <ProfileEducation />
 
             {/* Portfolio */}
-            <div className="border border-gray-200 rounded-lg p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">
-                Portfolio
-              </h2>
-              <div className="grid grid-cols-3 gap-4">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <Skeleton
-                    key={i}
-                    className="aspect-square bg-gray-300 flex items-center justify-center"
-                  >
-                    {i + 1}
-                  </Skeleton>
-                ))}
-              </div>
-            </div>
+            <ProfilePortfolio />
           </div>
 
           {/* Right Column - Sidebar */}

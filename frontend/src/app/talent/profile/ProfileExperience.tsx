@@ -1,26 +1,16 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { mockExperience } from './_data';
+import ProfileExperienceData from './ProfileExperienceData';
 
 const ProfileExperience = () => {
   return (
-    <div className="space-y-6">
-      {mockExperience.map((exp) => (
-        <div key={exp.title} className="flex items-start gap-4">
-          <div>
-            <Skeleton className="h-10 w-10 bg-gray-300" />
-          </div>
-          <div className="w-full">
-            <p className="font-semibold text-gray-900">{exp.title}</p>
-            <p className="text-xs text-gray-500">
-              {exp.organization} · {exp.period}
-            </p>
-            <Skeleton className="max-w-11/12 h-3 mt-2 bg-gray-300" />
-            <Skeleton className="max-w-8/12 h-3 mt-2 bg-gray-300" />
-          </div>
-        </div>
-      ))}
+    <div className="border border-gray-200 rounded-lg p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-gray-900">Experiencia</h2>
+        <a href="#" className="text-sm text-[#4f46e5] font-medium">
+          + Agregar
+        </a>
+      </div>
+      <ProfileExperienceData />
     </div>
   );
 };
-
 export default ProfileExperience;
