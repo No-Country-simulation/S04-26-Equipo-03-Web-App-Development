@@ -9,7 +9,10 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://s04-26-equipo-03-web-app-developmen.vercel.app',
+    ],
     credentials: true,
   });
   app.setGlobalPrefix('api');
