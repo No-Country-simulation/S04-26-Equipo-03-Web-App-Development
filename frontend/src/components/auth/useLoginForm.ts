@@ -26,6 +26,9 @@ export const useLoginForm = () => {
       if (data.access_token) {
         setCookie(AUTH_COOKIE_NAME, data.access_token);
       }
+      if (data.refresh_token) {
+        setCookie('refresh_token', data.refresh_token);
+      }
 
       const role = data.user_metadata?.role;
 
