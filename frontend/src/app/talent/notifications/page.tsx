@@ -36,7 +36,7 @@ export default function NotificationsPage() {
               >
                 {/* Dot indicator */}
                 {!notification.read && (
-                  <div className="mt-0.5 h-2 w-2 shrink-0 self-start rounded-full bg-[#4f46e5] sm:mt-1"></div>
+                  <div className="h-2 w-2 shrink-0 rounded-full bg-[#4f46e5]"></div>
                 )}
 
                 {/* Icon */}
