@@ -1,19 +1,28 @@
-import { Skeleton } from '@/components/ui/skeleton';
+interface ProfilePortfolioProps {
+  portfolioUrl: string | null;
+}
 
-const ProfilePortfolio = () => {
+const ProfilePortfolio = ({ portfolioUrl }: ProfilePortfolioProps) => {
   return (
     <div className="border border-gray-200 rounded-lg p-6">
       <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        {Array.from({ length: 3 }, (_, i) => (
-          <Skeleton
-            key={i}
-            className="aspect-square bg-gray-300 flex items-center justify-center"
-          >
-            {i + 1}
-          </Skeleton>
-        ))}
-      </div>
+      { portfolioUrl ? (
+        <a
+          href={ portfolioUrl }
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[#4f46e5] font-medium break-all hover:underline"
+        >
+          { portfolioUrl }
+        </a>
+      ) : (
+        <p className="text-sm text-gray-500">
+          Aún no agregaste un portfolio.{ ' ' }
+          <a href="#" className="text-[#4f46e5] font-medium">
+            + Agregar enlace
+          </a>
+        </p>
+      ) }
     </div>
   );
 };

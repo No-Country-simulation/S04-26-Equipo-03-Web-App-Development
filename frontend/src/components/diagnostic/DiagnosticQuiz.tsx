@@ -11,14 +11,33 @@ import {
 import { getCookie, deleteCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
-const SUBMITTING_MESSAGES = [
+const SUBMITTING_MESSAGES_ONBOARDING = [
   'Evaluando tus respuestas...',
   'Calculando tu brecha de habilidades...',
   'Diseñando tu ruta de aprendizaje...',
   '¡Finalizando! Un momento más...',
 ];
 
-export function DiagnosticQuiz() {
+const SUBMITTING_MESSAGES_SKILL_VALIDATION = [
+  'Evaluando tus respuestas...',
+  'Calculando tu puntaje...',
+  'Verificando el nivel de la skill...',
+  '¡Finalizando! Un momento más...',
+];
+
+interface DiagnosticQuizProps {
+  sessionKey?: string;
+  resultKey?: string;
+  fallbackPath?: string;
+  resultPath?: string;
+}
+
+export function DiagnosticQuiz({
+  sessionKey = DIAGNOSTIC_SESSION_KEY,
+  resultKey = DIAGNOSTIC_RESULT_KEY,
+  fallbackPath = '/talent/diagnostic',
+  resultPath = '/talent/diagnostic/results',
+}: DiagnosticQuizProps = {}) {
   const router = useRouter();
   const [session, setSession] = useState<DiagnosticSession | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,15 +50,15 @@ export function DiagnosticQuiz() {
     if (!submitting) return;
     setSubmittingStep(0);
     const id = setInterval(() => {
-      setSubmittingStep((s) => Math.min(s + 1, SUBMITTING_MESSAGES.length - 1));
+      setSubmittingStep((s) => Math.min(s + 1, 3));
     }, 3500);
     return () => clearInterval(id);
   }, [submitting]);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem(DIAGNOSTIC_SESSION_KEY);
+    const raw = sessionStorage.getItem(sessionKey);
     if (!raw) {
-      router.replace('/talent/diagnostic');
+      router.replace(fallbackPath);
       return;
     }
     setSession(JSON.parse(raw) as DiagnosticSession);
@@ -53,7 +72,11 @@ export function DiagnosticQuiz() {
     );
   }
 
-  const { questions, diagnosticId, roleName } = session;
+  const { questions, diagnosticId, roleName, skillId, skillName } = session;
+  const isSkillValidation = Boolean(skillId);
+  const submittingMessages = isSkillValidation
+    ? SUBMITTING_MESSAGES_SKILL_VALIDATION
+    : SUBMITTING_MESSAGES_ONBOARDING;
   const total = questions.length;
   const current = questions[currentIndex];
   const progress = ((currentIndex + 1) / total) * 100;
@@ -91,16 +114,20 @@ export function DiagnosticQuiz() {
 
     setSubmitting(true);
     try {
-      const result = await diagnosticApi.submitResponses(token, diagnosticId, responses);
+      const result = session.skillId
+        ? await diagnosticApi.submitSkillValidationResponses(token, diagnosticId, responses)
+        : await diagnosticApi.submitResponses(token, diagnosticId, responses);
       sessionStorage.setItem(
-        DIAGNOSTIC_RESULT_KEY,
+        resultKey,
         JSON.stringify({
           gapAnalysis: result.gap_analysis,
           completedAt: result.completed_at,
           roleName,
+          skillId,
+          skillName,
         }),
       );
-      router.push('/talent/diagnostic/results');
+      router.push(resultPath);
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string; }; }; })
         ?.response?.data?.message;
@@ -119,10 +146,12 @@ export function DiagnosticQuiz() {
             Analizando tus resultados
           </h2>
           <p className="text-[14px] text-[#6b7280] text-center max-w-[380px] mb-[40px]">
-            Estamos evaluando tus respuestas y preparando tu ruta personalizada.
+            { isSkillValidation
+              ? `Estamos evaluando tus respuestas sobre ${skillName ?? 'la skill'}.`
+              : 'Estamos evaluando tus respuestas y preparando tu ruta personalizada.' }
           </p>
           <div className="flex flex-col gap-[14px] w-full max-w-[360px]">
-            { SUBMITTING_MESSAGES.map((msg, i) => (
+            { submittingMessages.map((msg, i) => (
               <div
                 key={ msg }
                 className={ 'flex items-center gap-[12px] text-[14px] transition-opacity duration-500 ' + (i <= submittingStep ? 'opacity-100' : 'opacity-25') }
@@ -152,7 +181,7 @@ export function DiagnosticQuiz() {
           </div>
           <div className="flex items-center gap-[12px]">
             <button
-              onClick={ () => router.push('/talent/diagnostic') }
+              onClick={ () => router.push(fallbackPath) }
               className="flex items-center gap-[6px] px-[14px] py-[7px] rounded-[8px] border border-[#e5e7eb] text-[13px] text-[#6b7280] hover:bg-[#f9fafb] transition-colors cursor-pointer"
             >
               💾 Pausar y guardar

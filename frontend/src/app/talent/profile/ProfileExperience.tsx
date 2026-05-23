@@ -1,6 +1,11 @@
 import ProfileExperienceData from './ProfileExperienceData';
+import type { WorkExp } from './page';
 
-const ProfileExperience = () => {
+interface ProfileExperienceProps {
+  experience: WorkExp[];
+}
+
+const ProfileExperience = ({ experience }: ProfileExperienceProps) => {
   return (
     <div className="border border-gray-200 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
@@ -9,7 +14,7 @@ const ProfileExperience = () => {
           + Agregar
         </a>
       </div>
-      <ProfileExperienceData />
+      <ProfileExperienceData experience={ experience } />
     </div>
   );
 };

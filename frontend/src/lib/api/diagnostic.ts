@@ -26,23 +26,31 @@ export interface DiagnosticSession {
   questions: DiagnosticQuestion[];
   profileId: string;
   roleName: string;
+  skillId?: string;
+  skillName?: string;
 }
 
 export interface DiagnosticResultStore {
   gapAnalysis: GapAnalysis;
   completedAt: string;
   roleName: string;
+  skillId?: string;
+  skillName?: string;
 }
 
 export interface PastDiagnostic {
   id: string;
   type: string;
   status: string;
+  skill_id: string | null;
   completed_at: string | null;
+  gap_analysis: { overall_score?: number } | null;
 }
 
 export const DIAGNOSTIC_SESSION_KEY = 'tb_diagnostic';
 export const DIAGNOSTIC_RESULT_KEY = 'tb_diagnostic_result';
+export const SKILL_VALIDATION_SESSION_KEY = 'tb_skill_validation';
+export const SKILL_VALIDATION_RESULT_KEY = 'tb_skill_validation_result';
 
 export const diagnosticApi = {
   create: async (
@@ -76,6 +84,47 @@ export const diagnosticApi = {
     }>(
       `/diagnostic/${diagnosticId}/responses`,
       { responses },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data;
+  },
+
+  submitSkillValidationResponses: async (
+    token: string,
+    diagnosticId: string,
+    responses: { question_id: number; selected_option: 'a' | 'b' | 'c' | 'd' }[]
+  ): Promise<{
+    id: string;
+    gap_analysis: GapAnalysis;
+    completed_at: string;
+  }> => {
+    const { data } = await apiClient.post<{
+      id: string;
+      gap_analysis: GapAnalysis;
+      completed_at: string;
+    }>(
+      `/diagnostic/${diagnosticId}/skill-responses`,
+      { responses },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data;
+  },
+
+  createSkillValidation: async (
+    token: string,
+    profileId: string,
+    skillId: string
+  ): Promise<{ id: string; questions: DiagnosticQuestion[] }> => {
+    const { data } = await apiClient.post<{
+      id: string;
+      questions: DiagnosticQuestion[];
+    }>(
+      '/diagnostic',
+      {
+        talent_profile_id: profileId,
+        type: 'SKILL_VALIDATION',
+        skill_id: skillId,
+      },
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return data;
