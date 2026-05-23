@@ -118,4 +118,22 @@ export class AuthService {
       expires_at: data.session.expires_at,
     };
   }
+
+  async refresh(refreshToken: string) {
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error || !data.session) {
+      throw new UnauthorizedException(
+        'Sesión expirada. Iniciá sesión nuevamente.',
+      );
+    }
+
+    return {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    };
+  }
 }

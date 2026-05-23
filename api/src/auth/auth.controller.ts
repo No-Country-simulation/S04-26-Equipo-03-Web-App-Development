@@ -10,6 +10,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
 import { RegisterEnterpriseDto } from './dto/register-enterprise.dto';
 import { RegisterTalentDto } from './dto/register-talent.dto';
 
@@ -69,6 +70,30 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000, // 24 horas
+    });
+
+    return result;
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Renovar access token usando refresh token' })
+  @ApiResponse({ status: 200, description: 'Token renovado exitosamente.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token inv\u00e1lido o expirado.',
+  })
+  async refresh(
+    @Body() dto: RefreshDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.refresh(dto.refresh_token);
+
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return result;
