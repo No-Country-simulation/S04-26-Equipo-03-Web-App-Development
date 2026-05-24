@@ -1,6 +1,7 @@
 import { Check, Heart, Star } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { Mascot } from '../common/Mascot';
 
 export default function HeroSection() {
   return (
@@ -46,8 +47,8 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Profile Card */}
-        <div className="flex justify-center lg:justify-end">
+        {/* Profile Card */ }
+        <div className="flex justify-center lg:justify-end relative">
           <Card className="w-full max-w-sm p-5 shadow-lg border border-gray-100 rounded-xl">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium text-gray-600 shrink-0">
@@ -67,12 +68,12 @@ export default function HeroSection() {
                 Semi-Senior
               </span>
               <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
+                { [...Array(5)].map((_, i) => (
                   <Star
-                    key={i}
+                    key={ i }
                     className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
                   />
-                ))}
+                )) }
               </div>
             </div>
 
@@ -119,6 +120,7 @@ export default function HeroSection() {
               </Button>
             </div>
           </Card>
+          <Mascot variant="idle" className="absolute bottom-0 -right-20 w-50 h-auto hidden lg:block" />
         </div>
       </div>
     </section>

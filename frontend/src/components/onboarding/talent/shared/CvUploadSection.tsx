@@ -1,6 +1,7 @@
 'use client';
 
 import { FileText } from 'lucide-react';
+import { Mascot } from '@/components/common/Mascot';
 import { useRef } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -37,8 +38,8 @@ export const CvUploadSection = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-[12px]">
         {/* Ruty callout */ }
         <div className="bg-[#eef2ff] border border-[#c7d2fe] rounded-[10px] p-[13.25px] flex items-start gap-[11px]">
-          <div className="size-[36px] rounded-full bg-white flex items-center justify-center shrink-0 border border-[#c7d2fe] text-[18px]">
-            🤖
+          <div className="size-[36px] rounded-full bg-white flex items-center justify-center shrink-0 border border-[#c7d2fe]">
+            <Mascot variant="idle" className="w-[22px] h-[22px]" />
           </div>
           <p className="text-[#1f2937] text-[13px] leading-[19.5px] font-['Inter']">
             ¿Querés que revise tu CV para el rol que elegiste? Te marco lo que
@@ -52,8 +53,8 @@ export const CvUploadSection = ({
           onDrop={ handleDrop }
           onClick={ () => !skipCv && inputRef.current?.click() }
           className={ `bg-white border border-dashed border-[#d1d5db] rounded-[10px] p-[20px] flex flex-col items-center justify-center gap-[6px] text-center transition-colors ${!skipCv
-              ? 'cursor-pointer hover:border-[#4f46e5] hover:bg-[#f9fafb]'
-              : 'opacity-40 pointer-events-none'
+            ? 'cursor-pointer hover:border-[#4f46e5] hover:bg-[#f9fafb]'
+            : 'opacity-40 pointer-events-none'
             }` }
         >
           <FileText className="size-[28px] text-[#9ca3af]" />

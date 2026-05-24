@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/pre-diagnostic';
 import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
+import { Mascot } from '@/components/common/Mascot';
 
 const LOADING_MESSAGES = [
   'Analizando tu rol objetivo...',
@@ -103,7 +104,7 @@ export function PreDiagnosticView({ profileId }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
-        <div className="text-[72px] mb-[16px] animate-pulse select-none">🙂</div>
+        <Mascot variant="searching" className="w-[80px] h-[80px] mb-[16px] animate-pulse" />
         <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
           Preparando tu perfil
         </h2>
@@ -135,7 +136,7 @@ export function PreDiagnosticView({ profileId }: Props) {
   if (submitting) {
     return (
       <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
-        <div className="text-[72px] mb-[16px] animate-pulse select-none">🧠</div>
+        <Mascot variant="happy" className="w-[80px] h-[80px] mb-[16px] animate-pulse" />
         <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
           Guardando tu perfil de habilidades
         </h2>
@@ -172,9 +173,7 @@ export function PreDiagnosticView({ profileId }: Props) {
       <div className="flex-1 max-w-[860px] mx-auto w-full px-[24px] py-[40px]">
         {/* Title */ }
         <div className="flex items-start gap-[16px] mb-[32px]">
-          <div className="shrink-0 w-[48px] h-[48px] rounded-full bg-[#4f46e5] flex items-center justify-center text-[22px]">
-            🙂
-          </div>
+          <Mascot variant="idle" className="shrink-0 w-[48px] h-[48px]" />
           <div>
             <h1 className="text-[22px] font-bold text-[#111827] mb-[6px]">
               ¿Cómo te sentís con estas habilidades?

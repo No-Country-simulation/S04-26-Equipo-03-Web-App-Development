@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { TalentAppHeader } from '@/components/layout/TalentAppHeader';
+import { Mascot } from '@/components/common/Mascot';
 import {
   SKILL_VALIDATION_RESULT_KEY,
   type DiagnosticResultStore,
@@ -45,9 +46,9 @@ export function SkillValidationResults() {
       <div className="flex-1 flex flex-col items-center px-[24px] py-[40px]">
         <div className="w-full max-w-[560px] text-center">
           {/* Mascota */ }
-          <div className="text-[72px] mb-[8px] select-none">
-            { passed ? '🏆' : '📚' }
-          </div>
+          { passed
+            ? <Mascot variant="happy" className="w-[80px] h-[80px] mb-[8px] mx-auto" />
+            : <Mascot variant="backpack" className="w-[80px] h-[80px] mb-[8px] mx-auto" /> }
 
           <h1 className="text-[24px] font-bold text-[#111827] mb-[6px]">
             { passed ? 'Skill validada' : 'Diagnóstico completado' }

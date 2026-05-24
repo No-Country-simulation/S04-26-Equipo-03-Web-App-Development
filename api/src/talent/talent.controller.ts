@@ -211,6 +211,30 @@ export class TalentController {
 
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
+  @Patch('profile/:profileId/cv')
+  @UseInterceptors(FileInterceptor('cv'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Subir o actualizar CV PDF (máx. 10 MiB)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['cv'],
+      properties: {
+        cv: { type: 'string', format: 'binary', description: 'PDF del CV' },
+      },
+    },
+  })
+  uploadCv(
+    @Req() req: Request,
+    @Param('profileId', ParseUUIDPipe) profileId: string,
+    @UploadedFile() cv: unknown,
+  ) {
+    const userId = (req['user'] as { id: string }).id;
+    return this.talentService.uploadCv(userId, profileId, cv);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Delete('profile/:profileId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Desactivar talento (User.active = false)' })

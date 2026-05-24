@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/diagnostic';
 import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
+import { Mascot } from '@/components/common/Mascot';
 
 interface Props {
   profileId: string;
@@ -96,7 +97,7 @@ export function DiagnosticIntro({ profileId, roleName }: Props) {
   if (starting) {
     return (
       <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
-        <div className="text-[72px] mb-[16px] animate-pulse select-none">🤖</div>
+        <Mascot variant="searching" className="w-[80px] h-[80px] mb-[16px] animate-pulse" />
         <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
           Preparando tu diagnóstico
         </h2>
@@ -131,7 +132,7 @@ export function DiagnosticIntro({ profileId, roleName }: Props) {
 
       <div className="flex-1 flex flex-col items-center px-[24px] py-[48px]">
         {/* Mascot */ }
-        <div className="text-[80px] mb-[16px] select-none">🤖</div>
+        <Mascot variant="idle" className="w-[96px] h-[96px] mb-[16px]" />
 
         <h1 className="text-[26px] font-bold text-[#111827] mb-[8px] text-center">
           Tu diagnóstico de habilidades

@@ -26,7 +26,7 @@ const ProfileProgressBar = ({ completionPercent }: ProfileProgressBarProps) => {
             />
           </div>
           { completionPercent < 100 && (
-            <Link href="/talent/onboarding">
+            <Link href="/talent/profile">
               <Button className="bg-[#4f46e5] hover:bg-[#4f46e5]/90 text-white text-xs sm:text-sm h-8 w-full sm:w-auto shrink-0">
                 Continuar
               </Button>

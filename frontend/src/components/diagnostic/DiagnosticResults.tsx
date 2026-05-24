@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { TalentAppHeader } from '@/components/layout/TalentAppHeader';
+import { Mascot } from '@/components/common/Mascot';
 import {
   DIAGNOSTIC_RESULT_KEY,
   type DiagnosticResultStore,
@@ -49,7 +50,7 @@ export function DiagnosticResults() {
 
       <div className="flex-1 flex flex-col items-center px-[24px] py-[40px]">
         {/* Mascot */ }
-        <div className="text-[72px] mb-[8px] select-none">🥳</div>
+        <Mascot variant="happy" className="w-[80px] h-[80px] mb-[8px]" />
 
         <h1 className="text-[24px] font-bold text-[#111827] mb-[6px] text-center">
           Diagnóstico completado

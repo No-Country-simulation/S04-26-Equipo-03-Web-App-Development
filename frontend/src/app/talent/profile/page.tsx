@@ -81,6 +81,7 @@ export default async function TalentProfile() {
     }
     redirect('/talent/login');
   }
+  console.log(me);
 
   let activePath: LearningPathSummary | null = null;
   try {
@@ -172,7 +173,7 @@ export default async function TalentProfile() {
               <ProfileLearningPath learningPath={ activePath } />
 
               {/* CV Adjunto */ }
-              { cvUrl && <ProfileCVAttached cvUrl={ cvUrl } /> }
+              <ProfileCVAttached cvUrl={ cvUrl } profileId={ profile.id } />
 
               {/* IA Feedback */ }
               {/* Esto ya no es necesario - por el momento se deja por si las moscas quieren ver */ }

@@ -534,6 +534,26 @@ export class TalentService {
     return data;
   }
 
+  async uploadCv(
+    userId: string,
+    profileId: string,
+    file: unknown,
+  ): Promise<{ cv_url: string }> {
+    await this.verifyProfileOwnership(userId, profileId);
+    const uploaded = await this.cloudinaryService.uploadTalentCvPdf(file);
+
+    const client = this.supabaseService.getClient();
+    const { data, error } = await client
+      .from('Talent_Role')
+      .update({ cv_url: uploaded.secure_url })
+      .eq('profile_id', profileId)
+      .select('cv_url')
+      .single();
+
+    if (error) throwMappedPostgrestError(error);
+    return { cv_url: (data as { cv_url: string }).cv_url };
+  }
+
   async deactivateProfile(profileId: string): Promise<{ message: string }> {
     const { profile } = await this.findProfileById(profileId);
     const userId = profile.user_id;

@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/diagnostic';
 import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
+import { Mascot } from '@/components/common/Mascot';
 
 interface SkillOption {
   skill_id: string;
@@ -134,7 +135,7 @@ export function SkillValidationIntro({ profileId, skills }: Props) {
   if (starting) {
     return (
       <div className="min-h-screen bg-[#f9fafb] flex flex-col items-center justify-center px-[24px]">
-        <div className="text-[72px] mb-[16px] animate-pulse select-none">🎯</div>
+        <Mascot variant="searching" className="w-[80px] h-[80px] mb-[16px] animate-pulse" />
         <h2 className="text-[22px] font-bold text-[#111827] mb-[8px] text-center">
           Preparando tu validación
         </h2>
@@ -188,7 +189,7 @@ export function SkillValidationIntro({ profileId, skills }: Props) {
         <div className="w-full max-w-[560px]">
           {/* Encabezado */ }
           <div className="text-center mb-[32px]">
-            <div className="text-[56px] mb-[12px] select-none">🎯</div>
+            <Mascot variant="ready" className="w-[56px] h-[56px] mb-[12px]" />
             <h1 className="text-[24px] font-bold text-[#111827] mb-[8px]">
               Validar una skill
             </h1>
