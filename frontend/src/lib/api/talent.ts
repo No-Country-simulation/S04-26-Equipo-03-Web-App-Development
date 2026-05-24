@@ -1,5 +1,7 @@
 import { apiClient } from './client';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
 export interface RegisterTalentResponse {
   message: string;
   profile_id: string;
@@ -42,17 +44,16 @@ export const talentApi = {
     }
     if (params.avatar) form.append('file', params.avatar);
 
-    const response = await apiClient.post<RegisterTalentResponse>(
-      '/talent/register',
-      form,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
-    return response.data;
+    const res = await fetch(`${API_URL}/talent/register`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { message?: string };
+      throw new Error(err.message || 'Error al registrar perfil');
+    }
+    return res.json() as Promise<RegisterTalentResponse>;
   },
 
   /**
@@ -122,17 +123,19 @@ export const talentApi = {
     );
     if (params.cv) form.append('cv', params.cv);
 
-    const response = await apiClient.patch(
-      `/talent/profile/${profileId}/role-skills`,
-      form,
+    const res = await fetch(
+      `${API_URL}/talent/profile/${profileId}/role-skills`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
       }
     );
-    return response.data;
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { message?: string };
+      throw new Error(err.message || 'Error al actualizar habilidades');
+    }
+    return res.json();
   },
 
   /**
@@ -179,16 +182,18 @@ export const talentApi = {
     const form = new FormData();
     form.append('portfolio', file);
 
-    const response = await apiClient.patch(
-      `/talent/profile/${profileId}/portfolio/pdf`,
-      form,
+    const res = await fetch(
+      `${API_URL}/talent/profile/${profileId}/portfolio/pdf`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
       }
     );
-    return response.data;
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { message?: string };
+      throw new Error(err.message || 'Error al subir portfolio PDF');
+    }
+    return res.json();
   },
 };

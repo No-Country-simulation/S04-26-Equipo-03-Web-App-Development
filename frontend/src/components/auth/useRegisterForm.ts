@@ -50,9 +50,6 @@ export const useRegisterTalent = () => {
 
       const data = await authApi.registerTalent(payload);
       setCookie(AUTH_COOKIE_NAME, data.access_token);
-      if (data.refresh_token) {
-        setCookie('refresh_token', data.refresh_token);
-      }
 
       router.push('/talent/onboarding');
     } catch (err: unknown) {

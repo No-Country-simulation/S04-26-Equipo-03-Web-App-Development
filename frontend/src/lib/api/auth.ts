@@ -28,7 +28,6 @@ export interface RegisterRequest {
 export interface RegisterResponse {
   message: string;
   access_token: string;
-  refresh_token?: string;
   user_metadata: LoginResponse['user_metadata'];
 }
 
