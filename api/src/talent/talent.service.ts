@@ -270,7 +270,9 @@ export class TalentService {
     const client = this.supabaseService.getClient();
     const withUser = await client
       .from('Talent_profile')
-      .select('*, User(id, first_name, last_name, active)')
+      .select(
+        '*, User(id, first_name, last_name, active), Talent_Role(id, role_name), Talent_skill(skill_id, Skill(id, title))',
+      )
       .order('id', { ascending: true });
 
     if (!withUser.error && withUser.data) {

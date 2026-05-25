@@ -2,6 +2,33 @@ import { apiClient } from './client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+export interface TalentProfileListItem {
+  id: string;
+  user_id: string | null;
+  availability:
+    | 'ACTIVE_JOB_SEARCH'
+    | 'OPEN_TO_OFFERS'
+    | 'NOT_LOOKING_ASSESSMENT_ONLY'
+    | null;
+  avatar_url: string | null;
+  last_position: string | null;
+  experience_years: string | null;
+  location: string | null;
+  User?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    active: boolean | null;
+  } | null;
+  Talent_Role?: { id: string; role_name: string | null }[] | null;
+  Talent_skill?:
+    | {
+        skill_id: string | null;
+        Skill: { id: string; title: string | null } | null;
+      }[]
+    | null;
+}
+
 export interface RegisterTalentResponse {
   message: string;
   profile_id: string;
@@ -167,6 +194,16 @@ export const talentApi = {
       {
         headers: { Authorization: `Bearer ${token}` },
       }
+    );
+    return response.data;
+  },
+
+  /**
+   * GET /talent/profiles — lista todos los perfiles (público)
+   */
+  listProfiles: async (): Promise<{ profiles: TalentProfileListItem[] }> => {
+    const response = await apiClient.get<{ profiles: TalentProfileListItem[] }>(
+      '/talent/profiles'
     );
     return response.data;
   },

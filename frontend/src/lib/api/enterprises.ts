@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { TalentProfileListItem } from './talent';
 
 export interface EnterpriseRecord {
   id: string;
@@ -34,6 +35,40 @@ export const enterprisesApi = {
     const response = await apiClient.post<EnterpriseOnboardingResponse>(
       '/enterprises/onboarding',
       data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  },
+
+  getFavorites: async (
+    token: string
+  ): Promise<{ favorites: TalentProfileListItem[] }> => {
+    const response = await apiClient.get<{
+      favorites: TalentProfileListItem[];
+    }>('/enterprises/recruiters/me/favorites', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  },
+
+  addFavorite: async (
+    token: string,
+    profileId: string
+  ): Promise<{ message: string }> => {
+    const response = await apiClient.post<{ message: string }>(
+      `/enterprises/recruiters/me/favorites/${profileId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  },
+
+  removeFavorite: async (
+    token: string,
+    profileId: string
+  ): Promise<{ message: string }> => {
+    const response = await apiClient.delete<{ message: string }>(
+      `/enterprises/recruiters/me/favorites/${profileId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data;

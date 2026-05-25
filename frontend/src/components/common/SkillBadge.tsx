@@ -23,27 +23,30 @@ export default function SkillBadge({
   return (
     <Badge
       variant="outline"
-      className={`text-xs ${variant !== 'star' ? 'py-2' : 'py-1'} ${variantStyles[variant]}`}
+      className={ `text-xs ${variant !== 'star' ? 'py-2' : 'py-1'} ${variantStyles[variant]}` }
     >
-      {variant === 'star' && (
-        <Astroid size={16} className="fill-[#FBBF24] text-[#FBBF24]" />
-      )}
-      {(variant === 'level' || variant === 'verified') && (
+      { variant === 'star' && (
+        <Astroid size={ 16 } className="fill-[#FBBF24] text-[#FBBF24]" />
+      ) }
+      { (variant === 'level' || variant === 'verified') && (
         <Check
-          className={variant === 'level' ? 'text-white' : 'text-[#10B981]'}
+          className={ variant === 'level' ? 'text-white' : 'text-[#10B981]' }
         />
-      )}
-      {children}
+      ) }
+      { children }
       {/* {variant === 'pending' && (
         <span className="ml-1 text-xs text-[#6B7280]">pendiente</span>
       )} */}
-      {variant === 'filter' && onRemove && (
-        <X
-          className="text-[#6B7280] color-[#6B7280] cursor-pointer ml-1"
-          size={16}
-          onClick={onRemove}
-        />
-      )}
+      { variant === 'filter' && onRemove && (
+        <button
+          type="button"
+          onClick={ onRemove }
+          className="ml-1 cursor-pointer text-[#6B7280] hover:text-[#1a1a2e] flex items-center"
+          aria-label="Eliminar"
+        >
+          <X size={ 16 } />
+        </button>
+      ) }
     </Badge>
   );
 }
