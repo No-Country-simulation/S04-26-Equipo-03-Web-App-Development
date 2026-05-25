@@ -9,8 +9,10 @@ import FormField from '@/components/common/FormField';
 import RememberField from '@/components/common/RememberField';
 import AuthRedirect from '@/components/common/AuthRedirect';
 import AuthHeader from '@/components/common/AuthHeader';
+import { useLoginForm } from '@/components/auth/useLoginForm';
 
 export default function LoginPage() {
+  const { isLoading, error, handleLogin } = useLoginForm();
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <SiteHeader
@@ -27,14 +29,14 @@ export default function LoginPage() {
             href="/"
             className="absolute flex items-center -top-7 left-0 mb-2 text-xs text-[#6B7280] cursor-pointer"
           >
-            <ArrowLeft size={16} className="mr-1" /> Atrás
+            <ArrowLeft size={ 16 } className="mr-1" /> Atrás
           </Link>
           <AuthHeader
             title="Iniciar sesión"
             subtitle="Accedé al pool de talento validado."
           />
 
-          <div className="space-y-4">
+          <form action={ handleLogin } className="space-y-4">
             <FormField
               type="email"
               name="email"
@@ -55,23 +57,21 @@ export default function LoginPage() {
               forgotHref="/forgot-password"
             />
 
-            <Link href="/onboarding/company">
-              <Button className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer">
-                Iniciar sesión
-              </Button>
-            </Link>
+            { error && (
+              <p className="text-red-500 text-sm">{ error }</p>
+            ) }
+
+            <Button
+              type="submit"
+              disabled={ isLoading }
+              className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer disabled:opacity-70"
+            >
+              { isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }
+            </Button>
 
             <AuthRedirect type="login" />
+          </form>
 
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex-1 h-px bg-gray-200"></div>
-            </div>
-
-            <p className="text-sm text-[#6B7280] text-center mt-4">
-              ¿Sos administrador? Iniciá sesión con tu email corporativo — te
-              redirigimos al panel automáticamente.
-            </p>
-          </div>
         </Card>
       </div>
     </div>

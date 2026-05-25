@@ -1,15 +1,82 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 import SiteHeader from '@/components/layout/SiteHeader';
-import FormField from '@/components/common/FormField';
-import RememberField from '@/components/common/RememberField';
 import AuthRedirect from '@/components/common/AuthRedirect';
 import AuthHeader from '@/components/common/AuthHeader';
+import { authApi } from '@/lib/api/auth';
+import { setCookie } from '@/lib/utils/cookies';
+import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
-export default function LoginPage() {
+const PERSONAL_DOMAINS = [
+  'gmail.com', 'gmail.com.ar', 'hotmail.com', 'hotmail.es', 'hotmail.co',
+  'outlook.com', 'outlook.es', 'yahoo.com', 'yahoo.es', 'yahoo.com.ar',
+  'icloud.com', 'me.com', 'live.com', 'live.es', 'live.com.ar',
+  'msn.com', 'aol.com', 'protonmail.com', 'pm.me',
+];
+
+function isPersonalEmail(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return !!domain && PERSONAL_DOMAINS.includes(domain);
+}
+
+export default function SignupCompanyPage() {
+  const router = useRouter();
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!form.email || !form.password || !form.confirmPassword) {
+      setError('Completá todos los campos.');
+      return;
+    }
+
+    if (isPersonalEmail(form.email)) {
+      setError('Solo aceptamos emails corporativos. No uses Gmail, Hotmail, Outlook, Yahoo u otras cuentas personales.');
+      return;
+    }
+
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await authApi.registerEnterprise({
+        email: form.email,
+        password: form.password,
+      });
+      setCookie(AUTH_COOKIE_NAME, data.access_token);
+      router.push('/onboarding/company');
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : 'Error al crear la cuenta.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
       <SiteHeader
@@ -27,40 +94,69 @@ export default function LoginPage() {
             subtitle="Accedé al pool de talento validado."
           />
 
-          <div className="space-y-4">
-            <FormField
-              type="email"
-              name="email"
-              label="Email corporativo"
-              placeholder="nombre@empresa.com"
-              hint="No aceptamos cuentas personales (gmail, hotmail, yahoo, etc)."
-            />
+          <form onSubmit={ handleSubmit } className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#1a1a2e] mb-1">
+                Email corporativo
+              </label>
+              <Input
+                type="email"
+                name="email"
+                placeholder="nombre@empresa.com"
+                value={ form.email }
+                onChange={ handleChange }
+                className="h-12 border-gray-200 rounded-md"
+                autoComplete="email"
+              />
+              <p className="mt-1 text-xs text-gray-400">
+                No aceptamos cuentas personales (gmail, hotmail, yahoo, etc).
+              </p>
+            </div>
 
-            <FormField
-              label="Contraseña"
-              name="password"
-              type="password"
-              placeholder="Mínimo 8 caracteres"
-              hint="Al menos 8 caracteres, 1 número."
-            />
+            <div>
+              <label className="block text-sm font-medium text-[#1a1a2e] mb-1">
+                Contraseña
+              </label>
+              <Input
+                type="password"
+                name="password"
+                placeholder="Mínimo 8 caracteres"
+                value={ form.password }
+                onChange={ handleChange }
+                className="h-12 border-gray-200 rounded-md"
+                autoComplete="new-password"
+              />
+            </div>
 
-            <FormField
-              label="Confirmar contraseña"
-              name="passwordConfirm"
-              type="password"
-              placeholder="Repetí la contraseña"
-            />
+            <div>
+              <label className="block text-sm font-medium text-[#1a1a2e] mb-1">
+                Confirmar contraseña
+              </label>
+              <Input
+                type="password"
+                name="confirmPassword"
+                placeholder="Repetí la contraseña"
+                value={ form.confirmPassword }
+                onChange={ handleChange }
+                className="h-12 border-gray-200 rounded-md"
+                autoComplete="new-password"
+              />
+            </div>
 
-            <RememberField />
+            { error && (
+              <p className="text-sm text-red-500 text-center">{ error }</p>
+            ) }
 
-            <Link href="/onboarding/company">
-              <Button className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer">
-                Crear cuenta de empresa
-              </Button>
-            </Link>
+            <Button
+              type="submit"
+              disabled={ loading }
+              className="w-full h-12 bg-[#4f46e5] hover:bg-[#4338ca] text-white rounded-md mt-2 text-base font-medium cursor-pointer"
+            >
+              { loading ? 'Creando cuenta...' : 'Crear cuenta de empresa' }
+            </Button>
 
             <AuthRedirect type="signup" />
-          </div>
+          </form>
         </Card>
       </div>
     </div>

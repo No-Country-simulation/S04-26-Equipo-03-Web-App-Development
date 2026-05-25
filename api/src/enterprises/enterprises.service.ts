@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { Database } from '../types/database.types';
+import { CreateEnterpriseOnboardingDto } from './dto/create-enterprise-onboarding.dto';
 import { UpdateEnterpriseDto } from './dto/update-enterprise.dto';
 
 type EnterpriseRow = Database['public']['Tables']['Account_Enterprise']['Row'];
@@ -101,6 +102,60 @@ export class EnterprisesService {
 
     if (error) throw new InternalServerErrorException(error.message);
     return data!;
+  }
+
+  async completeOnboarding(
+    userId: string,
+    dto: CreateEnterpriseOnboardingDto,
+  ): Promise<{ message: string; enterprise_id: string }> {
+    const client = this.supabaseService.getClient();
+
+    // 1. Actualizar metadatos del usuario (first_name, last_name)
+    const { error: userError } = await client.auth.admin.updateUserById(
+      userId,
+      {
+        user_metadata: {
+          first_name: dto.first_name,
+          last_name: dto.last_name,
+          role: 'RECRUITER',
+          active: true,
+        },
+      },
+    );
+
+    if (userError) throw new InternalServerErrorException(userError.message);
+
+    // 2. Crear cuenta de empresa
+    const { data: enterpriseData, error: enterpriseError } = await client
+      .from('Account_Enterprise')
+      .insert({
+        owner_id: userId,
+        name: dto.company_name,
+        website_url: dto.website_url ?? null,
+        active: true,
+      })
+      .select('id')
+      .single();
+
+    if (enterpriseError)
+      throw new InternalServerErrorException(enterpriseError.message);
+
+    // 3. Agregar al owner como reclutador miembro
+    const { error: recruiterError } = await client
+      .from('Recruiter_enterprise')
+      .insert({
+        user_id: userId,
+        enterprise_id: enterpriseData.id,
+        active: true,
+      });
+
+    if (recruiterError)
+      throw new InternalServerErrorException(recruiterError.message);
+
+    return {
+      message: 'Onboarding completado exitosamente',
+      enterprise_id: enterpriseData.id,
+    };
   }
 
   async deactivate(id: string): Promise<EnterpriseRow> {

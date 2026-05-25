@@ -49,4 +49,14 @@ export const authApi = {
     );
     return response.data;
   },
+
+  registerEnterprise: async (
+    credentials: RegisterRequest
+  ): Promise<RegisterResponse> => {
+    const response = await apiClient.post<RegisterResponse>(
+      '/auth/register/enterprise',
+      credentials
+    );
+    return response.data;
+  },
 };

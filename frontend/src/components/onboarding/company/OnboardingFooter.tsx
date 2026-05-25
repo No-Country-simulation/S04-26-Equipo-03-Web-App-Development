@@ -7,6 +7,8 @@ interface OnboardingFooterProps {
   onNext: () => void;
   onBack?: () => void;
   backHref?: string;
+  nextLabel?: string;
+  loading?: boolean;
 }
 
 export function OnboardingFooter({
@@ -14,14 +16,16 @@ export function OnboardingFooter({
   onNext,
   onBack,
   backHref = '/',
+  nextLabel = 'Guardar y continuar',
+  loading = false,
 }: OnboardingFooterProps) {
   return (
     <div className="flex items-center justify-between content-center px-8 py-4 border-t border-gray-100">
-      {/* Atrás */}
+      {/* Atrás */ }
       <div>
-        {step === 1 ? (
+        { step === 1 ? (
           <Link
-            href={backHref}
+            href={ backHref }
             className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -29,22 +33,23 @@ export function OnboardingFooter({
           </Link>
         ) : (
           <button
-            onClick={onBack}
+            onClick={ onBack }
             className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Atrás
           </button>
-        )}
+        ) }
       </div>
 
-      {/* Guardar y continuar */}
+      {/* Guardar y continuar */ }
       <Button
-        onClick={onNext}
+        onClick={ onNext }
+        disabled={ loading }
         className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-6 py-2.5 h-auto rounded-md flex items-center gap-2"
       >
-        Guardar y continuar
-        <ArrowRight className="w-4 h-4" />
+        { loading ? 'Guardando...' : nextLabel }
+        { !loading && <ArrowRight className="w-4 h-4" /> }
       </Button>
     </div>
   );

@@ -22,12 +22,34 @@ import {
 import type { Request } from 'express';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { EnterprisesService } from './enterprises.service';
+import { CreateEnterpriseOnboardingDto } from './dto/create-enterprise-onboarding.dto';
 import { UpdateEnterpriseDto } from './dto/update-enterprise.dto';
 
 @ApiTags('enterprises')
 @Controller('enterprises')
 export class EnterprisesController {
   constructor(private readonly enterprisesService: EnterprisesService) {}
+
+  // POST /enterprises/onboarding
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Post('onboarding')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      'Completar onboarding de empresa (crea la empresa y actualiza el perfil del recruiter)',
+  })
+  @ApiResponse({ status: 201, description: 'Onboarding completado.' })
+  @ApiResponse({ status: 401, description: 'No autorizado.' })
+  completeOnboarding(
+    @Req() req: Request,
+    @Body() dto: CreateEnterpriseOnboardingDto,
+  ) {
+    return this.enterprisesService.completeOnboarding(
+      req['user'].id as string,
+      dto,
+    );
+  }
 
   // GET /enterprises
   @ApiOperation({ summary: 'Obtener todas las empresas activas' })
