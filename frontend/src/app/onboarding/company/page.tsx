@@ -1,24 +1,69 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import SiteHeader from '@/components/layout/SiteHeader';
 import { CompanyOnboarding } from '@/components/onboarding/company/CompanyOnboarding';
 import { OnboardingFooter } from '@/components/onboarding/company/OnboardingFooter';
-import { ProgressBar } from '@/components/onboarding/company/ProgressBar';
-import { useState } from 'react';
-
-const TOTAL_STEPS = 2;
+import { enterprisesApi } from '@/lib/api/enterprises';
+import { getCookie } from '@/lib/utils/cookies';
+import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
 export default function CompanyOnboardingPage() {
-  const [step, setStep] = useState(1);
-
+  const router = useRouter();
   const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const updateFormData = (data: Record<string, unknown>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 2));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  const handleFinish = async () => {
+    setError('');
+    const { firstName, lastName, companyName, website, industry, size } =
+      formData as {
+        firstName?: string;
+        lastName?: string;
+        companyName?: string;
+        website?: string;
+        industry?: string;
+        size?: string;
+      };
+
+    if (!firstName || !lastName || !companyName) {
+      setError('Completá tu nombre, apellido y nombre de empresa.');
+      return;
+    }
+
+    const token = getCookie(AUTH_COOKIE_NAME);
+    if (!token) {
+      router.push('/login-company');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await enterprisesApi.completeOnboarding(
+        {
+          first_name: firstName,
+          last_name: lastName,
+          company_name: companyName,
+          website_url: website || undefined,
+          industry: industry || undefined,
+          size: size || undefined,
+        },
+        token
+      );
+      router.push('/dashboard/company');
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : 'Error al guardar los datos.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-dvh flex flex-col bg-white">
@@ -29,18 +74,23 @@ export default function CompanyOnboardingPage() {
               Podés completarlo después
             </span>
           }
-          progressBar={
-            <ProgressBar currentStep={step} totalSteps={TOTAL_STEPS} />
-          }
         />
       </div>
       <CompanyOnboarding
-        step={step}
-        formData={formData}
-        onUpdate={updateFormData}
-        onNext={nextStep}
+        step={ 1 }
+        formData={ formData }
+        onUpdate={ updateFormData }
+        onNext={ handleFinish }
       />
-      <OnboardingFooter step={step} onNext={nextStep} onBack={prevStep} />
+      { error && (
+        <p className="text-sm text-red-500 text-center px-8 pb-2">{ error }</p>
+      ) }
+      <OnboardingFooter
+        step={ 1 }
+        onNext={ handleFinish }
+        nextLabel="Finalizar"
+        loading={ loading }
+      />
     </div>
   );
 }

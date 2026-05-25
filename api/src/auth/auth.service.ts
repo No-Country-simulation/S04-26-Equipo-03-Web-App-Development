@@ -50,13 +50,11 @@ export class AuthService {
     const client = this.supabaseService.getClient();
 
     // 1. Crear usuario con rol RECRUITER
-    const { data, error } = await client.auth.signUp({
+    const { error } = await client.auth.signUp({
       email: dto.email,
       password: dto.password,
       options: {
         data: {
-          first_name: dto.first_name,
-          last_name: dto.last_name,
           role: 'RECRUITER',
           active: true,
         },
@@ -65,39 +63,19 @@ export class AuthService {
 
     if (error) throwFromAuthSignUpError(error);
 
-    const userId = data.user?.id;
-
-    // 2. Crear cuenta de empresa vinculada al usuario
-    const { data: enterpriseData, error: enterpriseError } = await client
-      .from('Account_Enterprise')
-      .insert({
-        owner_id: userId,
-        name: dto.company_name,
-        website_url: dto.website_url ?? null,
-        description: dto.description ?? null,
-        active: true,
-      })
-      .select('id')
-      .single();
-
-    if (enterpriseError)
-      throw new InternalServerErrorException(enterpriseError.message);
-
-    // 3. Agregar al owner como miembro en Recruiter_enterprise
-    const { error: recruiterError } = await client
-      .from('Recruiter_enterprise')
-      .insert({
-        user_id: userId,
-        enterprise_id: enterpriseData.id,
-        active: true,
+    // 2. Auto-login para devolver el token al frontend
+    const { data: loginData, error: loginError } =
+      await client.auth.signInWithPassword({
+        email: dto.email,
+        password: dto.password,
       });
 
-    if (recruiterError)
-      throw new InternalServerErrorException(recruiterError.message);
+    if (loginError) throw new InternalServerErrorException(loginError.message);
 
     return {
-      message: 'Empresa registrada exitosamente',
-      userId,
+      message: 'Cuenta de empresa creada exitosamente',
+      user_metadata: loginData.user.user_metadata,
+      access_token: loginData.session.access_token,
     };
   }
 

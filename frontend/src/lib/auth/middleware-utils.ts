@@ -34,12 +34,20 @@ export function handleUnauthenticated(
   return NextResponse.redirect(loginUrl);
 }
 
+const AUTH_ONLY_ROUTES = [
+  '/talent/login',
+  '/login-company',
+  '/talent/signup',
+  '/signup-company',
+  '/forgot-password',
+];
+
 export function handleAuthenticatedRedirect(
   userRole: UserRole,
   pathname: string,
   request: NextRequest
 ) {
-  if (isPublicRoute(pathname) && pathname !== '/') {
+  if (AUTH_ONLY_ROUTES.includes(pathname)) {
     const dashboardRoute =
       userRole === 'RECRUITER' ? '/dashboard/company' : '/talent/learning-path';
     return NextResponse.redirect(new URL(dashboardRoute, request.url));

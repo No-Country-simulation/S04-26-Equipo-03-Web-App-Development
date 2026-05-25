@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi, LoginRequest } from '@/lib/api/auth';
-import {
-  AUTH_COOKIE_NAME,
-  PRIVATE_ROUTES_COMPANY,
-} from '@/lib/constants/routes';
+import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 import { setCookie } from '@/lib/utils/cookies';
 
 export const useLoginForm = () => {
@@ -33,7 +30,7 @@ export const useLoginForm = () => {
       const role = data.user_metadata?.role;
 
       if (role === 'RECRUITER') {
-        router.push(PRIVATE_ROUTES_COMPANY[0]);
+        router.push('/dashboard/company');
       } else if (role === 'TALENT') {
         router.push('/talent/learning-path');
       } else if (role === 'ADMIN') {
