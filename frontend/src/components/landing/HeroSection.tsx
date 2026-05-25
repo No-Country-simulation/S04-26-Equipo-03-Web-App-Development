@@ -1,9 +1,40 @@
+'use client';
+
 import { Check, Heart, Star } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Mascot } from '../common/Mascot';
+import { getCookie } from '@/lib/utils/cookies';
+import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
+
+function getUserRole(): string | null {
+  const token = getCookie(AUTH_COOKIE_NAME);
+  if (!token) return null;
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return payload?.user_metadata?.role ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export default function HeroSection() {
+  const router = useRouter();
+  const [role] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return getUserRole();
+  });
+
+  const handleBuscoTrabajo = () => {
+    router.push(role === 'TALENT' ? '/talent/learning-path' : '/talent/signup');
+  };
+
+  const handleBuscoTalento = () => {
+    router.push(role === 'RECRUITER' ? '/dashboard/company' : '/signup-company');
+  };
   return (
     <section className="flex-1 px-4 sm:px-6 max-w-7xl mx-auto w-full flex items-center">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 py-8 lg:py-16 w-full">
@@ -21,10 +52,14 @@ export default function HeroSection() {
             empresas que buscan talento senior real.
           </p>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <Button className="bg-[#1a1a2e] hover:bg-[#1a1a2e]/90 text-white px-6 py-2.5 h-auto rounded-md">
+            <Button
+              onClick={ handleBuscoTrabajo }
+              className="bg-[#1a1a2e] hover:bg-[#1a1a2e]/90 text-white px-6 py-2.5 h-auto rounded-md"
+            >
               Busco trabajo
             </Button>
             <Button
+              onClick={ handleBuscoTalento }
               variant="outline"
               className="border-gray-300 text-[#1a1a2e] px-6 py-2.5 h-auto rounded-md hover:bg-gray-50"
             >

@@ -22,6 +22,7 @@ export const PRIVATE_ROUTES_TALENT = [
 export const PRIVATE_ROUTES_COMPANY = [
   '/onboarding/company',
   '/dashboard/company',
+  '/dashboard/company/saved',
   '/verification/company',
 ];
 

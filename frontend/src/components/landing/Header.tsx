@@ -7,7 +7,8 @@ import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 
 function getDashboardRoute(token: string): string {
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
     const role = payload?.user_metadata?.role;
     if (role === 'RECRUITER') return '/dashboard/company';
     return '/talent/learning-path';

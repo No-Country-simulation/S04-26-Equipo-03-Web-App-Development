@@ -2,7 +2,17 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi, LoginRequest } from '@/lib/api/auth';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
-import { setCookie } from '@/lib/utils/cookies';
+import { setCookie, deleteCookie } from '@/lib/utils/cookies';
+
+function getRoleFromToken(token: string): string | undefined {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return payload?.user_metadata?.role;
+  } catch {
+    return undefined;
+  }
+}
 
 export const useLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,13 +31,17 @@ export const useLoginForm = () => {
       const data = await authApi.login(credentials);
 
       if (data.access_token) {
+        // Limpiar token anterior antes de setear el nuevo
+        deleteCookie(AUTH_COOKIE_NAME);
         setCookie(AUTH_COOKIE_NAME, data.access_token);
       }
       if (data.refresh_token) {
         setCookie('refresh_token', data.refresh_token);
       }
 
-      const role = data.user_metadata?.role;
+      // Leer el rol desde el JWT directamente (igual que el middleware)
+      const role =
+        getRoleFromToken(data.access_token) ?? data.user_metadata?.role;
 
       if (role === 'RECRUITER') {
         router.push('/dashboard/company');
