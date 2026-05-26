@@ -137,6 +137,8 @@ export default async function TalentProfile() {
               location={ profile.location }
               availability={ profile.availability }
               avatarUrl={ profile.avatar_url }
+              bio={ profile.bio }
+              profileId={ profile.id }
             />
 
             {/* Resumen */ }
@@ -151,13 +153,13 @@ export default async function TalentProfile() {
             <ProfileReviews />
 
             {/* Experiencia */ }
-            <ProfileExperience experience={ workExp } />
+            <ProfileExperience experience={ workExp } profileId={ profile.id } />
 
             {/* Educación */ }
-            <ProfileEducation education={ education } />
+            <ProfileEducation education={ education } profileId={ profile.id } />
 
             {/* Portfolio */ }
-            <ProfilePortfolio portfolioUrl={ profile.portfolio_url } />
+            <ProfilePortfolio portfolioUrl={ profile.portfolio_url } profileId={ profile.id } />
           </div>
 
           {/* Right Column - Sidebar */ }

@@ -55,6 +55,21 @@ export default function SignupCompanyPage() {
       return;
     }
 
+    if (!/[A-Z]/.test(form.password)) {
+      setError('La contraseña debe contener al menos una mayúscula.');
+      return;
+    }
+
+    if (!/[a-z]/.test(form.password)) {
+      setError('La contraseña debe contener al menos una minúscula.');
+      return;
+    }
+
+    if (!/[0-9]/.test(form.password)) {
+      setError('La contraseña debe contener al menos un número.');
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setError('Las contraseñas no coinciden.');
       return;

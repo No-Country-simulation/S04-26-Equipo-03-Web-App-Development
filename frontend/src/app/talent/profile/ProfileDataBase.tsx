@@ -1,6 +1,10 @@
+'use client';
+
+import { useState } from 'react';
 import SkillBadge from '@/components/common/SkillBadge';
 import { Button } from '@/components/ui/button';
 import RatingDisplay from './RatingDisplay';
+import ProfileEditModal from './ProfileEditModal';
 import { Eye } from 'lucide-react';
 import Image from 'next/image';
 
@@ -17,6 +21,8 @@ interface ProfileDataBaseProps {
   location: string | null;
   availability: string | null;
   avatarUrl: string | null;
+  bio: string | null;
+  profileId: string;
 }
 
 const ProfileDataBase = ({
@@ -26,7 +32,10 @@ const ProfileDataBase = ({
   location,
   availability,
   avatarUrl,
+  bio,
+  profileId,
 }: ProfileDataBaseProps) => {
+  const [editOpen, setEditOpen] = useState(false);
   const availabilityLabel = availability ? (AVAILABILITY_LABEL[availability] ?? availability) : null;
   const subtitle = [roleName, location].filter(Boolean).join(' · ');
 
@@ -59,7 +68,11 @@ const ProfileDataBase = ({
           </div>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button variant="outline" className="text-xs sm:text-sm h-8 flex-1 sm:flex-none">
+          <Button
+            variant="outline"
+            className="text-xs sm:text-sm h-8 flex-1 sm:flex-none"
+            onClick={ () => setEditOpen(true) }
+          >
             Editar perfil
           </Button>
           <Button variant="outline" className="text-xs sm:text-sm h-8 flex-1 sm:flex-none">
@@ -85,6 +98,17 @@ const ProfileDataBase = ({
           </span>
         </span>
       </p>
+
+      <ProfileEditModal
+        open={ editOpen }
+        onClose={ () => setEditOpen(false) }
+        profileId={ profileId }
+        initial={ {
+          bio: bio ?? '',
+          location: location ?? '',
+          availability: availability ?? '',
+        } }
+      />
     </div>
   );
 };
