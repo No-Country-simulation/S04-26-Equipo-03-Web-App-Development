@@ -109,7 +109,7 @@ export const StackSelector = ({ stack, onAddSkill, onRemoveSkill, error }: Stack
               <button
                 type="button"
                 onClick={ () => onRemoveSkill(skill.id) }
-                className="text-[#6b7280] hover:text-[#ef4444]"
+                className="text-[#6b7280] hover:text-[#ef4444] cursor-pointer"
               >
                 <X className="size-[11px]" />
               </button>

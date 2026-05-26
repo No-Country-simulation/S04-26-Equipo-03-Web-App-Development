@@ -34,7 +34,7 @@ export function OnboardingFooter({
         ) : (
           <button
             onClick={ onBack }
-            className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Atrás
@@ -46,7 +46,7 @@ export function OnboardingFooter({
       <Button
         onClick={ onNext }
         disabled={ loading }
-        className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-6 py-2.5 h-auto rounded-md flex items-center gap-2"
+        className="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm px-6 py-2.5 h-auto rounded-md flex items-center gap-2 cursor-pointer disabled:opacity-60"
       >
         { loading ? 'Guardando...' : nextLabel }
         { !loading && <ArrowRight className="w-4 h-4" /> }

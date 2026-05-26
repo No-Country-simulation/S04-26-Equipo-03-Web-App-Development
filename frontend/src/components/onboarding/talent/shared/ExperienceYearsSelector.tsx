@@ -30,7 +30,7 @@ export const ExperienceYearsSelector = ({
             key={ option.label }
             type="button"
             onClick={ () => onChange(option.label) }
-            className={ `px-[16px] py-[8px] rounded-full text-[13px] font-medium font-['Inter'] border transition-all ${value === option.label
+            className={ `px-[16px] py-[8px] rounded-full text-[13px] font-medium font-['Inter'] border transition-all cursor-pointer ${value === option.label
               ? 'bg-[#111827] text-white border-[#111827]'
               : 'bg-white text-[#374151] border-[#d1d5db] hover:border-[#9ca3af]'
               }` }

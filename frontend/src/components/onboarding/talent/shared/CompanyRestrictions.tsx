@@ -27,7 +27,7 @@ export const CompanyRestrictions = ({
       <button
         type="button"
         onClick={ () => setIsModalOpen(true) }
-        className="text-[#4f46e5] text-[13px] font-medium font-['Inter'] leading-[19.5px] hover:underline"
+        className="text-[#4f46e5] text-[13px] font-medium font-['Inter'] leading-[19.5px] hover:underline cursor-pointer"
       >
         + Agregar restricción de empresas
       </button>
@@ -40,7 +40,7 @@ export const CompanyRestrictions = ({
               className="bg-[#f3f4f6] text-[#374151] px-[8px] py-[2px] rounded-full flex items-center gap-[4px] font-normal text-[11px] border-none"
             >
               { company.name }
-              <button type="button" onClick={ () => toggleCompany(company) } className="text-[#9ca3af] hover:text-[#ef4444]">
+              <button type="button" onClick={ () => toggleCompany(company) } className="text-[#9ca3af] hover:text-[#ef4444] cursor-pointer">
                 <X className="size-[10px]" />
               </button>
             </Badge>

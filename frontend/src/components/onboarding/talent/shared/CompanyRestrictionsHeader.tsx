@@ -9,9 +9,9 @@ interface CompanyRestrictionsHeaderProps {
 export const CompanyRestrictionsHeader = ({ onClose }: CompanyRestrictionsHeaderProps) => {
   return (
     <div className="p-[20px] pb-[12px] flex flex-col gap-[4px] relative">
-      <button 
-        onClick={onClose}
-        className="absolute right-[16px] top-[16px] text-[#9ca3af] hover:text-[#111827] transition-colors"
+      <button
+        onClick={ onClose }
+        className="absolute right-[16px] top-[16px] text-[#9ca3af] hover:text-[#111827] transition-colors cursor-pointer"
       >
         <X className="size-[18px]" />
       </button>
