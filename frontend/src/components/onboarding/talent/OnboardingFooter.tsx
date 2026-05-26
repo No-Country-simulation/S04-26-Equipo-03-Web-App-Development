@@ -16,7 +16,7 @@ export const OnboardingFooter = ({ step, onNext, onBack, onSkip, isLastStep, isS
         <button
           onClick={ onBack }
           disabled={ step === 1 }
-          className={ `text-[#374151] text-[13px] font-medium font-['Inter'] leading-[13px] hover:text-[#111827] transition-colors flex items-center ${step === 1 ? 'opacity-0 pointer-events-none' : ''
+          className={ `text-[#374151] text-[13px] font-medium font-['Inter'] leading-[13px] hover:text-[#111827] transition-colors flex items-center cursor-pointer ${step === 1 ? 'opacity-0 pointer-events-none' : ''
             } self-start md:self-center` }
         >
           ← Atrás
@@ -27,15 +27,16 @@ export const OnboardingFooter = ({ step, onNext, onBack, onSkip, isLastStep, isS
             <Button
               variant="outline"
               onClick={ onSkip }
-              className="bg-white border-[#d1d5db] px-[17.25px] py-[11.25px] h-auto rounded-[8px] text-[13px] font-medium text-[#1f2937] shadow-none hover:bg-gray-50 transition-colors w-full sm:w-auto"
+              disabled={ isSubmitting }
+              className="bg-white border-[#d1d5db] px-[17.25px] py-[11.25px] h-auto rounded-[8px] text-[13px] font-medium text-[#1f2937] shadow-none hover:bg-gray-50 transition-colors w-full sm:w-auto cursor-pointer disabled:opacity-60"
             >
-              { step === 2 ? 'Saltear y empezar el diagnóstico' : 'Completar después' }
+              { isSubmitting ? 'Guardando…' : step === 2 ? 'Saltear y empezar el diagnóstico' : 'Completar después' }
             </Button>
           ) }
           <Button
             onClick={ onNext }
             disabled={ isSubmitting }
-            className="bg-[#4f46e5] text-white text-[13px] font-medium font-['Inter'] h-auto px-[17.25px] py-[11.25px] rounded-[8px] hover:bg-[#4338ca] transition-colors shadow-none w-full sm:w-auto disabled:opacity-60"
+            className="bg-[#4f46e5] text-white text-[13px] font-medium font-['Inter'] h-auto px-[17.25px] py-[11.25px] rounded-[8px] hover:bg-[#4338ca] transition-colors shadow-none w-full sm:w-auto cursor-pointer disabled:opacity-60"
           >
             { isSubmitting ? 'Guardando…' : isLastStep ? 'Guardar y empezar el diagnóstico →' : 'Guardar y continuar →' }
           </Button>

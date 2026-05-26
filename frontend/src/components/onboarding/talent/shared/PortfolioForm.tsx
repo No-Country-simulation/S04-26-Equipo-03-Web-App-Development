@@ -28,9 +28,9 @@ export const PortfolioForm = ({
             setPortfolioMode('pdf');
             onUrlChange('');
           } }
-          className={ `px-[14px] py-[6px] rounded-full text-[12px] font-medium transition-all ${portfolioMode === 'pdf'
-              ? 'bg-[#111827] text-white'
-              : 'text-[#4b5563] hover:text-[#111827]'
+          className={ `px-[14px] py-[6px] rounded-full text-[12px] font-medium transition-all cursor-pointer ${portfolioMode === 'pdf'
+            ? 'bg-[#111827] text-white'
+            : 'text-[#4b5563] hover:text-[#111827]'
             }` }
         >
           Subir PDF
@@ -41,9 +41,9 @@ export const PortfolioForm = ({
             setPortfolioMode('link');
             onFileChange(null);
           } }
-          className={ `px-[14px] py-[6px] rounded-full text-[12px] font-medium transition-all ${portfolioMode === 'link'
-              ? 'bg-[#111827] text-white'
-              : 'text-[#4b5563] hover:text-[#111827]'
+          className={ `px-[14px] py-[6px] rounded-full text-[12px] font-medium transition-all cursor-pointer ${portfolioMode === 'link'
+            ? 'bg-[#111827] text-white'
+            : 'text-[#4b5563] hover:text-[#111827]'
             }` }
         >
           Pegar link
@@ -72,7 +72,7 @@ export const PortfolioForm = ({
                 <Button
                   variant="outline"
                   type="button"
-                  className="bg-white border-[#d1d5db] px-[12.25px] py-[8.25px] h-auto rounded-[8px] text-[12px] font-medium text-[#1f2937] shadow-none hover:bg-gray-50 transition-colors"
+                  className="bg-white border-[#d1d5db] px-[12.25px] py-[8.25px] h-auto rounded-[8px] text-[12px] font-medium text-[#1f2937] shadow-none hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Elegir archivo
                 </Button>

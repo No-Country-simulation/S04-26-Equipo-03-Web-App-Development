@@ -82,7 +82,7 @@ export const EducationForm = ({ value, onChange }: EducationFormProps) => {
       <button
         type="button"
         onClick={ addEntry }
-        className="flex items-center justify-center h-[28.5px] px-[12.25px] text-[#374151] text-[12px] font-medium hover:bg-white/50 rounded-[8px] transition-colors self-start"
+        className="flex items-center justify-center h-[28.5px] px-[12.25px] text-[#374151] text-[12px] font-medium hover:bg-white/50 rounded-[8px] transition-colors self-start cursor-pointer"
       >
         + Agregar otra educación
       </button>

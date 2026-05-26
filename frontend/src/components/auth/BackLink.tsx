@@ -5,8 +5,8 @@ export const BackLink = () => {
 
   return (
     <button
-      onClick={() => router.back()}
-      className="text-[#6b7280] text-[12px] leading-[18px] font-['Inter'] hover:text-[#111827] transition-colors"
+      onClick={ () => router.back() }
+      className="text-[#6b7280] text-[12px] leading-[18px] font-['Inter'] hover:text-[#111827] transition-colors cursor-pointer"
     >
       ← Atrás
     </button>
