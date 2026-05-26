@@ -391,7 +391,6 @@ export class TalentService {
     await this.verifyProfileOwnership(userId, profileId);
     const client = this.supabaseService.getClient();
 
-    const extended = this.isExtendedTalentProfileSchema();
     const patch: TalentProfileUpdate = {
       ...(dto.location !== undefined && { location: dto.location }),
       ...(dto.last_position !== undefined && {
@@ -402,31 +401,15 @@ export class TalentService {
       }),
       ...(dto.age !== undefined && { age: dto.age }),
       ...(dto.education !== undefined && { education: dto.education }),
+      ...(dto.availability !== undefined && { availability: dto.availability }),
+      ...(dto.bio !== undefined && { bio: dto.bio }),
+      ...(dto.portfolio_url !== undefined && {
+        portfolio_url: dto.portfolio_url,
+      }),
+      ...(dto.work_experience !== undefined && {
+        work_experience: dto.work_experience,
+      }),
     };
-
-    if (extended) {
-      Object.assign(patch, {
-        ...(dto.availability !== undefined && {
-          availability: dto.availability,
-        }),
-        ...(dto.bio !== undefined && { bio: dto.bio }),
-        ...(dto.portfolio_url !== undefined && {
-          portfolio_url: dto.portfolio_url,
-        }),
-        ...(dto.work_experience !== undefined && {
-          work_experience: dto.work_experience,
-        }),
-      });
-    } else if (
-      dto.availability !== undefined ||
-      dto.bio !== undefined ||
-      dto.portfolio_url !== undefined ||
-      dto.work_experience !== undefined
-    ) {
-      throw new BadRequestException(
-        'Sin SUPABASE_TALENT_EXTENDED_SCHEMA=true no se guardan availability, bio, portfolio_url ni work_experience (hace falta la migración en Supabase).',
-      );
-    }
 
     if (Object.keys(patch).length === 0) {
       const { profile } = await this.findProfileById(profileId);

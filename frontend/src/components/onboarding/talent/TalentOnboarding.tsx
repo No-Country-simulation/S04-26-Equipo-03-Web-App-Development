@@ -138,6 +138,7 @@ export function TalentOnboarding() {
   };
 
   const skipToDiagnosis = () => {
+    if (step === 2 && !validateStep(2)) return;
     handleFinish();
   };
 

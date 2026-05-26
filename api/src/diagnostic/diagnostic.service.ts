@@ -68,7 +68,7 @@ type PathModuleInput = {
 /** Puntuación mínima para aprobar una validación de skill (90% en escala 0-10) */
 const PASS_SCORE = 9;
 /** Cantidad de preguntas que Gemini debe generar por diagnóstico */
-const QUESTION_COUNT = 10;
+const QUESTION_COUNT = 5;
 
 @Injectable()
 export class DiagnosticService {

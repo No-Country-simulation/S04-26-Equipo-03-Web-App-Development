@@ -146,7 +146,7 @@ export function DiagnosticIntro({ profileId, roleName }: Props) {
         {/* Info card */ }
         <div className="w-full max-w-[480px] rounded-[12px] border border-[#e5e7eb] bg-white px-[24px] py-[20px] mb-[16px]">
           { [
-            '15-20 preguntas de opción múltiple',
+            '5 preguntas de opción múltiple',
             'Tiempo estimado: 15 minutos',
             'Podés pausarlo y retomarlo cuando quieras',
           ].map((item) => (

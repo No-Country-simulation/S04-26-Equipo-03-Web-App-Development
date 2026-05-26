@@ -31,6 +31,21 @@ export const useRegisterTalent = () => {
       return false;
     }
 
+    if (!/[A-Z]/.test(formData.password)) {
+      setError('La contraseña debe contener al menos una mayúscula');
+      return false;
+    }
+
+    if (!/[a-z]/.test(formData.password)) {
+      setError('La contraseña debe contener al menos una minúscula');
+      return false;
+    }
+
+    if (!/[0-9]/.test(formData.password)) {
+      setError('La contraseña debe contener al menos un número');
+      return false;
+    }
+
     return true;
   };
 

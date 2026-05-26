@@ -29,6 +29,65 @@ export interface TalentProfileListItem {
     | null;
 }
 
+export interface TalentSkillItem {
+  id: string;
+  skill_id: string | null;
+  score: number | null;
+  self_rating: string | null;
+  validated: boolean | null;
+  Skill: { id: string; title: string | null; type: string | null } | null;
+}
+
+export interface TalentRoleItem {
+  id: string;
+  role_name: string | null;
+  cv_url: string | null;
+}
+
+export interface WorkExperienceEntry {
+  company?: string;
+  role?: string;
+  description?: string;
+  start_date?: string;
+  end_date?: string | null;
+  is_current?: boolean;
+}
+
+export interface EducationEntry {
+  institution?: string;
+  title?: string;
+  graduation_year?: string;
+}
+
+export interface TalentProfileDetail {
+  profile: {
+    id: string;
+    user_id: string | null;
+    availability:
+      | 'ACTIVE_JOB_SEARCH'
+      | 'OPEN_TO_OFFERS'
+      | 'NOT_LOOKING_ASSESSMENT_ONLY'
+      | null;
+    avatar_url: string | null;
+    bio: string | null;
+    education: EducationEntry[] | null;
+    experience_years: string | null;
+    last_position: string | null;
+    location: string | null;
+    portfolio_url: string | null;
+    work_experience: WorkExperienceEntry[] | null;
+    age: number | null;
+  };
+  user: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    email: string | null;
+  } | null;
+  roles: TalentRoleItem[];
+  skills: TalentSkillItem[];
+}
+
 export interface RegisterTalentResponse {
   message: string;
   profile_id: string;
@@ -173,6 +232,8 @@ export const talentApi = {
     profileId: string,
     params: {
       bio?: string;
+      location?: string;
+      availability?: string;
       portfolio_url?: string;
       experience_years?: string | null;
       work_experience?: object[];
@@ -180,13 +241,17 @@ export const talentApi = {
     }
   ): Promise<unknown> => {
     const body: Record<string, unknown> = {};
-    if (params.bio) body.bio = params.bio;
-    if (params.portfolio_url) body.portfolio_url = params.portfolio_url;
-    if (params.experience_years)
+    if (params.bio !== undefined) body.bio = params.bio;
+    if (params.location !== undefined) body.location = params.location;
+    if (params.availability !== undefined)
+      body.availability = params.availability;
+    if (params.portfolio_url !== undefined)
+      body.portfolio_url = params.portfolio_url;
+    if (params.experience_years !== undefined)
       body.experience_years = params.experience_years;
-    if (params.work_experience?.length)
+    if (params.work_experience !== undefined)
       body.work_experience = params.work_experience;
-    if (params.education?.length) body.education = params.education;
+    if (params.education !== undefined) body.education = params.education;
 
     const response = await apiClient.patch(
       `/talent/profile/${profileId}`,
@@ -206,6 +271,16 @@ export const talentApi = {
       '/talent/profiles'
     );
     return response.data;
+  },
+
+  /**
+   * GET /talent/profile/:profileId — detalle completo de un perfil
+   */
+  getProfileById: async (profileId: string): Promise<TalentProfileDetail> => {
+    const res = await apiClient.get<TalentProfileDetail>(
+      `/talent/profile/${profileId}`
+    );
+    return res.data;
   },
 
   /**

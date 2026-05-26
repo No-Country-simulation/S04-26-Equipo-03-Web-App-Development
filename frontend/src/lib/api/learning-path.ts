@@ -73,6 +73,19 @@ export const learningPathApi = {
     return response.data;
   },
 
+  /** GET /learning-path/profile/:profileId — rutas de un talento (accesible por reclutadores) */
+  findByProfile: async (
+    token: string,
+    profileId: string
+  ): Promise<{ learning_paths: LearningPathSummary[] }> => {
+    const response = await apiClient.get<{
+      learning_paths: LearningPathSummary[];
+    }>(`/learning-path/profile/${profileId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  },
+
   /** GET /learning-path/:id — ruta completa con módulos y pasos */
   findById: async (
     token: string,
