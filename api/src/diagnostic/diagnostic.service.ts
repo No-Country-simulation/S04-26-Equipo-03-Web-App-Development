@@ -86,11 +86,11 @@ export class DiagnosticService {
   }
 
   /**
-   * Envía un prompt a Gemini con fallback automático a la clave de respaldo.
-   * Si la clave primaria falla (cuota, red, etc.) reintenta con la secundaria.
+   * Envía un prompt a Gemini usando el modelo estable gemini-2.5-flash.
+   * Si la clave primaria falla (cuota, red, etc.) reintenta con la de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const modelName = 'gemini-3.5-flash';
+    const modelName = 'gemini-2.5-flash';
     try {
       const model = this.gemini.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(prompt);
@@ -300,6 +300,14 @@ export class DiagnosticService {
       precomputedModules = combined.modules;
     }
 
+    // Si el pre-fetching no pudo cargar las preguntas/skills, lanzar antes de marcar COMPLETED
+    // (así el diagnóstico queda en PENDING y el usuario puede reintentar).
+    if (!precomputedGapAnalysis || !precomputedModules) {
+      throw new InternalServerErrorException(
+        'No se pudo preparar el análisis previo. Por favor, intentá de nuevo.',
+      );
+    }
+
     const { client, updated, gapAnalysis, diagnostic } =
       await this.processResponses(
         diagnosticId,
@@ -308,13 +316,31 @@ export class DiagnosticService {
         precomputedGapAnalysis,
       );
 
-    const learningPath = await this.createLearningPath(
-      diagnosticId,
-      diagnostic.talent_profile_id!,
-      gapAnalysis,
-      client,
-      precomputedModules!,
-    );
+    // Crear la ruta de aprendizaje. Si falla, el diagnóstico ya está COMPLETED y el
+    // gap_analysis fue guardado, por lo que NO relanzamos: el usuario puede ver sus
+    // resultados y la ruta puede regenerarse en un reintento posterior.
+    let learningPath: {
+      id: string;
+      modules: Array<{
+        module_title: string;
+        category: string;
+        steps: object[];
+      }>;
+    } | null = null;
+    try {
+      learningPath = await this.createLearningPath(
+        diagnosticId,
+        diagnostic.talent_profile_id!,
+        gapAnalysis,
+        client,
+        precomputedModules,
+      );
+    } catch (lpErr) {
+      console.error(
+        '[DiagnosticService] Error creando ruta de aprendizaje (diagnóstico completado, ruta pendiente):',
+        lpErr,
+      );
+    }
 
     return {
       id: updated.id,
@@ -379,7 +405,7 @@ export class DiagnosticService {
       {}) as unknown as { questions: GeneratedQuestion[] };
     const questions: GeneratedQuestion[] = questionsWrapper.questions ?? [];
 
-    if (dto.responses.length < questions.length) {
+    if (dto.responses.length !== questions.length) {
       throw new BadRequestException(
         `Se esperan ${questions.length} respuestas, se recibieron ${dto.responses.length}.`,
       );
@@ -454,9 +480,9 @@ export class DiagnosticService {
       .select('*')
       .single();
 
-    if (uErr) {
+    if (uErr || !updated) {
       throw new InternalServerErrorException(
-        `Error al guardar el análisis: ${uErr.message}`,
+        `Error al guardar el análisis: ${uErr?.message ?? 'no se pudo recuperar el registro actualizado'}`,
       );
     }
 
@@ -696,7 +722,7 @@ export class DiagnosticService {
       );
     }
 
-    const modules = precomputedModules;
+    const modules = precomputedModules ?? [];
 
     const result: Array<{
       module_title: string;
@@ -969,8 +995,22 @@ El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.l
         return 'ARTICLE';
       };
 
+      // path_category solo acepta TECH | SOFT | EMPLOYABILITY.
+      // Skill.category incluye COGNITIVE, que Gemini puede copiar al módulo → viola el enum de DB.
+      // COGNITIVE → EMPLOYABILITY (las skills cognitivas aplican a empleabilidad, no a TECH).
+      const normalizeCategory = (
+        raw: string,
+      ): 'TECH' | 'SOFT' | 'EMPLOYABILITY' => {
+        const up = raw.toUpperCase();
+        if (up === 'SOFT') return 'SOFT';
+        if (up === 'COGNITIVE' || up === 'EMPLOYABILITY')
+          return 'EMPLOYABILITY';
+        return 'TECH'; // cualquier valor inesperado → TECH
+      };
+
       const modules: PathModuleInput[] = parsed.learning_path.map((mod) => ({
         ...mod,
+        category: normalizeCategory(mod.category),
         steps: mod.steps.map((step) => ({
           ...step,
           type: normalizeType(step.type),
