@@ -1,4 +1,12 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
+
+import group1 from '../../../public/Group-1.svg';
+import group2 from '../../../public/Group-2.svg';
+import group3 from '../../../public/Group-3.svg';
+import group4 from '../../../public/Group-4.svg';
+import group5 from '../../../public/Group-5.svg';
+import group from '../../../public/Group.svg';
 
 /**
  * Variantes de la mascota:
@@ -17,13 +25,13 @@ export type MascotVariant =
   | 'backpack'
   | 'ready';
 
-const VARIANT_MAP: Record<MascotVariant, { src: string; alt: string; }> = {
-  idle: { src: '/Group-1.svg', alt: 'Mascota TalentBridge' },
-  happy: { src: '/Group-4.svg', alt: 'Mascota celebrando' },
-  searching: { src: '/Group-2.svg', alt: 'Mascota analizando' },
-  briefcase: { src: '/Group-3.svg', alt: 'Mascota con maletín' },
-  backpack: { src: '/Group.svg', alt: 'Mascota con mochila' },
-  ready: { src: '/Group-5.svg', alt: 'Mascota lista' },
+const VARIANT_MAP: Record<MascotVariant, { src: typeof group1; alt: string; }> = {
+  idle: { src: group1, alt: 'Mascota TalentBridge' },
+  happy: { src: group4, alt: 'Mascota celebrando' },
+  searching: { src: group2, alt: 'Mascota analizando' },
+  briefcase: { src: group3, alt: 'Mascota con maletín' },
+  backpack: { src: group, alt: 'Mascota con mochila' },
+  ready: { src: group5, alt: 'Mascota lista' },
 };
 
 interface MascotProps {
@@ -45,11 +53,11 @@ export function Mascot({ variant = 'idle', className, alt }: MascotProps) {
   const { src, alt: defaultAlt } = VARIANT_MAP[variant];
 
   return (
-    <img
+    <Image
       src={ src }
       alt={ alt ?? defaultAlt }
+      unoptimized
       className={ cn('object-contain select-none', className) }
-      draggable={ false }
     />
   );
 }
