@@ -12,12 +12,16 @@ interface CategoryTabsProps {
   active: PathCategory;
   onChange: (cat: PathCategory) => void;
   note?: string;
+  visibleCategories?: PathCategory[];
 }
 
-export function CategoryTabs({ active, onChange, note }: CategoryTabsProps) {
+export function CategoryTabs({ active, onChange, note, visibleCategories }: CategoryTabsProps) {
+  const tabs = visibleCategories
+    ? TABS.filter((t) => visibleCategories.includes(t.id))
+    : TABS;
   return (
     <div className="flex items-center gap-[8px] flex-wrap">
-      { TABS.map((tab) => (
+      { tabs.map((tab) => (
         <button
           key={ tab.id }
           onClick={ () => onChange(tab.id) }
