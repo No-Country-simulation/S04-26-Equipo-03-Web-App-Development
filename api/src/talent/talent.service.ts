@@ -43,6 +43,7 @@ function isUniqueViolation(err: { code?: string; message?: string }): boolean {
 @Injectable()
 export class TalentService {
   private readonly gemini: GoogleGenerativeAI;
+  private readonly geminiBackup: GoogleGenerativeAI | null;
 
   constructor(
     private readonly supabaseService: SupabaseService,
@@ -51,6 +52,27 @@ export class TalentService {
   ) {
     const apiKey = this.config.getOrThrow<string>('GEMINI_API_KEY');
     this.gemini = new GoogleGenerativeAI(apiKey);
+    const backupKey = this.config.get<string>('GEMINI_API_KEY_BACKUP');
+    this.geminiBackup = backupKey ? new GoogleGenerativeAI(backupKey) : null;
+  }
+
+  /**
+   * Envía un prompt a Gemini con fallback automático a la clave de respaldo.
+   */
+  private async callGeminiText(prompt: string): Promise<string> {
+    const modelName = 'gemini-3.5-flash';
+    try {
+      const model = this.gemini.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim();
+    } catch (primaryErr) {
+      if (!this.geminiBackup) throw primaryErr;
+      const backupModel = this.geminiBackup.getGenerativeModel({
+        model: modelName,
+      });
+      const result = await backupModel.generateContent(prompt);
+      return result.response.text().trim();
+    }
   }
 
   /** Fuerza solo `user_id` + `location` en registro (sin intentar columnas extendidas). */
@@ -641,11 +663,7 @@ Solo IDs de la lista, entre 4 y 5 elementos.
 
     let suggestedIds: string[] = [];
     try {
-      const model = this.gemini.getGenerativeModel({
-        model: 'gemini-3.5-flash',
-      });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+      const text = await this.callGeminiText(prompt);
       const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       suggestedIds = JSON.parse(clean) as string[];
     } catch {
