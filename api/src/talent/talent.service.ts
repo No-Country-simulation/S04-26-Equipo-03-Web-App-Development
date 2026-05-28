@@ -57,10 +57,11 @@ export class TalentService {
   }
 
   /**
-   * Envía un prompt a Gemini con fallback automático a la clave de respaldo.
+   * Envía un prompt a Gemini usando el modelo estable gemini-2.5-flash.
+   * Si la clave primaria falla (cuota, red, etc.) reintenta con la de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const modelName = 'gemini-3.5-flash';
+    const modelName = 'gemini-2.5-flash';
     try {
       const model = this.gemini.getGenerativeModel({ model: modelName });
       const result = await model.generateContent(prompt);
