@@ -213,6 +213,7 @@ export class DiagnosticService {
         : null,
       skills,
       diagnosticType,
+      this.isTechnicalProfile(skills),
     );
 
     // 3. Crear registro Diagnostic
@@ -295,6 +296,7 @@ export class DiagnosticService {
         questions,
         typedResponses,
         skillsCtx,
+        this.isTechnicalProfile(skillsCtx),
       );
       precomputedGapAnalysis = combined.gapAnalysis;
       precomputedModules = combined.modules;
@@ -785,11 +787,20 @@ export class DiagnosticService {
 
   // ── Gemini helpers ──────────────────────────────────────────────────────
 
+  /**
+   * Un perfil es técnico si tiene al menos una skill de categoría TECH.
+   * Sirve para ajustar el tono de las preguntas y la distribución de módulos.
+   */
+  private isTechnicalProfile(skills: SkillContext[]): boolean {
+    return skills.some((s) => s.category.toUpperCase() === 'TECH');
+  }
+
   private async generateQuestions(
     roleName: string,
     experienceYears: number | null,
     skills: SkillContext[],
     diagnosticType: 'INITIAL_ONBOARDING' | 'SKILL_VALIDATION',
+    isTechnical = true,
   ): Promise<GeneratedQuestion[]> {
     const skillList = skills
       .map(
@@ -836,8 +847,9 @@ Distribución de dificultad: preferentemente mid y senior.
 
 ${jsonFormat}
 `.trim()
-        : `
-Eres un evaluador técnico experto en tecnología y talento digital.
+        : isTechnical
+          ? `
+Eres un evaluador experto en tecnología y talento digital.
 Debes generar un cuestionario de diagnóstico para un candidato con el siguiente perfil:
 
 Rol: ${roleName}
@@ -846,12 +858,32 @@ Skills declaradas:
 ${skillList}
 
 Genera exactamente ${QUESTION_COUNT} preguntas de opción múltiple con 4 opciones cada una (no abiertas) que permitan evaluar el nivel real de conocimiento en las skills declaradas. Las preguntas deben:
-- Ser específicas, adaptadas al rol
+- Ser específicas, adaptadas al rol técnico
 - Cubrir todas las skills listadas
 - Aumentar progresivamente en dificultad
 - Detectar si la autoevaluación del candidato es precisa
 
 Distribución de Dificultad: Las preguntas deben ajustarse a los años de experiencia si esta está disponible.
+
+${jsonFormat}
+`.trim()
+          : `
+Eres un evaluador experto en talento profesional, habilidades blandas y empleabilidad.
+Debes generar un cuestionario de diagnóstico para un candidato con perfil NO TÉCNICO:
+
+Rol: ${roleName}
+Años de experiencia: ${experienceYears ?? 'no especificado'}
+Skills declaradas:
+${skillList}
+
+Genera exactamente ${QUESTION_COUNT} preguntas de opción múltiple con 4 opciones cada una (no abiertas) que evalúen las skills declaradas. Las preguntas deben:
+- Enfocarse en habilidades blandas, comunicación, trabajo en equipo, liderazgo, gestión y empleabilidad
+- NO incluir preguntas de programación, código ni tecnología
+- Ser específicas para el rol indicado
+- Cubrir todas las skills listadas
+- Detectar si la autoevaluación del candidato es precisa
+
+Distribución de Dificultad: Ajustar según los años de experiencia si está disponible.
 
 ${jsonFormat}
 `.trim();
@@ -895,6 +927,7 @@ ${jsonFormat}
       selected_option: 'a' | 'b' | 'c' | 'd';
     }>,
     skills: SkillContext[],
+    isTechnical = true,
   ): Promise<{ gapAnalysis: GapAnalysis; modules: PathModuleInput[] }> {
     const qa = questions
       .map((q) => {
@@ -914,6 +947,10 @@ ${jsonFormat}
       .join('\n');
 
     const skillNames = skills.map((s) => s.title).join(', ');
+
+    const moduleDistribution = isTechnical
+      ? '- TECH: exactamente 3 módulos\n- SOFT: exactamente 1 módulo\n- EMPLOYABILITY: exactamente 1 módulo'
+      : '- SOFT: exactamente 3 módulos\n- EMPLOYABILITY: exactamente 2 módulos';
 
     const prompt = `
 Eres un evaluador técnico experto y diseñador instruccional. Analiza las respuestas del candidato y realiza dos tareas.
@@ -943,9 +980,7 @@ TAREA 2 — RUTA DE APRENDIZAJE
 ═══════════════════════════════════════
 Diseña módulos de aprendizaje para cerrar las brechas encontradas.
 Categorías y cantidad EXACTA de módulos:
-- TECH: exactamente 3 módulos
-- SOFT: exactamente 1 módulo
-- EMPLOYABILITY: exactamente 1 módulo
+${moduleDistribution}
 Cada módulo debe tener EXACTAMENTE 2 recursos (pasos). Tipos: "VIDEO" o "ARTICLE" (únicamente).
 
 Responde ÚNICAMENTE con JSON válido, sin markdown ni texto extra.

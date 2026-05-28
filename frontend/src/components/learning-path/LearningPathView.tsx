@@ -9,8 +9,6 @@ import { CategoryTabs } from './CategoryTabs';
 import { ModuleCard } from './ModuleCard';
 import { CategoryLibraryAside } from './CategoryLibraryAside';
 
-const CATEGORY_NOTE =
-  'Blandas y empleabilidad son bibliotecas libres — toca para abrir.';
 
 interface LearningPathViewProps {
   initialPath: LearningPathDetail;
@@ -20,15 +18,23 @@ export function LearningPathView({ initialPath }: LearningPathViewProps) {
   const [path, setPath] = useState(initialPath);
   const [asideCategory, setAsideCategory] = useState<'SOFT' | 'EMPLOYABILITY' | null>(null);
 
-  // Siempre mostramos módulos TECH en el cuerpo principal
-  const techModules = path.modules.filter((m) => m.category === 'TECH');
+  // Categoría principal: TECH si hay módulos técnicos, si no SOFT, si no EMPLOYABILITY
+  const hasTech = path.modules.some((m) => m.category === 'TECH');
+  const hasSoft = path.modules.some((m) => m.category === 'SOFT');
+  const hasEmployability = path.modules.some((m) => m.category === 'EMPLOYABILITY');
+  const primaryCategory: PathCategory = hasTech ? 'TECH' : hasSoft ? 'SOFT' : 'EMPLOYABILITY';
+  const visibleCategories = (['TECH', 'SOFT', 'EMPLOYABILITY'] as PathCategory[]).filter(
+    (cat) => path.modules.some((m) => m.category === cat),
+  );
 
-  const firstIncompleteIdx = techModules.findIndex(
+  const primaryModules = path.modules.filter((m) => m.category === primaryCategory);
+
+  const firstIncompleteIdx = primaryModules.findIndex(
     (m) => m.progress.completed < m.progress.total,
   );
 
   const handleTabChange = (cat: PathCategory) => {
-    if (cat === 'TECH') {
+    if (cat === primaryCategory) {
       setAsideCategory(null);
     } else {
       setAsideCategory(cat as 'SOFT' | 'EMPLOYABILITY');
@@ -58,7 +64,7 @@ export function LearningPathView({ initialPath }: LearningPathViewProps) {
     (m) => m.progress.total > 0 && m.progress.completed === m.progress.total,
   ).length;
 
-  const activeTabValue: PathCategory = asideCategory ?? 'TECH';
+  const activeTabValue: PathCategory = asideCategory ?? primaryCategory;
 
   return (
     <>
@@ -93,18 +99,25 @@ export function LearningPathView({ initialPath }: LearningPathViewProps) {
           <CategoryTabs
             active={ activeTabValue }
             onChange={ handleTabChange }
-            note={ CATEGORY_NOTE }
+            visibleCategories={ visibleCategories }
+            note={
+              hasTech
+                ? 'Blandas y empleabilidad son bibliotecas libres — toca para abrir.'
+                : hasSoft && hasEmployability
+                  ? 'Empleabilidad es una biblioteca libre — toca para abrir.'
+                  : undefined
+            }
           />
         </div>
 
-        {/* Lista de módulos TECH */ }
-        { techModules.length === 0 ? (
+        {/* Lista de módulos principales */ }
+        { primaryModules.length === 0 ? (
           <p className="text-[14px] text-[#9ca3af] py-[32px] text-center">
-            No hay módulos técnicos todavía.
+            No hay módulos todavía.
           </p>
         ) : (
           <div className="flex flex-col gap-[12px]">
-            { techModules.map((mod, idx) => (
+            { primaryModules.map((mod, idx) => (
               <ModuleCard
                 key={ mod.id }
                 module={ mod }
