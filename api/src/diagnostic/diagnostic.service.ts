@@ -73,6 +73,7 @@ const QUESTION_COUNT = 5;
 @Injectable()
 export class DiagnosticService {
   private readonly gemini: GoogleGenerativeAI;
+  private readonly geminiBackup: GoogleGenerativeAI | null;
 
   constructor(
     private readonly supabaseService: SupabaseService,
@@ -80,6 +81,28 @@ export class DiagnosticService {
   ) {
     const apiKey = this.config.getOrThrow<string>('GEMINI_API_KEY');
     this.gemini = new GoogleGenerativeAI(apiKey);
+    const backupKey = this.config.get<string>('GEMINI_API_KEY_BACKUP');
+    this.geminiBackup = backupKey ? new GoogleGenerativeAI(backupKey) : null;
+  }
+
+  /**
+   * Envía un prompt a Gemini con fallback automático a la clave de respaldo.
+   * Si la clave primaria falla (cuota, red, etc.) reintenta con la secundaria.
+   */
+  private async callGeminiText(prompt: string): Promise<string> {
+    const modelName = 'gemini-3.5-flash';
+    try {
+      const model = this.gemini.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      return result.response.text().trim();
+    } catch (primaryErr) {
+      if (!this.geminiBackup) throw primaryErr;
+      const backupModel = this.geminiBackup.getGenerativeModel({
+        model: modelName,
+      });
+      const result = await backupModel.generateContent(prompt);
+      return result.response.text().trim();
+    }
   }
 
   /** Genera el cuestionario y crea el registro Diagnostic en PENDING */
@@ -742,8 +765,6 @@ export class DiagnosticService {
     skills: SkillContext[],
     diagnosticType: 'INITIAL_ONBOARDING' | 'SKILL_VALIDATION',
   ): Promise<GeneratedQuestion[]> {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
-
     const skillList = skills
       .map(
         (s) =>
@@ -810,8 +831,7 @@ ${jsonFormat}
 `.trim();
 
     try {
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+      const text = await this.callGeminiText(prompt);
       const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       const parsed = JSON.parse(clean) as { questions: GeneratedQuestion[] };
       return parsed.questions;
@@ -850,8 +870,6 @@ ${jsonFormat}
     }>,
     skills: SkillContext[],
   ): Promise<{ gapAnalysis: GapAnalysis; modules: PathModuleInput[] }> {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
-
     const qa = questions
       .map((q) => {
         const resp = responses.find((r) => r.question_id === q.id);
@@ -938,8 +956,7 @@ El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.l
 `.trim();
 
     try {
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+      const text = await this.callGeminiText(prompt);
       const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       const parsed = JSON.parse(clean) as {
         gap_analysis: GapAnalysis;
@@ -977,8 +994,6 @@ El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.l
     skills: SkillContext[],
     objectiveScore?: number,
   ): Promise<GapAnalysis> {
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-3.5-flash' });
-
     const qa = questions
       .map((q) => {
         const resp = responses.find((r) => r.question_id === q.id);
@@ -1032,8 +1047,7 @@ Responde ÚNICAMENTE con un JSON válido con este formato exacto, sin markdown n
 `.trim();
 
     try {
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
+      const text = await this.callGeminiText(prompt);
       const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       const analysis = JSON.parse(clean) as GapAnalysis;
       // Garantizar que el score objetivo no sea alterado por Gemini
