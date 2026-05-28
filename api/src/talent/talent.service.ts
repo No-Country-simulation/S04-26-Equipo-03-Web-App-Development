@@ -57,23 +57,53 @@ export class TalentService {
   }
 
   /**
-   * Envía un prompt a Gemini usando el modelo estable gemini-2.5-flash.
-   * Si la clave primaria falla (cuota, red, etc.) reintenta con la de respaldo.
+   * Envía un prompt a Gemini usando gemini-3.5-flash (más inteligente, mejor adherencia a JSON).
+   * Si falla, reintenta con gemini-2.5-flash y la clave de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const modelName = 'gemini-2.5-flash';
+    const primaryModel = 'gemini-3.5-flash';
+    const fallbackModel = 'gemini-2.5-flash';
+
+    const tryGenerate = async (
+      ai: GoogleGenerativeAI,
+      model: string,
+    ): Promise<string> => {
+      const m = ai.getGenerativeModel({ model });
+      const result = await m.generateContent(prompt);
+      return result.response.text().trim();
+    };
+
+    // 1. Clave primaria + modelo nuevo
     try {
-      const model = this.gemini.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      return result.response.text().trim();
-    } catch (primaryErr) {
-      if (!this.geminiBackup) throw primaryErr;
-      const backupModel = this.geminiBackup.getGenerativeModel({
-        model: modelName,
-      });
-      const result = await backupModel.generateContent(prompt);
-      return result.response.text().trim();
+      return await tryGenerate(this.gemini, primaryModel);
+    } catch {
+      // continúa
     }
+
+    // 2. Clave de respaldo + modelo nuevo
+    if (this.geminiBackup) {
+      try {
+        return await tryGenerate(this.geminiBackup, primaryModel);
+      } catch {
+        // continúa
+      }
+    }
+
+    // 3. Clave primaria + modelo estable
+    try {
+      return await tryGenerate(this.gemini, fallbackModel);
+    } catch {
+      // continúa
+    }
+
+    // 4. Clave de respaldo + modelo estable
+    if (this.geminiBackup) {
+      return await tryGenerate(this.geminiBackup, fallbackModel);
+    }
+
+    throw new InternalServerErrorException(
+      'Gemini no disponible en este momento. Intentá de nuevo en unos minutos.',
+    );
   }
 
   /** Fuerza solo `user_id` + `location` en registro (sin intentar columnas extendidas). */
@@ -638,10 +668,21 @@ export class TalentService {
       return { suggestions: [], role_name: roleRow?.role_name ?? null };
     }
 
+    const isTechnical = existingTypes.some((t) => t === 'TECH');
     const hasSOFT = existingTypes.includes('SOFT');
-    const poolList = pool
+
+    // Perfiles no técnicos no deben recibir sugerencias de skills TECH
+    const suggestPool = isTechnical
+      ? pool
+      : pool.filter((s) => s.type !== 'TECH');
+
+    const poolList = suggestPool
       .map((s) => `ID:${s.id} | ${s.title} | ${s.type}`)
       .join('\n');
+
+    const typeBalance = isTechnical
+      ? 'Equilibren los tipos (TECH, SOFT, COGNITIVE), si el talento solo tiene skills de un tipo, sugerí skills de otros tipos.'
+      : 'Equilibren los tipos (SOFT, COGNITIVE). NO sugieras skills de tipo TECH ya que el perfil es no técnico.';
 
     const prompt = `
 Eres un asesor de carrera experto. Un profesional con rol objetivo "${
@@ -649,11 +690,11 @@ Eres un asesor de carrera experto. Un profesional con rol objetivo "${
     }" tiene actualmente estas habilidades:
 ${existingSkillsText}
 
-${!hasSOFT ? 'IMPORTANTE: El talento NO tiene skills de tipo SOFT. Debes incluir al menos 2 skills SOFT para equilibrar su perfil.\n' : ''}
+${!hasSOFT ? 'IMPORTANTE: El talento NO tiene skills de tipo SOFT. Debés incluir al menos 2 skills SOFT para equilibrar su perfil.\n' : ''}
 De la siguiente lista de skills disponibles, seleccioná EXACTAMENTE entre 4 y 5 que:
 1. Sean más relevantes para el rol objetivo
 2. Complementen las skills que ya tiene
-3. LO MAS IMPORTANTE: Equilibren los tipos (TECH, SOFT, COGNITIVE), si el talento solo tiene skills de un tipo, debes sugerir skills de otros tipos para equilibrar su perfil.
+3. LO MÁS IMPORTANTE: ${typeBalance}
 
 Lista de skills disponibles:
 ${poolList}
@@ -669,18 +710,18 @@ Solo IDs de la lista, entre 4 y 5 elementos.
       suggestedIds = JSON.parse(clean) as string[];
     } catch {
       // Si falla la IA, devolver las primeras 5 del pool
-      suggestedIds = pool.slice(0, 5).map((s) => s.id);
+      suggestedIds = suggestPool.slice(0, 5).map((s) => s.id);
     }
 
-    // Filtrar solo IDs válidos del pool
-    const validIdSet = new Set(pool.map((s) => s.id));
+    // Filtrar solo IDs válidos del pool filtrado
+    const validIdSet = new Set(suggestPool.map((s) => s.id));
     const filteredIds = suggestedIds
       .filter((id) => validIdSet.has(id))
       .slice(0, 5);
 
-    // Si no hay suficientes, completar con del pool
+    // Si no hay suficientes, completar con el pool filtrado
     if (filteredIds.length < 4) {
-      for (const s of pool) {
+      for (const s of suggestPool) {
         if (!filteredIds.includes(s.id)) filteredIds.push(s.id);
         if (filteredIds.length >= 4) break;
       }

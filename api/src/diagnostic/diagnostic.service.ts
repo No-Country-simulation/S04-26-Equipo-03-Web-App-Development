@@ -86,22 +86,78 @@ export class DiagnosticService {
   }
 
   /**
-   * Envía un prompt a Gemini usando el modelo estable gemini-2.5-flash.
-   * Si la clave primaria falla (cuota, red, etc.) reintenta con la de respaldo.
+   * Envía un prompt a Gemini usando gemini-3.5-flash (más inteligente, mejor adherencia a JSON).
+   * Si falla, reintenta con gemini-2.5-flash y la clave de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const modelName = 'gemini-2.5-flash';
+    const primaryModel = 'gemini-3.5-flash';
+    const fallbackModel = 'gemini-2.5-flash';
+
+    const tryGenerate = async (
+      ai: GoogleGenerativeAI,
+      model: string,
+    ): Promise<string> => {
+      const m = ai.getGenerativeModel({ model });
+      const result = await m.generateContent(prompt);
+      return result.response.text().trim();
+    };
+
+    // 1. Clave primaria + modelo nuevo
     try {
-      const model = this.gemini.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      return result.response.text().trim();
-    } catch (primaryErr) {
-      if (!this.geminiBackup) throw primaryErr;
-      const backupModel = this.geminiBackup.getGenerativeModel({
-        model: modelName,
-      });
-      const result = await backupModel.generateContent(prompt);
-      return result.response.text().trim();
+      return await tryGenerate(this.gemini, primaryModel);
+    } catch {
+      // continúa
+    }
+
+    // 2. Clave de respaldo + modelo nuevo
+    if (this.geminiBackup) {
+      try {
+        return await tryGenerate(this.geminiBackup, primaryModel);
+      } catch {
+        // continúa
+      }
+    }
+
+    // 3. Clave primaria + modelo estable
+    try {
+      return await tryGenerate(this.gemini, fallbackModel);
+    } catch {
+      // continúa
+    }
+
+    // 4. Clave de respaldo + modelo estable
+    if (this.geminiBackup) {
+      return await tryGenerate(this.geminiBackup, fallbackModel);
+    }
+
+    throw new InternalServerErrorException(
+      'Gemini no disponible en este momento. Intentá de nuevo en unos minutos.',
+    );
+  }
+
+  /**
+   * Parsea JSON de una respuesta de Gemini tolerando:
+   * - Bloques markdown (```json ... ```)
+   * - Texto extra antes/después del objeto JSON
+   * - Comillas simples en nombres de propiedades
+   */
+  private parseGeminiJson<T>(text: string): T {
+    // 1. Eliminar fences de markdown
+    let s = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim();
+    // 2. Extraer el objeto JSON más externo
+    const first = s.indexOf('{');
+    const last = s.lastIndexOf('}');
+    if (first !== -1 && last > first) s = s.slice(first, last + 1);
+    // 3. Primer intento: JSON estándar
+    try {
+      return JSON.parse(s) as T;
+    } catch {
+      // 4. Segundo intento: normalizar comillas simples en claves → dobles
+      const fixed = s.replace(/([{,[]\s*|\n\s*)'([^'\\]+)'(\s*:)/g, '$1"$2"$3');
+      return JSON.parse(fixed) as T;
     }
   }
 
@@ -890,8 +946,9 @@ ${jsonFormat}
 
     try {
       const text = await this.callGeminiText(prompt);
-      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      const parsed = JSON.parse(clean) as { questions: GeneratedQuestion[] };
+      const parsed = this.parseGeminiJson<{ questions: GeneratedQuestion[] }>(
+        text,
+      );
       return parsed.questions;
     } catch (err) {
       throw new InternalServerErrorException(
@@ -1018,11 +1075,10 @@ El array skill_scores debe tener UNA entrada por CADA skill evaluada (${skills.l
 
     try {
       const text = await this.callGeminiText(prompt);
-      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      const parsed = JSON.parse(clean) as {
+      const parsed = this.parseGeminiJson<{
         gap_analysis: GapAnalysis;
         learning_path: PathModuleInput[];
-      };
+      }>(text);
 
       const normalizeType = (raw: string): 'VIDEO' | 'ARTICLE' => {
         const up = raw.toUpperCase();
@@ -1123,8 +1179,7 @@ Responde ÚNICAMENTE con un JSON válido con este formato exacto, sin markdown n
 
     try {
       const text = await this.callGeminiText(prompt);
-      const clean = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      const analysis = JSON.parse(clean) as GapAnalysis;
+      const analysis = this.parseGeminiJson<GapAnalysis>(text);
       // Garantizar que el score objetivo no sea alterado por Gemini
       if (objectiveScore !== undefined) {
         analysis.overall_score = objectiveScore;
