@@ -57,12 +57,12 @@ export class TalentService {
   }
 
   /**
-   * Envía un prompt a Gemini usando gemini-3.5-flash (más inteligente, mejor adherencia a JSON).
-   * Si falla, reintenta con gemini-2.5-flash y la clave de respaldo.
+   * Envía un prompt a Gemini usando gemini-3.1-flash-lite (más inteligente, mejor adherencia a JSON).
+   * Si falla, reintenta con gemini-3.1-flash-lite y la clave de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const primaryModel = 'gemini-3.5-flash';
-    const fallbackModel = 'gemini-2.5-flash';
+    const primaryModel = 'gemini-3.1-flash-lite';
+    const fallbackModel = 'gemini-3.1-flash-lite';
 
     const tryGenerate = async (
       ai: GoogleGenerativeAI,

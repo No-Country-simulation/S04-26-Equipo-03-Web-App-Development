@@ -86,48 +86,26 @@ export class DiagnosticService {
   }
 
   /**
-   * Envía un prompt a Gemini usando gemini-3.5-flash (más inteligente, mejor adherencia a JSON).
-   * Si falla, reintenta con gemini-2.5-flash y la clave de respaldo.
+   * Envía un prompt a Gemini usando gemini-3.1-flash-lite (más inteligente, mejor adherencia a JSON).
+   * Si falla, reintenta con gemini-3.1-flash-lite y la clave de respaldo.
    */
   private async callGeminiText(prompt: string): Promise<string> {
-    const primaryModel = 'gemini-3.5-flash';
-    const fallbackModel = 'gemini-2.5-flash';
+    const model = 'gemini-3.1-flash-lite';
 
-    const tryGenerate = async (
-      ai: GoogleGenerativeAI,
-      model: string,
-    ): Promise<string> => {
+    const tryGenerate = async (ai: GoogleGenerativeAI): Promise<string> => {
       const m = ai.getGenerativeModel({ model });
       const result = await m.generateContent(prompt);
       return result.response.text().trim();
     };
 
-    // 1. Clave primaria + modelo nuevo
     try {
-      return await tryGenerate(this.gemini, primaryModel);
+      return await tryGenerate(this.gemini);
     } catch {
-      // continúa
+      // continúa con clave de respaldo
     }
 
-    // 2. Clave de respaldo + modelo nuevo
     if (this.geminiBackup) {
-      try {
-        return await tryGenerate(this.geminiBackup, primaryModel);
-      } catch {
-        // continúa
-      }
-    }
-
-    // 3. Clave primaria + modelo estable
-    try {
-      return await tryGenerate(this.gemini, fallbackModel);
-    } catch {
-      // continúa
-    }
-
-    // 4. Clave de respaldo + modelo estable
-    if (this.geminiBackup) {
-      return await tryGenerate(this.geminiBackup, fallbackModel);
+      return await tryGenerate(this.geminiBackup);
     }
 
     throw new InternalServerErrorException(
