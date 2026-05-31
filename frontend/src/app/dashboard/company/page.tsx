@@ -81,6 +81,13 @@ const LEVEL_MAP: Record<string, string> = {
   'Más de 10 años': 'Lead',
 };
 
+const EXPERIENCE_MAP: Record<string, number> = {
+  'Menos de 2 años': 1,
+  '2 a 5 años': 2,
+  '5 a 10 años': 5,
+  'Más de 10 años': 10,
+};
+
 function getCandidateLevel(profile: TalentProfileListItem): string | null {
   if (profile.level) return profile.level;
   if (!profile.experience_years) return 'Trainee';
@@ -161,10 +168,10 @@ export default function Dashboard() {
       if (profile.availability !== expected) return false;
     }
 
-    const exp = parseFloat(profile.experience_years ?? '');
-    if (!isNaN(exp)) {
-      if (exp < experienceRange[0] || exp > experienceRange[1]) return false;
-    }
+    const exp = profile.experience_years
+      ? EXPERIENCE_MAP[profile.experience_years]
+      : 0;
+    if (exp < experienceRange[0] || exp > experienceRange[1]) return false;
 
     if (skillsFilter.length > 0) {
       const profileSkills = (profile.Talent_skill ?? []).map(
