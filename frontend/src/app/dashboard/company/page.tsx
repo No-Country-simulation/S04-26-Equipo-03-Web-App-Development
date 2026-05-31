@@ -26,6 +26,17 @@ import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 import { useRouter } from 'next/navigation';
 
+/** Skills que la API devuelve; le agregamos validated simulado para desarrollo */
+interface TalentSkillWithValidation {
+  skill_id: string | null;
+  Skill: { id: string; title: string | null } | null;
+  validated: boolean;
+}
+
+interface ProfileWithValidation extends Omit<TalentProfileListItem, 'Talent_skill'> {
+  Talent_skill?: TalentSkillWithValidation[] | null;
+}
+
 const AVAILABILITY_LABELS: Record<string, string> = {
   ACTIVE_JOB_SEARCH: 'Búsqueda activa',
   OPEN_TO_OFFERS: 'Abierto a ofertas',
@@ -46,11 +57,24 @@ function getDisplayName(profile: TalentProfileListItem) {
   return `${first} ${last[0]}.`;
 }
 
+/**
+ * Enriquece los skills de cada perfil con un campo `validated` simulado.
+ * Cuando el backend empiece a mandar `validated` real, esto se reemplaza solo.
+ */
+function enrichWithValidation(profile: TalentProfileListItem): ProfileWithValidation {
+  const skills = (profile.Talent_skill ?? []).map((ts, i) => ({
+    skill_id: ts.skill_id,
+    Skill: ts.Skill,
+    validated: i % 2 === 0,
+  }));
+  return { ...profile, Talent_skill: skills };
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'cards' | 'tabla'>('cards');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profiles, setProfiles] = useState<TalentProfileListItem[]>([]);
+  const [profiles, setProfiles] = useState<ProfileWithValidation[]>([]);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
@@ -61,6 +85,10 @@ export default function Dashboard() {
   const [skillsFilter, setSkillsFilter] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
   const [skillDropdownOpen, setSkillDropdownOpen] = useState(false);
+  const [onlyVerified, setOnlyVerified] = useState(false);
+  const [requiredVerifiedSkills, setRequiredVerifiedSkills] = useState<string[]>([]);
+  const [verificationSkillInput, setVerificationSkillInput] = useState('');
+  const [verifDropdownOpen, setVerifDropdownOpen] = useState(false);
 
   const suggestedSkills = useMemo(() => {
     const all = new Set<string>();
@@ -113,6 +141,26 @@ export default function Dashboard() {
       if (!allMatch) return false;
     }
 
+    // Filtro: solo 100% verificados (todas las skills validadas)
+    if (onlyVerified) {
+      const profileSkills = profile.Talent_skill ?? [];
+      if (profileSkills.length === 0) return false;
+      if (!profileSkills.every((ts) => ts.validated)) return false;
+    }
+
+    // Filtro: requiere skills específicas verificadas
+    if (requiredVerifiedSkills.length > 0) {
+      const profileSkills = profile.Talent_skill ?? [];
+      const hasAllVerified = requiredVerifiedSkills.every((reqSkill) =>
+        profileSkills.some(
+          (ts) =>
+            ts.Skill?.title?.toLowerCase() === reqSkill.toLowerCase() &&
+            ts.validated,
+        ),
+      );
+      if (!hasAllVerified) return false;
+    }
+
     return true;
   });
 
@@ -123,6 +171,9 @@ export default function Dashboard() {
     setSkillsFilter([]);
     setSkillInput('');
     setSkillDropdownOpen(false);
+    setOnlyVerified(false);
+    setRequiredVerifiedSkills([]);
+    setVerificationSkillInput('');
   }
 
   function addSkillFilter(skill: string) {
@@ -137,12 +188,41 @@ export default function Dashboard() {
     setSkillsFilter((prev) => prev.filter((s) => s !== skill));
   }
 
+  function addVerificationSkill(skill: string) {
+    const trimmed = skill.trim();
+    if (!trimmed) return;
+    if (requiredVerifiedSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
+    setRequiredVerifiedSkills((prev) => [...prev, trimmed]);
+    setVerificationSkillInput('');
+  }
+
+  function removeVerificationSkill(skill: string) {
+    setRequiredVerifiedSkills((prev) => prev.filter((s) => s !== skill));
+  }
+
+  const suggestedVerifSkills = useMemo(() => {
+    const all = new Set<string>();
+    profiles.forEach((p) => {
+      (p.Talent_skill ?? []).forEach((ts) => {
+        if (ts.Skill?.title) all.add(ts.Skill.title);
+      });
+    });
+    const q = verificationSkillInput.toLowerCase().trim();
+    return Array.from(all)
+      .filter(
+        (t) =>
+          !requiredVerifiedSkills.some((s) => s.toLowerCase() === t.toLowerCase()) &&
+          (q === '' || t.toLowerCase().includes(q))
+      )
+      .sort();
+  }, [profiles, verificationSkillInput, requiredVerifiedSkills]);
+
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
         const { profiles: data } = await talentApi.listProfiles();
-        setProfiles(data);
+        setProfiles(data.map(enrichWithValidation));
 
         const token = getCookie(AUTH_COOKIE_NAME);
         if (token) {
@@ -245,33 +325,63 @@ export default function Dashboard() {
             {/* Verification */ }
             <SidebarSection title="Verificación">
               <label className="flex items-center gap-2 text-sm text-[#1a1a2e]">
-                <Checkbox />
+                <Checkbox
+                  checked={ onlyVerified }
+                  onCheckedChange={ (v) => setOnlyVerified(v === true) }
+                />
                 Solo 100% verificados
               </label>
               <div className="p-2 border border-dashed rounded-md bg-white mt-2">
-                <p className="text-xs text-[#999] mt-2">
+                <p className="text-xs text-[#999]">
                   Requiero verificado en:
                 </p>
-                <div className="flex gap-2 mt-2">
-                  <SkillBadge
-                    variant="filter"
-                    onRemove={ () => console.log('remover') }
-                  >
-                    Figma
-                  </SkillBadge>
-                  <SkillBadge
-                    variant="filter"
-                    onRemove={ () => console.log('remover') }
-                  >
-                    React
-                  </SkillBadge>
+                <div className="flex flex-wrap gap-2 mt-2 mb-2">
+                  { requiredVerifiedSkills.map((skill) => (
+                    <SkillBadge
+                      key={ skill }
+                      variant="filter"
+                      onRemove={ () => removeVerificationSkill(skill) }
+                    >
+                      { skill }
+                    </SkillBadge>
+                  )) }
                 </div>
-                <Button
-                  variant="outline"
-                  className="bg-[#F3F4F6] text-xs text-[#6B7280] mt-2 border border-[#E5E7EB] rounded-full cursor-pointer"
-                >
-                  <Plus size={ 16 } /> skill
-                </Button>
+                <div className="relative">
+                  <input
+                    value={ verificationSkillInput }
+                    onChange={ (e) => { setVerificationSkillInput(e.target.value); setVerifDropdownOpen(true); } }
+                    onFocus={ () => setVerifDropdownOpen(true) }
+                    onBlur={ () => setTimeout(() => setVerifDropdownOpen(false), 150) }
+                    onKeyDown={ (e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (suggestedVerifSkills[0]) addVerificationSkill(suggestedVerifSkills[0]);
+                        else addVerificationSkill(verificationSkillInput);
+                        setVerifDropdownOpen(false);
+                      }
+                      if (e.key === 'Escape') setVerifDropdownOpen(false);
+                    } }
+                    placeholder="Buscar skill..."
+                    className="text-xs border-b-2 border-b-[#e5e5e5] rounded w-full p-2 focus:border-b-[#4f46e5] focus:outline-none bg-transparent"
+                  />
+                  { verifDropdownOpen && suggestedVerifSkills.length > 0 && (
+                    <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-md max-h-48 overflow-y-auto">
+                      { suggestedVerifSkills.map((skill) => (
+                        <li
+                          key={ skill }
+                          className="px-3 py-2 text-xs text-[#1a1a2e] cursor-pointer hover:bg-[#EEF2FF] hover:text-[#4f46e5]"
+                          onMouseDown={ (e) => {
+                            e.preventDefault();
+                            addVerificationSkill(skill);
+                            setVerifDropdownOpen(false);
+                          } }
+                        >
+                          { skill }
+                        </li>
+                      )) }
+                    </ul>
+                  ) }
+                </div>
               </div>
             </SidebarSection>
 
@@ -460,6 +570,8 @@ export default function Dashboard() {
                   : null;
                 const isSaved = savedIds.has(profile.id);
                 const skills = profile.Talent_skill ?? [];
+                const verifiedCount = skills.filter((s) => s.validated).length;
+                const allVerified = skills.length > 0 && verifiedCount === skills.length;
                 return (
                   <Card
                     key={ profile.id }
@@ -477,7 +589,14 @@ export default function Dashboard() {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="font-semibold text-[#1a1a2e]">{ name }</h3>
+                            <h3 className="font-semibold text-[#1a1a2e]">
+                              { name }
+                              { allVerified && (
+                                <SkillBadge variant="star">
+                                  100% verificado
+                                </SkillBadge>
+                              ) }
+                            </h3>
                             { role && <p className="text-sm text-[#666]">{ role }</p> }
                           </div>
                         </div>
@@ -507,7 +626,10 @@ export default function Dashboard() {
 
                     <div className="flex flex-wrap gap-2 mb-4">
                       { skills.slice(0, 5).map((ts) => (
-                        <SkillBadge key={ ts.skill_id } variant="verified">
+                        <SkillBadge
+                          key={ ts.skill_id }
+                          variant={ ts.validated ? 'verified' : 'pending' }
+                        >
                           { ts.Skill?.title ?? 'Skill' }
                         </SkillBadge>
                       )) }
