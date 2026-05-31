@@ -646,10 +646,12 @@ export default function Dashboard() {
                   profile.User?.last_name
                 );
                 const role = profile.Talent_Role?.[0]?.role_name ?? null;
-                const isAvailable = profile.availability
+                const availLabel = profile.availability
                   ? (AVAILABILITY_LABELS[profile.availability] ??
                     profile.availability)
                   : null;
+                const isNotLooking =
+                  profile.availability === 'NOT_LOOKING_ASSESSMENT_ONLY';
                 const isSaved = savedIds.has(profile.id);
                 const skills = profile.Talent_skill ?? [];
                 const verifiedCount = skills.filter((s) => s.validated).length;
@@ -732,10 +734,17 @@ export default function Dashboard() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1 text-sm text-[#00aa44] font-medium mb-3">
-                      <div className="w-2 h-2 bg-[#00aa44] rounded-full"></div>
-                      {isAvailable ?? 'Disponible'}
-                    </div>
+                    {availLabel &&
+                      (isNotLooking ? (
+                        <p className="text-xs text-[#9CA3AF] mb-3">
+                          {availLabel}
+                        </p>
+                      ) : (
+                        <div className="flex items-center gap-1 text-sm text-[#00aa44] font-medium mb-3">
+                          <div className="w-2 h-2 bg-[#00aa44] rounded-full"></div>
+                          {availLabel}
+                        </div>
+                      ))}
 
                     {profile.experience_years && (
                       <p className="text-xs text-[#666] mb-4">
