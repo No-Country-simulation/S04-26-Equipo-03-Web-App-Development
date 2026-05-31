@@ -548,7 +548,7 @@ export default function Dashboard() {
                 <div className="flex justify-between text-[#4B5563] text-xs">
                   <span>{experienceRange[0]}</span>
                   <span>
-                    {experienceRange[1] >= 30 ? '30+' : experienceRange[1]}
+                    {experienceRange[1] >= 30 ? '10+' : experienceRange[1]}
                   </span>
                 </div>
                 <Slider
@@ -557,13 +557,13 @@ export default function Dashboard() {
                     setExperienceRange(v as [number, number])
                   }
                   min={0}
-                  max={30}
+                  max={10}
                   step={1}
                   className="max-auto w-full max-w-xs **:data-[slot=slider-range]:bg-[#4F46E5] **:data-[slot=slider-track]:bg-[#E5E7EB]"
                 />
                 <p className="text-xs text-[#999]">
                   {experienceRange[0]} –{' '}
-                  {experienceRange[1] >= 30 ? '30+' : experienceRange[1]} años
+                  {experienceRange[1] >= 30 ? '10+' : experienceRange[1]} años
                 </p>
               </div>
             </SidebarSection>
