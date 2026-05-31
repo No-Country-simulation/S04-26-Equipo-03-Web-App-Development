@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, Menu, MoveDown, Plus, Star, X } from 'lucide-react';
+import { Heart, Menu, MoveDown, Plus, Search, Star, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,6 +25,19 @@ import { enterprisesApi } from '@/lib/api/enterprises';
 import { getCookie } from '@/lib/utils/cookies';
 import { AUTH_COOKIE_NAME } from '@/lib/constants/routes';
 import { useRouter } from 'next/navigation';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 /** Skills que la API devuelve; le agregamos validated simulado para desarrollo */
 interface TalentSkillWithValidation {
@@ -83,12 +96,8 @@ export default function Dashboard() {
   const [availability, setAvailability] = useState('Cualquiera');
   const [experienceRange, setExperienceRange] = useState<[number, number]>([0, 30]);
   const [skillsFilter, setSkillsFilter] = useState<string[]>([]);
-  const [skillInput, setSkillInput] = useState('');
-  const [skillDropdownOpen, setSkillDropdownOpen] = useState(false);
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [requiredVerifiedSkills, setRequiredVerifiedSkills] = useState<string[]>([]);
-  const [verificationSkillInput, setVerificationSkillInput] = useState('');
-  const [verifDropdownOpen, setVerifDropdownOpen] = useState(false);
 
   const suggestedSkills = useMemo(() => {
     const all = new Set<string>();
@@ -97,15 +106,10 @@ export default function Dashboard() {
         if (ts.Skill?.title) all.add(ts.Skill.title);
       });
     });
-    const q = skillInput.toLowerCase().trim();
     return Array.from(all)
-      .filter(
-        (t) =>
-          !skillsFilter.some((s) => s.toLowerCase() === t.toLowerCase()) &&
-          (q === '' || t.toLowerCase().includes(q))
-      )
+      .filter((t) => !skillsFilter.some((s) => s.toLowerCase() === t.toLowerCase()))
       .sort();
-  }, [profiles, skillInput, skillsFilter]);
+  }, [profiles, skillsFilter]);
 
   const AVAILABILITY_MAP: Record<string, string> = {
     'Disponible activamente': 'ACTIVE_JOB_SEARCH',
@@ -169,11 +173,8 @@ export default function Dashboard() {
     setAvailability('Cualquiera');
     setExperienceRange([0, 30]);
     setSkillsFilter([]);
-    setSkillInput('');
-    setSkillDropdownOpen(false);
     setOnlyVerified(false);
     setRequiredVerifiedSkills([]);
-    setVerificationSkillInput('');
   }
 
   function addSkillFilter(skill: string) {
@@ -181,7 +182,6 @@ export default function Dashboard() {
     if (!trimmed) return;
     if (skillsFilter.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
     setSkillsFilter((prev) => [...prev, trimmed]);
-    setSkillInput('');
   }
 
   function removeSkillFilter(skill: string) {
@@ -193,7 +193,6 @@ export default function Dashboard() {
     if (!trimmed) return;
     if (requiredVerifiedSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) return;
     setRequiredVerifiedSkills((prev) => [...prev, trimmed]);
-    setVerificationSkillInput('');
   }
 
   function removeVerificationSkill(skill: string) {
@@ -207,15 +206,10 @@ export default function Dashboard() {
         if (ts.Skill?.title) all.add(ts.Skill.title);
       });
     });
-    const q = verificationSkillInput.toLowerCase().trim();
     return Array.from(all)
-      .filter(
-        (t) =>
-          !requiredVerifiedSkills.some((s) => s.toLowerCase() === t.toLowerCase()) &&
-          (q === '' || t.toLowerCase().includes(q))
-      )
+      .filter((t) => !requiredVerifiedSkills.some((s) => s.toLowerCase() === t.toLowerCase()))
       .sort();
-  }, [profiles, verificationSkillInput, requiredVerifiedSkills]);
+  }, [profiles, requiredVerifiedSkills]);
 
   useEffect(() => {
     async function loadData() {
@@ -346,42 +340,40 @@ export default function Dashboard() {
                     </SkillBadge>
                   )) }
                 </div>
-                <div className="relative">
-                  <input
-                    value={ verificationSkillInput }
-                    onChange={ (e) => { setVerificationSkillInput(e.target.value); setVerifDropdownOpen(true); } }
-                    onFocus={ () => setVerifDropdownOpen(true) }
-                    onBlur={ () => setTimeout(() => setVerifDropdownOpen(false), 150) }
-                    onKeyDown={ (e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (suggestedVerifSkills[0]) addVerificationSkill(suggestedVerifSkills[0]);
-                        else addVerificationSkill(verificationSkillInput);
-                        setVerifDropdownOpen(false);
-                      }
-                      if (e.key === 'Escape') setVerifDropdownOpen(false);
-                    } }
-                    placeholder="Buscar skill..."
-                    className="text-xs border-b-2 border-b-[#e5e5e5] rounded w-full p-2 focus:border-b-[#4f46e5] focus:outline-none bg-transparent"
-                  />
-                  { verifDropdownOpen && suggestedVerifSkills.length > 0 && (
-                    <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-md max-h-48 overflow-y-auto">
-                      { suggestedVerifSkills.map((skill) => (
-                        <li
-                          key={ skill }
-                          className="px-3 py-2 text-xs text-[#1a1a2e] cursor-pointer hover:bg-[#EEF2FF] hover:text-[#4f46e5]"
-                          onMouseDown={ (e) => {
-                            e.preventDefault();
-                            addVerificationSkill(skill);
-                            setVerifDropdownOpen(false);
-                          } }
-                        >
-                          { skill }
-                        </li>
-                      )) }
-                    </ul>
-                  ) }
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="bg-[#F3F4F6] text-xs text-[#6B7280] border border-[#E5E7EB] rounded-full cursor-pointer"
+                    >
+                      <Plus size={ 16 } /> skill
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0 w-60" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar skill..." className="text-xs h-9" />
+                      <CommandList>
+                        <CommandEmpty className="text-xs py-6 text-center text-[#999]">
+                          No se encontraron skills
+                        </CommandEmpty>
+                        <CommandGroup>
+                          { suggestedVerifSkills.map((skill) => (
+                            <CommandItem
+                              key={ skill }
+                              value={ skill }
+                              onSelect={ (value) => {
+                                addVerificationSkill(value);
+                              } }
+                              className="text-xs"
+                            >
+                              { skill }
+                            </CommandItem>
+                          )) }
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </SidebarSection>
 
@@ -406,42 +398,43 @@ export default function Dashboard() {
                   </SkillBadge>
                 )) }
               </div>
-              <div className="relative">
-                <input
-                  value={ skillInput }
-                  onChange={ (e) => { setSkillInput(e.target.value); setSkillDropdownOpen(true); } }
-                  onFocus={ () => setSkillDropdownOpen(true) }
-                  onBlur={ () => setTimeout(() => setSkillDropdownOpen(false), 150) }
-                  onKeyDown={ (e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      if (suggestedSkills[0]) addSkillFilter(suggestedSkills[0]);
-                      else addSkillFilter(skillInput);
-                      setSkillDropdownOpen(false);
-                    }
-                    if (e.key === 'Escape') setSkillDropdownOpen(false);
-                  } }
-                  placeholder="Buscar skill..."
-                  className="text-xs border-b-2 border-b-[#e5e5e5] rounded w-full p-2 focus:border-b-[#4f46e5] focus:outline-none bg-transparent"
-                />
-                { skillDropdownOpen && suggestedSkills.length > 0 && (
-                  <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-md max-h-48 overflow-y-auto">
-                    { suggestedSkills.map((skill) => (
-                      <li
-                        key={ skill }
-                        className="px-3 py-2 text-xs text-[#1a1a2e] cursor-pointer hover:bg-[#EEF2FF] hover:text-[#4f46e5]"
-                        onMouseDown={ (e) => {
-                          e.preventDefault();
-                          addSkillFilter(skill);
-                          setSkillDropdownOpen(false);
-                        } }
-                      >
-                        { skill }
-                      </li>
-                    )) }
-                  </ul>
-                ) }
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-start text-xs text-[#6B7280] h-9 bg-white border-[#D1D5DB] rounded-md font-normal"
+                  >
+                    <Search size={ 14 } className="mr-2 text-[#999]" />
+                    Agregar stack...
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-60" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar skill..." className="text-xs h-9" />
+                    <CommandList>
+                      <CommandEmpty className="text-xs py-6 text-center text-[#999]">
+                        No se encontraron skills
+                      </CommandEmpty>
+                      <CommandGroup>
+                        { suggestedSkills.map((skill) => (
+                          <CommandItem
+                            key={ skill }
+                            value={ skill }
+                            onSelect={ (value) => {
+                              addSkillFilter(value);
+                            } }
+                            className="text-xs"
+                          >
+                            <Search size={ 14 } className="mr-2 text-[#999]" />
+                            { skill }
+                          </CommandItem>
+                        )) }
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </SidebarSection>
 
             {/* Level */ }
