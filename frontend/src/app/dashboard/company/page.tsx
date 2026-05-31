@@ -83,9 +83,8 @@ const LEVEL_MAP: Record<string, string> = {
 
 function getCandidateLevel(profile: TalentProfileListItem): string | null {
   if (profile.level) return profile.level;
-  return profile.experience_years
-    ? LEVEL_MAP[profile.experience_years] ?? null
-    : null;
+  if (!profile.experience_years) return 'Trainee';
+  return LEVEL_MAP[profile.experience_years] ?? null;
 }
 
 /**
@@ -122,6 +121,11 @@ export default function Dashboard() {
   const [requiredVerifiedSkills, setRequiredVerifiedSkills] = useState<
     string[]
   >([]);
+  const [levelFilter, setLevelFilter] = useState<string[]>([
+    'Semi-Senior',
+    'Senior',
+    'Lead',
+  ]);
 
   const suggestedSkills = useMemo(() => {
     const all = new Set<string>();
@@ -172,6 +176,13 @@ export default function Dashboard() {
       if (!allMatch) return false;
     }
 
+    // Filtro: nivel (usando getCandidateLevel — futuro: profile.level cuando exista)
+    if (levelFilter.length > 0) {
+      const candidateLevel = getCandidateLevel(profile);
+      if (!candidateLevel || !levelFilter.includes(candidateLevel))
+        return false;
+    }
+
     // Filtro: solo 100% verificados (todas las skills validadas)
     if (onlyVerified) {
       const profileSkills = profile.Talent_skill ?? [];
@@ -202,6 +213,7 @@ export default function Dashboard() {
     setSkillsFilter([]);
     setOnlyVerified(false);
     setRequiredVerifiedSkills([]);
+    setLevelFilter(['Semi-Senior', 'Senior', 'Lead']);
   }
 
   function addSkillFilter(skill: string) {
@@ -480,10 +492,29 @@ export default function Dashboard() {
 
             {/* Level */}
             <SidebarSection title="Nivel validado">
-              <CheckboxGroup
-                options={mockLevel.level}
-                defaultSelected={mockLevel.defaultSelected}
-              />
+              <div className="space-y-2">
+                {mockLevel.level.map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-2 text-sm text-[#1a1a2e]"
+                  >
+                    <Checkbox
+                      className="data-[state=checked]:bg-[#4f46e5] data-[state=checked]:border-[#4f46e5]"
+                      checked={levelFilter.includes(opt.value)}
+                      onCheckedChange={(v) => {
+                        if (v) {
+                          setLevelFilter((prev) => [...prev, opt.value]);
+                        } else {
+                          setLevelFilter((prev) =>
+                            prev.filter((l) => l !== opt.value)
+                          );
+                        }
+                      }}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
             </SidebarSection>
 
             {/* Availability */}
