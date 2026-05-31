@@ -1,17 +1,22 @@
 'use client';
 
-import { Heart, Menu, MoveDown, X } from 'lucide-react';
+import { Heart, Menu, MoveDown, Plus, Star, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
 import SkillBadge from '@/components/common/SkillBadge';
+import RatingStars from '@/components/common/RatingStars';
+import CheckboxGroup from '@/components/common/CheckboxGroup';
 import SidebarSection from '@/components/layout/SidebarSection';
 import RadioGroup from '@/components/common/RadioGroup';
 import { useEffect, useMemo, useState } from 'react';
 import {
   mockAvailability,
+  mockLevel,
+  mockModality,
 } from './_data';
 import Header from './common/header';
 import HeaderNav from './common/HeaderNav';
@@ -237,6 +242,47 @@ export default function Dashboard() {
               />
             </div>
 
+            {/* Verification */ }
+            <SidebarSection title="Verificación">
+              <label className="flex items-center gap-2 text-sm text-[#1a1a2e]">
+                <Checkbox />
+                Solo 100% verificados
+              </label>
+              <div className="p-2 border border-dashed rounded-md bg-white mt-2">
+                <p className="text-xs text-[#999] mt-2">
+                  Requiero verificado en:
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <SkillBadge
+                    variant="filter"
+                    onRemove={ () => console.log('remover') }
+                  >
+                    Figma
+                  </SkillBadge>
+                  <SkillBadge
+                    variant="filter"
+                    onRemove={ () => console.log('remover') }
+                  >
+                    React
+                  </SkillBadge>
+                </div>
+                <Button
+                  variant="outline"
+                  className="bg-[#F3F4F6] text-xs text-[#6B7280] mt-2 border border-[#E5E7EB] rounded-full cursor-pointer"
+                >
+                  <Plus size={ 16 } /> skill
+                </Button>
+              </div>
+            </SidebarSection>
+
+            {/* Min Rating */ }
+            <SidebarSection title="Calificación mínima">
+              <RatingStars />
+              <p className="text-xs text-[#999]">
+                No excluye candidatos sin reseñas.
+              </p>
+            </SidebarSection>
+
             {/* Stack */ }
             <SidebarSection title="Stack">
               <div className="flex flex-wrap gap-2 mb-2">
@@ -288,6 +334,14 @@ export default function Dashboard() {
               </div>
             </SidebarSection>
 
+            {/* Level */ }
+            <SidebarSection title="Nivel validado">
+              <CheckboxGroup
+                options={ mockLevel.level }
+                defaultSelected={ mockLevel.defaultSelected }
+              />
+            </SidebarSection>
+
             {/* Availability */ }
             <SidebarSection title="Disponibilidad">
               <RadioGroup
@@ -295,6 +349,14 @@ export default function Dashboard() {
                 options={ mockAvailability.options }
                 value={ availability }
                 onChange={ setAvailability }
+              />
+            </SidebarSection>
+
+            {/* Modality */ }
+            <SidebarSection title="Modalidad">
+              <CheckboxGroup
+                options={ mockModality.modality }
+                defaultSelected={ mockModality.defaultSelected }
               />
             </SidebarSection>
 
@@ -393,10 +455,11 @@ export default function Dashboard() {
                 const name = getDisplayName(profile);
                 const initials = getInitials(profile.User?.first_name, profile.User?.last_name);
                 const role = profile.Talent_Role?.[0]?.role_name ?? null;
-                const availability = profile.availability
+                const isAvailable = profile.availability
                   ? AVAILABILITY_LABELS[profile.availability] ?? profile.availability
                   : null;
                 const isSaved = savedIds.has(profile.id);
+                const skills = profile.Talent_skill ?? [];
                 return (
                   <Card
                     key={ profile.id }
@@ -419,27 +482,51 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="flex items-center gap-1 mt-2">
-                          <span className="text-xs text-[#6B7280] italic">
-                            Sin reseñas aún
-                          </span>
+                          { skills.length > 0 ? (
+                            <>
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <Star
+                                  key={ i }
+                                  size={ 12 }
+                                  className="text-[#ddd]"
+                                />
+                              )) }
+                              <span className="text-xs text-[#999] ml-1">—</span>
+                              <span className="text-xs text-[#6B7280] italic">
+                                Sin reseñas aún
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-xs text-[#6B7280] italic">
+                              Sin reseñas aún
+                            </span>
+                          ) }
                         </div>
                       </div>
                     </div>
 
-                    { profile.experience_years && (
-                      <p className="text-xs text-[#666] mb-3">
-                        { profile.experience_years } años de experiencia
-                      </p>
-                    ) }
-                    { profile.location && (
-                      <p className="text-xs text-[#999] mb-3">{ profile.location }</p>
-                    ) }
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      { skills.slice(0, 5).map((ts) => (
+                        <SkillBadge key={ ts.skill_id } variant="verified">
+                          { ts.Skill?.title ?? 'Skill' }
+                        </SkillBadge>
+                      )) }
+                      { skills.length > 5 && (
+                        <SkillBadge variant="muted">
+                          +{ skills.length - 5 }
+                        </SkillBadge>
+                      ) }
+                    </div>
 
-                    { availability && (
-                      <div className="flex items-center gap-1 text-sm text-[#00aa44] font-medium mb-4">
-                        <div className="w-2 h-2 bg-[#00aa44] rounded-full"></div>
-                        { availability }
-                      </div>
+                    <div className="flex items-center gap-1 text-sm text-[#00aa44] font-medium mb-3">
+                      <div className="w-2 h-2 bg-[#00aa44] rounded-full"></div>
+                      { isAvailable ?? 'Disponible' }
+                    </div>
+
+                    { profile.experience_years && (
+                      <p className="text-xs text-[#666] mb-4">
+                        { profile.experience_years } años exp. { profile.location && `· ${profile.location}` }
+                      </p>
                     ) }
 
                     <div className="flex gap-2">
