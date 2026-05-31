@@ -6,13 +6,12 @@ interface RatingStarsProps {
   size?: number;
 }
 export default function RatingStars({
-//   value = 0,
-//   onChange,
+  value = 0,
+  onChange,
   size = 16,
 }: RatingStarsProps) {
-    const [minRating, setMinRating] = useState(4); // Este valor deberia venir del componente padre o estado global
   const [hover, setHover] = useState(0);
-  const active = hover || minRating;
+  const active = hover || value;
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -21,8 +20,10 @@ export default function RatingStars({
           size={size}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
-        //   onClick={() => onChange?.(star)}
-          onClick={() => setMinRating(star)}
+          onClick={() => {
+            if (star === value) onChange?.(0);
+            else onChange?.(star);
+          }}
           className={`cursor-pointer transition-colors ${
             star <= active
               ? 'fill-[#ffc107] text-[#ffc107]'

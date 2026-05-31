@@ -15,6 +15,8 @@ export interface TalentProfileListItem {
   experience_years: string | null;
   /** Nivel del talento (Junior, Semi-Senior, Senior, Lead, etc.) — desde DB cuando exista */
   level?: string | null;
+  /** Rating promedio del talento (0-5) — desde reseñas de empresas */
+  rating?: number | null;
   location: string | null;
   User?: {
     id: string;

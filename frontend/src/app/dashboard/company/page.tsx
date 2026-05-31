@@ -133,6 +133,7 @@ export default function Dashboard() {
     'Senior',
     'Lead',
   ]);
+  const [minRating, setMinRating] = useState(0);
 
   const suggestedSkills = useMemo(() => {
     const all = new Set<string>();
@@ -210,13 +211,17 @@ export default function Dashboard() {
       if (!hasAllVerified) return false;
     }
 
+    // Filtro: calificación mínima
+    if (minRating > 0 && (profile.rating ?? 0) < minRating) return false;
+
     return true;
   });
 
   function clearFilters() {
     setSearch('');
     setAvailability('Cualquiera');
-    setExperienceRange([0, 30]);
+    setExperienceRange([0, 10]);
+    setMinRating(0);
     setSkillsFilter([]);
     setOnlyVerified(false);
     setRequiredVerifiedSkills([]);
@@ -437,10 +442,7 @@ export default function Dashboard() {
 
             {/* Min Rating */}
             <SidebarSection title="Calificación mínima">
-              <RatingStars />
-              <p className="text-xs text-[#999]">
-                No excluye candidatos sin reseñas.
-              </p>
+              <RatingStars value={minRating} onChange={setMinRating} />
             </SidebarSection>
 
             {/* Stack */}
