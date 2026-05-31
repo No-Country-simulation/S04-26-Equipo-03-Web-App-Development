@@ -70,6 +70,25 @@ function getDisplayName(profile: TalentProfileListItem) {
 }
 
 /**
+ * Obtiene el nivel del candidato (Junior / Semi-Senior / Senior / Lead).
+ * Usa `profile.level` cuando venga de la DB; mientras tanto infiere de
+ * `experience_years` que viene como texto: 'Menos de 2 años', '2 a 5 años', etc.
+ */
+const LEVEL_MAP: Record<string, string> = {
+  'Menos de 2 años': 'Junior',
+  '2 a 5 años': 'Semi-Senior',
+  '5 a 10 años': 'Senior',
+  'Más de 10 años': 'Lead',
+};
+
+function getCandidateLevel(profile: TalentProfileListItem): string | null {
+  if (profile.level) return profile.level;
+  return profile.experience_years
+    ? LEVEL_MAP[profile.experience_years] ?? null
+    : null;
+}
+
+/**
  * Enriquece los skills de cada perfil con un campo `validated` simulado.
  * Cuando el backend empiece a mandar `validated` real, esto se reemplaza solo.
  */
@@ -662,6 +681,11 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-4">
+                      {getCandidateLevel(profile) && (
+                        <SkillBadge variant="level">
+                          {getCandidateLevel(profile)}
+                        </SkillBadge>
+                      )}
                       {skills.slice(0, 5).map((ts) => (
                         <SkillBadge
                           key={ts.skill_id}

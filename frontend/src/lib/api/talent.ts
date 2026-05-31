@@ -13,6 +13,8 @@ export interface TalentProfileListItem {
   avatar_url: string | null;
   last_position: string | null;
   experience_years: string | null;
+  /** Nivel del talento (Junior, Semi-Senior, Senior, Lead, etc.) — desde DB cuando exista */
+  level?: string | null;
   location: string | null;
   User?: {
     id: string;
